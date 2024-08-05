@@ -22735,10 +22735,6 @@ begin
     end;
   end;
     
-  Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
-  if Result <> IdNilHandle then begin
-    Exit;
-  end;
   {$ELSE}
     {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
@@ -22963,7 +22959,7 @@ begin
         LMajor := (LVersion and $F000) shr 12;
         LMinor := (LVersion and $0F00) shr 8;
       end;
-      if (LMajor > 1) or ((LMajor = 1) and (LMinor > 0)) then // OpenSSL 1.1.0 or higher
+      if (LMajor > 3) then // OpenSSL 3.x or higher
       begin
         FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedVersion, [LVersion]));
         Exit;
