@@ -1,0 +1,33 @@
+package IndyTLSOpenSSL40;
+
+{$R *.res}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 TLS - OpenSSL'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  IndySystem40,
+  IndyCore40,
+  IndyProtocols40;
+
+contains
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
+  IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas';
+
+end.

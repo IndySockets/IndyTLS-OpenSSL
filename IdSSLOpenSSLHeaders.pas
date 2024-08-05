@@ -1,46 +1,10 @@
 {
-  $Project$
-  $Workfile$
-  $Revision$
-  $DateUTC$
-  $Id$
-
   This file is part of the Indy (Internet Direct) project, and is offered
   under the dual-licensing agreement described on the Indy website.
   (http://www.indyproject.org/)
 
   Copyright:
-   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
-  $Log$
-}
-{
-  Rev 1.8    28.09.2004 21:38:44  Andreas Hausladen
-  commented out unused function ErrMsg
-
-  Rev 1.7    2004-05-07 16:52:50  Mattias
-  Minor cleanup
-
-  Rev 1.6    2004-05-07 16:34:36  Mattias
-  Implemented  OpenSSL locking callbacks
-
-  Rev 1.5    10/16/03 11:16:44 PM  RLebeau
-  Updated to better support C++Builder by adding an $EXTERNSYM define to
-  'time_t' so that it won't be included in the auto-generated HPP file.  The
-  native time.h header file is used instead.
-
-  Rev 1.4    10/17/2003 1:08:12 AM  DSiders
-  Added localization comments.
-
-  Rev 1.3    12/9/2002 12:48:42 PM  JPMugaas
-  Fixed stupid compile error for the moment.  The Macros in err.h have to be
-  sorted out later.
-
-  Rev 1.1    12/8/2002 07:25:52 PM  JPMugaas
-  Added published host and port properties.
-
-  Rev 1.0    11/13/2002 08:01:32 AM  JPMugaas
+   (c) 1993-2024, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
 }
 unit IdSSLOpenSSLHeaders;
 
