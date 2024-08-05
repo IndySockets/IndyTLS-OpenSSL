@@ -19559,7 +19559,25 @@ const
   //mingw32, the SSL .dll might be named 'libssl32.dll' instead of
   //ssleay32.dll like you would expect.
   SSL_DLL_name_alt     = 'libssl32.dll';  {Do not localize}
+    {$IFDEF WIN64}
+  SSL_DLL_1_1_name     = 'libssl-1_1-x64.dll'; {Do not localize}
+  SSL_DLL_3_name       = 'libssl-3-x64.dll';  {Do not localize}
+    {$ELSE}
+  SSL_DLL_1_1_name     = 'libssl-1_1.dll'; {Do not localize}
+  SSL_DLL_3_name       = 'libssl-3.dll';  {Do not localize}
+    {$ENDIF}
   SSLCLIB_DLL_name     = 'libeay32.dll';  {Do not localize}
+    {$IFDEF WIN64}
+  SSLCLIB_DLL_1_1_name = 'libcrypto-1_1-x64.dll';  {Do not localize}
+  SSLCLIB_DLL_3_name   = 'libcrypto-3-x64.dll'; {Do not localize}
+    {$ELSE}
+  SSLCLIB_DLL_1_1_name = 'libcrypto-1_1.dll';  {Do not localize}
+  SSLCLIB_DLL_3_name   = 'libcrypto-3.dll';  {Do not localize}
+    {$ENDIF}
+  SSLCLIBS_LAST = 2;
+  SSLCLIBS : array [0..SSLCLIBS_LAST] of string = (SSLCLIB_DLL_3_name, SSL_DLL_1_1_name, SSLCLIB_DLL_name);
+  SSLLIBS_LAST = 3;
+  SSLLIBS : array [0..SSLLIBS_LAST] of string = (SSL_DLL_3_name, SSL_DLL_1_1_name, SSL_DLL_name, SSL_DLL_name_alt);
   {$ENDIF}
 {$ENDIF}
 
@@ -22697,6 +22715,7 @@ function LoadSSLCryptoLibrary: TIdLibHandle;
 {$IFDEF WINDOWS}
 var
   Err: DWORD;
+  i : Integer;
 {$ELSE}
   {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
@@ -22709,6 +22728,13 @@ begin
   {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
+  for i := 0 to SSLCLIBS_LAST do begin
+    Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIBS[i]);
+    if Result <> IdNilHandle then begin
+      Exit;
+    end;
+  end;
+    
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
   if Result <> IdNilHandle then begin
     Exit;
@@ -22760,6 +22786,7 @@ function LoadSSLLibrary: TIdLibHandle;
 {$IFDEF WINDOWS}
 var
   Err: DWORD;
+  i : Integer;
 {$ELSE}
   {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
@@ -22772,16 +22799,11 @@ begin
   {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
-  Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name);
-  if Result <> IdNilHandle then begin
-    Exit;
-  end;
-  // TODO: exit here if the error is anything other than the file not being found...
-  //This is a workaround for mingw32-compiled SSL .DLL which
-  //might be named 'libssl32.dll'.
-  Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
-  if Result <> IdNilHandle then begin
-    Exit;
+  for i := 0 to SSLLIBS_LAST do begin
+    Result := SafeLoadLibrary(GIdOpenSSLPath + SSLLIBS[i]);
+    if Result <> IdNilHandle then begin
+      Exit;
+    end;
   end;
   {$ELSE}
     {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
