@@ -22957,7 +22957,6 @@ begin
       LMinor := (LVersion and $0FF00000) shr 20;
       if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
         LMajor := (LVersion and $F000) shr 12;
-        LMinor := (LVersion and $0F00) shr 8;
       end;
       if (LMajor > 3) then // OpenSSL 3.x or higher
       begin
