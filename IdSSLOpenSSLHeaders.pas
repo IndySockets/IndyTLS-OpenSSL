@@ -19646,7 +19646,7 @@ const
   SSLCLIB_DLL_3_name   = 'libcrypto-3.dll';  {Do not localize}
     {$ENDIF}
   SSLCLIBS_LAST = 2;
-  SSLCLIBS : array [0..SSLCLIBS_LAST] of string = (SSLCLIB_DLL_3_name, SSL_DLL_1_1_name, SSLCLIB_DLL_name);
+  SSLCLIBS : array [0..SSLCLIBS_LAST] of string = (SSLCLIB_DLL_3_name, SSLCLIB_DLL_1_1_name, SSLCLIB_DLL_name);
   SSLLIBS_LAST = 3;
   SSLLIBS : array [0..SSLLIBS_LAST] of string = (SSL_DLL_3_name, SSL_DLL_1_1_name, SSL_DLL_name, SSL_DLL_name_alt);
   {$ENDIF}
