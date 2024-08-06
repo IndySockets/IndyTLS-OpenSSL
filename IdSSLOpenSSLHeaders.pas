@@ -23679,7 +23679,7 @@ we have to handle both cases.
   @EVP_CIPHER_CTX_get_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get_app_data );
   @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
   @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags, false);
-  @EVP_CIPHER_CTX_get0_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get0_cipher, @EVP_CIPHER_CTX_flags = nil);
+  @EVP_CIPHER_CTX_get0_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get0_cipher, @EVP_CIPHER_CTX_cipher = nil);
   @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher,False);
   @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest,False);
 
@@ -26480,7 +26480,11 @@ end;
 function EVP_CIPHER_CTX_type(c : PEVP_CIPHER_CTX) : TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_CIPHER_type(EVP_CIPHER_CTX_cipher(c));
+  if Assigned(EVP_CIPHER_CTX_cipher) then begin
+    Result := EVP_CIPHER_type(EVP_CIPHER_CTX_cipher(c));
+  end else begin
+    Result := EVP_CIPHER_type(EVP_CIPHER_CTX_get0_cipher(c));
+  end;
 end;
 
 function EVP_CIPHER_CTX_mode(e : PEVP_CIPHER_CTX) : TIdC_ULONG;
@@ -26489,7 +26493,11 @@ begin
   if Assigned(EVP_CIPHER_CTX_flags) then begin
    	Result := (EVP_CIPHER_CTX_flags(e) and EVP_CIPH_MODE);
   end else begin
-    Result := EVP_CIPHER_flags(EVP_CIPHER_CTX_get0_cipher(e));
+    if Assigned(EVP_CIPHER_CTX_cipher) then begin
+      Result := EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(e));
+    end else begin
+      Result := EVP_CIPHER_flags(EVP_CIPHER_CTX_get0_cipher(e));
+    end;
   end;
 end;
 
