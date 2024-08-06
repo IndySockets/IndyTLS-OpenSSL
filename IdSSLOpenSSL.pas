@@ -2361,8 +2361,16 @@ begin
     IdSslCryptoMallocInit;
 {$ENDIF}
     // required eg to encrypt a private key when writing
-    OpenSSL_add_all_ciphers;
-    OpenSSL_add_all_digests;
+    if Assigned(OpenSSL_add_all_ciphers) then begin
+      OpenSSL_add_all_ciphers;
+    end else begin
+      OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, nil);
+    end;
+    if Assigned(OpenSSL_add_all_digests) then begin
+      OpenSSL_add_all_digests;
+    end else begin
+      OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, nil);
+    end;
     InitializeRandom;
     // IdSslRandScreen;
     if assigned(SSL_load_error_strings) then begin

@@ -822,13 +822,60 @@ const
   cNull: TIdAnsiChar = 0;
   {$ENDIF}
 
+
+  //* Standard initialisation options */
+  {$EXTERNALSYM OPENSSL_INIT_NO_LOAD_CRYPTO_STRINGS}
+  OPENSSL_INIT_NO_LOAD_CRYPTO_STRINGS = $00000001;
   {$EXTERNALSYM OPENSSL_INIT_LOAD_CRYPTO_STRINGS}
-  OPENSSL_INIT_LOAD_CRYPTO_STRINGS   = $00000002;
-// OPENSSL_INIT flag 0x010000 reserved for internal use
+  OPENSSL_INIT_LOAD_CRYPTO_STRINGS    = $00000002;
+  {$EXTERNALSYM OPENSSL_INIT_ADD_ALL_CIPHERS}
+  OPENSSL_INIT_ADD_ALL_CIPHERS        = $00000004;
+  {$EXTERNALSYM OPENSSL_INIT_ADD_ALL_DIGESTS}
+  OPENSSL_INIT_ADD_ALL_DIGESTS        = $00000008;
+  {$EXTERNALSYM OPENSSL_INIT_NO_ADD_ALL_CIPHERS}
+  OPENSSL_INIT_NO_ADD_ALL_CIPHERS     = $00000010;
+  {$EXTERNALSYM OPENSSL_INIT_NO_ADD_ALL_DIGESTS}
+  OPENSSL_INIT_NO_ADD_ALL_DIGESTS     = $00000020;
+  {$EXTERNALSYM OPENSSL_INIT_LOAD_CONFIG}
+  OPENSSL_INIT_LOAD_CONFIG            = $00000040;
+  {$EXTERNALSYM OPENSSL_INIT_NO_LOAD_CONFIG}
+  OPENSSL_INIT_NO_LOAD_CONFIG         = $00000080;
+  {$EXTERNALSYM OPENSSL_INIT_ASYNC}
+  OPENSSL_INIT_ASYNC                  = $00000100;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_RDRAND}
+  OPENSSL_INIT_ENGINE_RDRAND          = $00000200;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_DYNAMIC}
+  OPENSSL_INIT_ENGINE_DYNAMIC         = $00000400;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_OPENSSL}
+  OPENSSL_INIT_ENGINE_OPENSSL         = $00000800;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_CRYPTODEV}
+  OPENSSL_INIT_ENGINE_CRYPTODEV       = $00001000;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_CAPI}
+  OPENSSL_INIT_ENGINE_CAPI            = $00002000;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_PADLOCK}
+  OPENSSL_INIT_ENGINE_PADLOCK         = $00004000;
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_AFALG}
+  OPENSSL_INIT_ENGINE_AFALG           = $00008000;
+//* OPENSSL_INIT_ZLIB                         0x00010000L */
+  {$EXTERNALSYM OPENSSL_INIT_ATFORK}
+  OPENSSL_INIT_ATFORK                 = $00020000;
+//* OPENSSL_INIT_BASE_ONLY                    0x00040000L */
+  {$EXTERNALSYM OPENSSL_INIT_NO_ATEXIT}
+  OPENSSL_INIT_NO_ATEXIT              = $00080000;
+//* OPENSSL_INIT flag range 0xfff00000 reserved for OPENSSL_init_ssl() */
+//* Max OPENSSL_INIT flag value is 0x80000000 */
+
+//* openssl and dasync not counted as builtin */
+  {$EXTERNALSYM OPENSSL_INIT_ENGINE_ALL_BUILTIN}
+  OPENSSL_INIT_ENGINE_ALL_BUILTIN = (OPENSSL_INIT_ENGINE_RDRAND or
+      OPENSSL_INIT_ENGINE_DYNAMIC or OPENSSL_INIT_ENGINE_CRYPTODEV or
+      OPENSSL_INIT_ENGINE_CAPI or OPENSSL_INIT_ENGINE_PADLOCK);
+
+  // OPENSSL_INIT flag 0x010000 reserved for internal use
   {$EXTERNALSYM OPENSSL_INIT_LOAD_SSL_STRINGS}
-  OPENSSL_INIT_LOAD_SSL_STRINGS      = $00200000;
+  OPENSSL_INIT_LOAD_SSL_STRINGS       = $00200000;
   {$EXTERNALSYM OPENSSL_INIT_NO_LOAD_SSL_STRINGS}
-  OPENSSL_INIT_NO_LOAD_SSL_STRINGS   = $00100000;
+  OPENSSL_INIT_NO_LOAD_SSL_STRINGS    = $00100000;
   {$EXTERNALSYM OPENSSL_INIT_SSL_DEFAULT}
   OPENSSL_INIT_SSL_DEFAULT = (OPENSSL_INIT_LOAD_SSL_STRINGS or OPENSSL_INIT_LOAD_CRYPTO_STRINGS);
 
@@ -16617,6 +16664,8 @@ var
   CRYPTO_THREADID_set_pointer : procedure(id : PCRYPTO_THREADID; ptr : Pointer) cdecl = nil;
   {$EXTERNALSYM CRYPTO_THREADID_set_callback}
   CRYPTO_THREADID_set_callback : function(threadid_func : TCRYPTO_THREADID_set_callback_threadid_func) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM OPENSSL_init_crypto}
+  OPENSSL_init_crypto : function (opts : TIdC_UINT64; const settings : POPENSSL_INIT_SETTINGS) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM sk_num}
   sk_num : function (const x : PSTACK) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM sk_value}
@@ -19751,6 +19800,7 @@ them in case we use them later.}
   fn_CRYPTO_THREADID_set_numeric = 'CRYPTO_THREADID_set_numeric';  {Do not localize}
   fn_CRYPTO_THREADID_set_pointer = 'CRYPTO_THREADID_set_pointer';  {Do not localize}
   fn_CRYPTO_THREADID_set_callback = 'CRYPTO_THREADID_set_callback'; {Do not localize}
+  fn_OPENSSL_init_crypto = 'OPENSSL_init_crypto'; {Do not localize}
   //end section
   fn_CRYPTO_set_mem_functions = 'CRYPTO_set_mem_functions';  {Do not localize}
   {CH fn_CRYPTO_set_mem_info_functions = 'CRYPTO_set_mem_info_functions'; } {Do not localize}
@@ -23772,8 +23822,10 @@ we have to handle both cases.
   @PKCS12_free := LoadFunctionCLib(fn_PKCS12_free);
   @OpenSSL_add_all_algorithms := LoadOldCLib(fn_OpenSSL_add_all_algorithms,
     fn_OPENSSL_add_all_algorithms_noconf);
-  @OpenSSL_add_all_ciphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers);
-  @OpenSSL_add_all_digests := LoadFunctionCLib(fn_OpenSSL_add_all_digests);
+  @OpenSSL_add_all_ciphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers,False);
+  @OpenSSL_add_all_digests := LoadFunctionCLib(fn_OpenSSL_add_all_digests,False);
+  @OPENSSL_init_crypto := LoadFunctionCLib(fn_OPENSSL_init_crypto,
+    (@OpenSSL_add_all_digests = nil) or (@OpenSSL_add_all_ciphers = nil));
   @EVP_cleanup := LoadFunctionCLib(fn_EVP_cleanup);
 
   @sk_num := LoadFunctionCLib(fn_sk_num);
@@ -24528,6 +24580,7 @@ begin
   @OpenSSL_add_all_algorithms := nil;
   @OpenSSL_add_all_ciphers := nil;
   @OpenSSL_add_all_digests := nil;
+  @OPENSSL_init_crypto := nil;
   @EVP_cleanup := nil;
   @sk_new := nil;
   @sk_num := nil;
