@@ -2365,7 +2365,11 @@ begin
     OpenSSL_add_all_digests;
     InitializeRandom;
     // IdSslRandScreen;
-    SSL_load_error_strings;
+    if assigned(SSL_load_error_strings) then begin
+      SSL_load_error_strings;
+    end else begin
+      OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS or OPENSSL_INIT_LOAD_CRYPTO_STRINGS, nil);
+    end;
     // Successful loading if true
     Result := SSLeay_add_ssl_algorithms > 0;
     if not Result then begin

@@ -822,6 +822,16 @@ const
   cNull: TIdAnsiChar = 0;
   {$ENDIF}
 
+  {$EXTERNALSYM OPENSSL_INIT_LOAD_CRYPTO_STRINGS}
+  OPENSSL_INIT_LOAD_CRYPTO_STRINGS   = $00000002;
+// OPENSSL_INIT flag 0x010000 reserved for internal use
+  {$EXTERNALSYM OPENSSL_INIT_LOAD_SSL_STRINGS}
+  OPENSSL_INIT_LOAD_SSL_STRINGS      = $00200000;
+  {$EXTERNALSYM OPENSSL_INIT_NO_LOAD_SSL_STRINGS}
+  OPENSSL_INIT_NO_LOAD_SSL_STRINGS   = $00100000;
+  {$EXTERNALSYM OPENSSL_INIT_SSL_DEFAULT}
+  OPENSSL_INIT_SSL_DEFAULT = (OPENSSL_INIT_LOAD_SSL_STRINGS or OPENSSL_INIT_LOAD_CRYPTO_STRINGS);
+
   {$EXTERNALSYM CONF_MFLAGS_IGNORE_ERRORS}
   CONF_MFLAGS_IGNORE_ERRORS = $1;
   {$EXTERNALSYM CONF_MFLAGS_IGNORE_RETURN_CODES}
@@ -11156,6 +11166,8 @@ type
   PPointer = ^Pointer;
   {$ENDIF}
 
+  {$EXTERNALSYM POPENSSL_INIT_SETTINGS}
+  POPENSSL_INIT_SETTINGS = pointer;
 //This is just a synthasis since Pascal probably has what we need.
 //In C, the OpenSSL developers were using the PQ_64BIT moniker
 //to ensure that they had a value that is always 64bit.
@@ -17130,6 +17142,8 @@ var
   SSL_CTX_use_certificate_file : function(ctx: PSSL_CTX; const _file: PIdAnsiChar; _type: TIdC_INT): TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_CTX_use_certificate_chain_file}   //OpenSSL 1.0.2
   SSL_CTX_use_certificate_chain_file : function(ctx : PSSL_CTX; _file : PIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM OPENSSL_init_ssl}
+  OPENSSL_init_ssl : function (opts : TIdC_UINT64; const settings : POPENSSL_INIT_SETTINGS) : TIdC_INT cdecl;
   {$EXTERNALSYM SSL_load_error_strings}
   SSL_load_error_strings : procedure cdecl = nil;
   {$EXTERNALSYM SSL_state_string_long}
@@ -19715,6 +19729,7 @@ them in case we use them later.}
   {CH fn_CRYPTO_get_mem_debug_functions = 'CRYPTO_get_mem_debug_functions'; }{Do not localize}
   {CH fn_CRYPTO_realloc_clean = 'CRYPTO_realloc_clean'; } {Do not localize}
   {CH fn_OPENSSL_cleanse = 'OPENSSL_cleanse'; } {Do not localize}
+  fn_OPENSSL_init_ssl = 'OPENSSL_init_ssl'; {Do not localize}
   {CH fn_CRYPTO_set_mem_debug_options = 'CRYPTO_set_mem_debug_options'; } {Do not localize}
   {CH fn_CRYPTO_get_mem_debug_options = 'CRYPTO_get_mem_debug_options'; } {Do not localize}
   {CH fn_CRYPTO_push_info_ = 'CRYPTO_push_info_'; } {Do not localize}
@@ -22983,7 +22998,9 @@ begin
   @SSL_CTX_use_certificate := LoadFunction(fn_SSL_CTX_use_certificate); //Used by Indy
   @SSL_CTX_use_certificate_file := LoadFunction(fn_SSL_CTX_use_certificate_file);   //Used by Indy
   @SSL_CTX_use_certificate_chain_file := LoadFunction(fn_SSL_CTX_use_certificate_chain_file,False); //Used by Indy
-  @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings); //Used by Indy
+
+  @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings,False); //Used by Indy
+  @OPENSSL_init_ssl := LoadFunction(fn_OPENSSL_init_ssl,(@SSL_load_error_strings=nil)); //Used by Indy
   @SSL_state_string_long := LoadFunction(fn_SSL_state_string_long); //Used by Indy
   @SSL_alert_desc_string_long := LoadFunction(fn_SSL_alert_desc_string_long);  //Used by Indy
   @SSL_alert_type_string_long := LoadFunction(fn_SSL_alert_type_string_long);  //Used by Indy
@@ -23163,7 +23180,7 @@ we have to handle both cases.
   @ERR_reason_error_string := LoadFunctionCLib( fn_ERR_reason_error_string, False );
   @ERR_load_ERR_strings := LoadFunctionCLib( fn_ERR_load_ERR_strings,False);
   @ERR_load_crypto_strings := LoadFunctionCLib(fn_ERR_load_crypto_strings,False);
-  @ERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings);  //Used by Indy
+  @ERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings,False);  //Used by Indy
   @ERR_remove_thread_state := LoadFunctionCLib(fn_ERR_remove_thread_state,False); //Used by Indy
   if not Assigned(ERR_remove_thread_state) then begin
     @ERR_remove_state := LoadFunctionCLib(fn_ERR_remove_state); //Used by Indy
@@ -23799,6 +23816,7 @@ begin
   SSL_CTX_use_certificate_chain_file := nil;
   @SSL_load_error_strings := nil;
   @SSL_state_string_long := nil;
+  @OPENSSL_init_ssl := nil;
   @SSL_load_error_strings := nil;
   @SSL_alert_type_string_long := nil;
 
