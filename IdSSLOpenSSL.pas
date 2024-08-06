@@ -3995,7 +3995,11 @@ begin
   if FX509Name = nil then begin
     FillChar(Result, SizeOf(Result), 0)
   end else begin
-    Result.C1 := X509_NAME_hash(FX509Name);
+    if Assigned(X509_NAME_hash) then begin
+      Result.C1 := X509_NAME_hash(FX509Name);
+    end else begin
+      Result.C1 := X509_NAME_hash_ex(FX509Name,nil,nil,nil);
+    end;
   end;
 end;
 

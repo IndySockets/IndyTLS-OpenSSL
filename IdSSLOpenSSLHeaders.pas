@@ -11213,6 +11213,8 @@ type
   PPointer = ^Pointer;
   {$ENDIF}
 
+  {$EXTERNALSYM POSSL_LIB_CTX}
+  POSSL_LIB_CTX = pointer;
   {$EXTERNALSYM POPENSSL_INIT_SETTINGS}
   POPENSSL_INIT_SETTINGS = pointer;
 //This is just a synthasis since Pascal probably has what we need.
@@ -17316,6 +17318,8 @@ var
   X509_NAME_cmp : function(const a, b: PX509_NAME): TIdC_INT cdecl = nil;
   {$EXTERNALSYM X509_NAME_hash}
   X509_NAME_hash : function(x: PX509_NAME): TIdC_ULONG cdecl = nil;
+  {$EXTERNALSYM X509_NAME_hash_ex}
+  X509_NAME_hash_ex : function(x: PX509_NAME; libctx : POSSL_LIB_CTX; propq : PIdAnsiChar; ok : PIdC_INT) : TIdC_ULONG cdecl = nil;
   {$EXTERNALSYM X509_set_issuer_name}
   X509_set_issuer_name : function(x: PX509; name: PX509_NAME): TIdC_INT cdecl = nil;
   {$EXTERNALSYM X509_get_issuer_name}
@@ -21876,6 +21880,7 @@ them in case we use them later.}
   {CH fn_X509_subject_name_hash = 'X509_subject_name_hash'; }  {Do not localize}
   fn_X509_NAME_cmp = 'X509_NAME_cmp';  {Do not localize}
   fn_X509_NAME_hash = 'X509_NAME_hash';  {Do not localize}
+  fn_X509_NAME_hash_ex = 'X509_NAME_hash_ex'; {Do not localize}
   {CH fn_X509_CRL_cmp = 'X509_CRL_cmp'; }  {Do not localize}
   {$IFNDEF OPENSSL_NO_FP_API}
   {CH fn_X509_print_ex_fp = 'X509_print_ex_fp'; } {Do not localize}
@@ -23055,7 +23060,10 @@ begin
   @SSL_alert_desc_string_long := LoadFunction(fn_SSL_alert_desc_string_long);  //Used by Indy
   @SSL_alert_type_string_long := LoadFunction(fn_SSL_alert_type_string_long);  //Used by Indy
 
-  @SSL_get_peer_certificate := LoadFunction(fn_SSL_get_peer_certificate); //Used by Indy
+  @SSL_get_peer_certificate := LoadFunction(fn_SSL_get_peer_certificate,False); //Used by Indy
+  if @SSL_get_peer_certificate = nil then begin
+    @SSL_get_peer_certificate := LoadFunction('SSL_get1_peer_certificate'); //Used by Indy
+  end;
   @SSL_CTX_set_verify := LoadFunction(fn_SSL_CTX_set_verify); //Used by Indy
   @SSL_CTX_set_verify_depth := LoadFunction(fn_SSL_CTX_set_verify_depth); //Used by Indy
   @SSL_CTX_get_verify_depth := LoadFunction(fn_SSL_CTX_get_verify_depth);
@@ -23136,7 +23144,8 @@ begin
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
   @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
   @X509_NAME_cmp := LoadFunctionCLib(fn_X509_NAME_cmp); //Used by Indy
-  @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash);  //Used by Indy
+  @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash,False);  //Used by Indy
+  @X509_NAME_hash_ex := LoadFunctionCLib(fn_X509_NAME_hash_ex,@X509_NAME_hash = nil); //Used by Indy
   @X509_set_issuer_name := LoadFunctionCLib(fn_X509_set_issuer_name,False);
   @X509_get_issuer_name := LoadFunctionCLib(fn_X509_get_issuer_name);  //Used by Indy
   @X509_set_subject_name := LoadFunctionCLib(fn_X509_set_subject_name,False);
@@ -23928,6 +23937,7 @@ begin
   @SSLeay := nil;
   @X509_NAME_oneline := nil;
   @X509_NAME_hash := nil;
+  @X509_NAME_hash_ex := nil;
   @X509_set_issuer_name := nil;
   @X509_get_issuer_name := nil;
   @X509_set_subject_name := nil;
