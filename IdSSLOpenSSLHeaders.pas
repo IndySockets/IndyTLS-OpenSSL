@@ -23122,7 +23122,8 @@ begin
   @SSL_set_shutdown := LoadFunction(fn_SSL_set_shutdown);  //Used by Indy
   @SSL_CTX_load_verify_locations := LoadFunction(fn_SSL_CTX_load_verify_locations);  //Used by Indy
   @SSL_get_session := LoadFunction(fn_SSL_get_session); //Used by Indy
-  @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);  //Used by Indy
+  @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms,False);  //Used by Indy
+
   @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id); //Used by Indy
   @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id{$IFDEF ANDROID}, False{$ENDIF});  //Used by Indy
   {$IFDEF ANDROID}
@@ -23821,7 +23822,7 @@ we have to handle both cases.
   @i2d_PKCS12_bio := LoadFunctionCLib(fn_i2d_PKCS12_bio);
   @PKCS12_free := LoadFunctionCLib(fn_PKCS12_free);
   @OpenSSL_add_all_algorithms := LoadOldCLib(fn_OpenSSL_add_all_algorithms,
-    fn_OPENSSL_add_all_algorithms_noconf);
+    fn_OPENSSL_add_all_algorithms_noconf,False);
   @OpenSSL_add_all_ciphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers,False);
   @OpenSSL_add_all_digests := LoadFunctionCLib(fn_OpenSSL_add_all_digests,False);
   @OPENSSL_init_crypto := LoadFunctionCLib(fn_OPENSSL_init_crypto,

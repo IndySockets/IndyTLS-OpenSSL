@@ -2379,7 +2379,11 @@ begin
       OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS or OPENSSL_INIT_LOAD_CRYPTO_STRINGS, nil);
     end;
     // Successful loading if true
-    Result := SSLeay_add_ssl_algorithms > 0;
+    if Assigned(SSLeay_add_ssl_algorithms) then begin
+      Result := SSLeay_add_ssl_algorithms > 0;
+    end else begin
+      Result := OPENSSL_init_ssl(0, nil) > 0;
+    end;
     if not Result then begin
       Exit;
     end;
