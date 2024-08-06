@@ -22948,12 +22948,17 @@ begin
   // TODO: what to do here?
 end;
 
+{$ENDIF}
+
 procedure Indy_CRYPTO_lock(mode, _type : TIdC_INT; const _file : PIdAnsiChar; line : TIdC_INT) cdecl;
 begin
   // TODO: what to do here?
 end;
-{$ENDIF}
 
+function Indy_CRYPTO_num_locks : TIdC_INT cdecl;
+begin
+  result := 1;
+end;
 {$IFDEF STATICLOAD_OPENSSL}
 
 function Load: Boolean;
@@ -23205,15 +23210,15 @@ begin
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
   @SSL_CIPHER_get_bits  := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
   // Thread safe
-  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock{$IFDEF ANDROID}, False{$ENDIF});  //Used by Indy
-  {$IFDEF ANDROID}
+  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock, False);  //Used by Indy
   if not Assigned(_CRYPTO_lock) then begin
     @_CRYPTO_lock := @Indy_CRYPTO_lock;
   end;
-  {$ENDIF}
-  @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks); //Used by Indy
-  @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback); //Used by Indy
-  {$IFNDEF WIN32_OR_WIN64}
+  @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks, false); //Used by Indy
+  if not Assigned(_CRYPTO_num_locks) then begin
+    @_CRYPTO_num_locks := @Indy_CRYPTO_num_locks;
+  end;
+  @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback,false); //Used by Indy
 {
 In OpenSSL 1.0.0, you should use these callback functions instead of the
 depreciated set_id_callback.  They are not in the older 0.9.8 OpenSSL series so
@@ -23223,11 +23228,10 @@ we have to handle both cases.
   @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric,False); //Used by Indy
   @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer,False);
   if not Assigned(CRYPTO_THREADID_set_callback) then begin  //Used by Indy
-    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback);  //Used by Indy
+    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback,false);  //Used by Indy
   end else begin
     @CRYPTO_set_id_callback := nil;
   end;
-  {$ENDIF}
   @ERR_put_error := LoadFunctionCLib(fn_ERR_put_error,False);
   @ERR_get_error := LoadFunctionCLib(fn_ERR_get_error,False);
   @ERR_peek_error := LoadFunctionCLib(fn_ERR_peek_error,False);
@@ -23999,12 +24003,11 @@ begin
   // Thread safe
   @_CRYPTO_num_locks := nil;
   @CRYPTO_set_locking_callback := nil;
-  {$IFNDEF WIN32_OR_WIN64}
   @CRYPTO_THREADID_set_callback := nil;
   @CRYPTO_THREADID_set_numeric := nil;
   @CRYPTO_THREADID_set_pointer := nil;
   @CRYPTO_set_id_callback := nil;
-  {$ENDIF}
+
   @ERR_put_error := nil;
   @ERR_get_error := nil;
   @ERR_peek_error := nil;
