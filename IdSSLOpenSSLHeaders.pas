@@ -17030,6 +17030,8 @@ var
   EVP_CIPHER_CTX_set_app_data : procedure(ctx : PEVP_CIPHER_CTX; data : Pointer) cdecl =nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_flags}
   EVP_CIPHER_CTX_flags : function(ctx : PEVP_CIPHER_CTX) : TIdC_ULONG cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_get0_cipher}
+  EVP_CIPHER_CTX_get0_cipher : function(ctx : PEVP_CIPHER_CTX): PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM ASN1_INTEGER_set}
   ASN1_INTEGER_set : function(a: PASN1_INTEGER; v: TIdC_LONG): TIdC_INT cdecl = nil;
   {$EXTERNALSYM ASN1_INTEGER_get}
@@ -19304,7 +19306,9 @@ begin
     EIdDigestFinalEx.RaiseException('EVP_DigestFinal_ex error');
   end;
   SetLength(Result,LLen);
-  EVP_MD_CTX_cleanup(ACtx);
+  if assigned(EVP_MD_CTX_cleanup) then begin
+    EVP_MD_CTX_cleanup(ACtx);
+  end;
   FreeMem(ACtx,SizeOf(EVP_MD_CTX));
 end;
 
@@ -20881,6 +20885,7 @@ them in case we use them later.}
    fn_EVP_CIPHER_CTX_get_app_data = 'EVP_CIPHER_CTX_get_app_data';  {Do not localize}
    fn_EVP_CIPHER_CTX_set_app_data = 'EVP_CIPHER_CTX_set_app_data';  {Do not localize}
    fn_EVP_CIPHER_CTX_flags = 'EVP_CIPHER_CTX_flags';  {Do not localize}
+   fn_EVP_CIPHER_CTX_get0_cipher = 'EVP_CIPHER_CTX_get0_cipher'; {Do not localize}
    fn_EVP_Cipher = 'EVP_Cipher';  {Do not localize}
    fn_EVP_MD_CTX_init = 'EVP_MD_CTX_init'; {Do not localize}
    fn_EVP_MD_CTX_cleanup = 'EVP_MD_CTX_cleanup';  {Do not localize}
@@ -23000,7 +23005,7 @@ begin
 
   // RLebeau 6/8/2021: verify the type of library is supported...
 
-  @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy 
+  @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy
   @SSLeay := LoadOldCLib(fn_SSLeay, 'OpenSSL_version_num'); {Do not localize} //Used by Indy 
 
   if Assigned(_SSLeay_version) then begin
@@ -23563,8 +23568,11 @@ we have to handle both cases.
   @EVP_seed_ofb := LoadFunctionCLib(fn_EVP_seed_ofb,False);
   {$endif}
 
-  @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
-  @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
+  @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init, false);
+  if @EVP_MD_CTX_init = nil then begin
+    @EVP_MD_CTX_init := LoadFunctionCLib('EVP_MD_CTX_reset');
+  end;
+  @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup, false);
   @EVP_MD_CTX_create := LoadFunctionCLib(fn_EVP_MD_CTX_create, False);
   @EVP_MD_CTX_destroy := LoadFunctionCLib(fn_EVP_MD_CTX_destroy, False);
   @EVP_MD_CTX_copy := LoadFunctionCLib(fn_EVP_MD_CTX_copy, False);
@@ -23636,17 +23644,32 @@ we have to handle both cases.
   @EVP_PKEY_assign := LoadFunctionCLib(fn_EVP_PKEY_assign);
   @EVP_get_cipherbyname := LoadFunctionCLib(fn_EVP_get_cipherbyname);
   @EVP_get_digestbyname := LoadFunctionCLib(fn_EVP_get_digestbyname);
-  @EVP_MD_type := LoadFunctionCLib(fn_EVP_MD_type);
-  @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_size);
-  @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size);
+  @EVP_MD_type := LoadFunctionCLib(fn_EVP_MD_type, false);
+  if @EVP_MD_type = nil then begin
+    @EVP_MD_type := LoadFunctionCLib('EVP_MD_get_type'); {Do not localize}
+  end;
+  @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_size, false);
+  if @EVP_MD_size = nil then begin
+     @EVP_MD_size := LoadFunctionCLib('EVP_MD_get_type');
+  end;
+  @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size, false);
+  if @EVP_MD_block_size = nil then begin
+    @EVP_MD_block_size := LoadFunctionCLib('EVP_MD_get_block_size');
+  end;
   @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags,False);
   @EVP_MD_CTX_md := LoadFunctionCLib(fn_EVP_MD_CTX_md);
   @EVP_CIPHER_nid := LoadFunctionCLib(fn_EVP_CIPHER_nid,False);
   @EVP_CIPHER_block_size := LoadFunctionCLib(fn_EVP_CIPHER_block_size,False);
   @EVP_CIPHER_key_length := LoadFunctionCLib(fn_EVP_CIPHER_key_length,False);
   @EVP_CIPHER_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_iv_length,False);
-  @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags);
-  @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type);
+  @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags, false);
+  if @EVP_CIPHER_flags = nil then begin
+     @EVP_CIPHER_flags := LoadFunctionCLib('EVP_CIPHER_get_flags');
+  end;
+  @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type, false);
+  if @EVP_CIPHER_type = nil then begin
+     @EVP_CIPHER_type := LoadFunctionCLib('EVP_CIPHER_get_type');
+  end;
   @EVP_CIPHER_CTX_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_cipher);
   @EVP_CIPHER_CTX_nid  := LoadFunctionCLib(fn_EVP_CIPHER_CTX_nid,False);
   @EVP_CIPHER_CTX_block_size := LoadFunctionCLib(fn_EVP_CIPHER_CTX_block_size, False );
@@ -23655,8 +23678,8 @@ we have to handle both cases.
   @EVP_CIPHER_CTX_copy := LoadFunctionCLib(fn_EVP_CIPHER_CTX_copy,False );
   @EVP_CIPHER_CTX_get_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get_app_data );
   @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
-  @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags);
-
+  @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags, false);
+  @EVP_CIPHER_CTX_get0_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get0_cipher, @EVP_CIPHER_CTX_flags = nil);
   @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher,False);
   @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest,False);
 
@@ -23790,7 +23813,7 @@ we have to handle both cases.
   @EVP_PKEY_meth_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_meth_set_ctrl,False);
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
-  @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init);
+  @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init, false);
   if IsOpenSSL_1x then begin
     @_HMAC_Init_ex := nil;
     @_HMAC_Update := nil;
@@ -23806,7 +23829,7 @@ we have to handle both cases.
     @_1_0_HMAC_Update  := nil;
     @_1_0_HMAC_Final := nil;
   end;
-  @HMAC_CTX_cleanup := LoadFunctionCLib(fn_HMAC_CTX_cleanup);
+  @HMAC_CTX_cleanup := LoadFunctionCLib(fn_HMAC_CTX_cleanup, false);
   {$ENDIF}
   //OBJ
   @OBJ_obj2nid := LoadFunctionCLib(fn_OBJ_obj2nid);
@@ -23823,9 +23846,9 @@ we have to handle both cases.
   @CRYPTO_set_mem_functions := LoadFunctionCLib(fn_CRYPTO_set_mem_functions);
   @CRYPTO_malloc := LoadFunctionCLib(fn_CRYPTO_malloc);
   @CRYPTO_free := LoadFunctionCLib(fn_CRYPTO_free);
-  @CRYPTO_mem_leaks := LoadFunctionCLib(fn_CRYPTO_mem_leaks);
-  @CRYPTO_mem_ctrl := LoadFunctionCLib(fn_CRYPTO_mem_ctrl);
-  @CRYPTO_set_mem_debug_functions := LoadFunctionCLib(fn_CRYPTO_set_mem_debug_functions);
+  @CRYPTO_mem_leaks := LoadFunctionCLib(fn_CRYPTO_mem_leaks, false);
+  @CRYPTO_mem_ctrl := LoadFunctionCLib(fn_CRYPTO_mem_ctrl, false);
+  @CRYPTO_set_mem_debug_functions := LoadFunctionCLib(fn_CRYPTO_set_mem_debug_functions, false);
   //@CRYPTO_dbg_malloc := LoadFunctionCLib(fn_CRYPTO_dbg_malloc);
   //@CRYPTO_dbg_realloc := LoadFunctionCLib(fn_CRYPTO_dbg_realloc);
   //@CRYPTO_dbg_free := LoadFunctionCLib(fn_CRYPTO_dbg_free);
@@ -23840,16 +23863,40 @@ we have to handle both cases.
   @OpenSSL_add_all_digests := LoadFunctionCLib(fn_OpenSSL_add_all_digests,False);
   @OPENSSL_init_crypto := LoadFunctionCLib(fn_OPENSSL_init_crypto,
     (@OpenSSL_add_all_digests = nil) or (@OpenSSL_add_all_ciphers = nil));
-  @EVP_cleanup := LoadFunctionCLib(fn_EVP_cleanup);
+  @EVP_cleanup := LoadFunctionCLib(fn_EVP_cleanup, false);
 
-  @sk_num := LoadFunctionCLib(fn_sk_num);
-  @sk_new := LoadFunctionCLib(fn_sk_new);
-  @sk_new_null := LoadFunctionCLib(fn_sk_new_null);
-  @sk_free := LoadFunctionCLib(fn_sk_free);
-  @sk_push := LoadFunctionCLib(fn_sk_push);
-  @sk_dup := LoadFunctionCLib(fn_sk_dup);
-  @sk_find := LoadFunctionCLib(fn_sk_find);
-  @sk_value := LoadFunctionCLib(fn_sk_value);
+  @sk_num := LoadFunctionCLib(fn_sk_num, false);
+  if @sk_num = nil then begin
+    @sk_num := LoadFunctionCLib('OPENSSL_sk_num');
+  end;
+  @sk_new := LoadFunctionCLib(fn_sk_new, false);
+  if @sk_new = nil then begin
+    @sk_new := LoadFunctionCLib('OPENSSL_sk_new');
+  end;
+  @sk_new_null := LoadFunctionCLib(fn_sk_new_null, false);
+  if @sk_new_null = nil then begin
+    @sk_new_null :=  LoadFunctionCLib('OPENSSL_sk_new_null');
+  end;
+  @sk_free := LoadFunctionCLib(fn_sk_free, false);
+  if @sk_free = nil then begin
+    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_free');
+  end;
+  @sk_push := LoadFunctionCLib(fn_sk_push, false);
+  if @sk_push = nil then begin
+    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_push');
+  end;
+  @sk_dup := LoadFunctionCLib(fn_sk_dup, false);
+  if @sk_dup = nil then begin
+    @sk_dup := LoadFunctionCLib('OPENSSL_sk_dup');
+  end;
+  @sk_find := LoadFunctionCLib(fn_sk_find, false);
+  if @sk_find = nil then begin
+    @sk_find := LoadFunctionCLib('OPENSSL_sk_find');
+  end;
+  @sk_value := LoadFunctionCLib(fn_sk_value, false);
+  if @sk_value = nil then begin
+    @sk_value := LoadFunctionCLib('OPENSSL_sk_value');
+  end;
   {$IFDEF OPENSSL_FIPS}
   @_FIPS_mode_set := LoadFunctionCLib(fn_FIPS_mode_set,False);
   @_FIPS_mode := LoadFunctionCLib(fn_FIPS_mode,False);
@@ -24552,6 +24599,7 @@ begin
   @EVP_CIPHER_CTX_get_app_data := nil;
   @EVP_CIPHER_CTX_set_app_data := nil;
   @EVP_CIPHER_CTX_flags := nil;
+  @EVP_CIPHER_CTX_get0_cipher := nil;
 
   //HMAC
 {$IFNDEF OPENSSL_NO_HMAC}
@@ -26438,7 +26486,11 @@ end;
 function EVP_CIPHER_CTX_mode(e : PEVP_CIPHER_CTX) : TIdC_ULONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-	Result := (EVP_CIPHER_CTX_flags(e) and EVP_CIPH_MODE)
+  if Assigned(EVP_CIPHER_CTX_flags) then begin
+   	Result := (EVP_CIPHER_CTX_flags(e) and EVP_CIPH_MODE);
+  end else begin
+    Result := EVP_CIPHER_flags(EVP_CIPHER_CTX_get0_cipher(e));
+  end;
 end;
 
 function EVP_ENCODE_LENGTH(l : Integer) : Integer;
