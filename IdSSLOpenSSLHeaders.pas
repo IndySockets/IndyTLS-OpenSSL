@@ -22674,13 +22674,13 @@ begin
     Exit;
   end;
   {$IFDEF WINDOWS}
-  if ACritical then begin
+{  if ACritical then begin
     Err := GetLastError();
     if Err <> ERROR_PROC_NOT_FOUND then begin
       FFailedLoadList.Add(IndyFormat(RSOSSMissingExport_WithErrCode, [AOldName, Err]));
       Exit;
     end;
-  end;
+  end;   }
   {$ENDIF}
   Result := LoadLibFunction(hIdCrypto, ANewName);
   if (Result <> nil) or (not ACritical) then begin
