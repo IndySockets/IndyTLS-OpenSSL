@@ -26657,13 +26657,21 @@ end;
 procedure SSLeay_add_all_ciphers;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
- OpenSSL_add_all_ciphers;
+  if assigned(OpenSSL_add_all_ciphers) then begin
+    OpenSSL_add_all_ciphers;
+  end else begin
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, nil);
+  end;
 end;
 
 procedure SSLeay_add_all_digests;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
- OpenSSL_add_all_digests;
+  if Assigned(OpenSSL_add_all_digests) then begin
+    OpenSSL_add_all_digests;
+  end else begin
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, nil);
+  end;
 end;
 
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
