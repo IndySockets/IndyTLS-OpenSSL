@@ -233,7 +233,7 @@ uses
 
 type
   TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1, sslvTLSv1_1,
-    sslvTLSv1_2);
+    sslvTLSv1_2, sslvTLSv1_3);
   TIdSSLVersions = set of TIdSSLVersion;
   TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
@@ -242,8 +242,8 @@ type
   TIdSSLAction = (sslRead, sslWrite);
 
 const
-  DEF_SSLVERSION = sslvTLSv1;
-  DEF_SSLVERSIONS = [sslvTLSv1];
+  DEF_SSLVERSION = sslvTLSv1_3;
+  DEF_SSLVERSIONS = [sslvTLSv1_3];
   P12_FILETYPE = 3;
   MAX_SSL_PASSWORD_LENGTH = 128;
 
@@ -2675,7 +2675,7 @@ begin
   fMethod := AValue;
   if AValue = sslvSSLv23 then
   begin
-    fSSLVersions := [sslvSSLv2, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
+    fSSLVersions := [sslvSSLv2, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2, sslvTLSv1_3];
   end
   else
   begin
@@ -2706,6 +2706,9 @@ begin
   begin
     fMethod := sslvTLSv1_2;
   end
+  else if fSSLVersions = [sslvTLSv1_3] then begin
+    fMethod := sslvTLSv1_3;
+  end
   else
   begin
     fMethod := sslvSSLv23;
@@ -2714,8 +2717,7 @@ begin
       Exclude(fSSLVersions, sslvSSLv23);
       if fSSLVersions = [] then
       begin
-        fSSLVersions := [sslvSSLv2, sslvSSLv3, sslvTLSv1, sslvTLSv1_1,
-          sslvTLSv1_2];
+        fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2,sslvTLSv1_3];
       end;
     end;
   end;
@@ -3620,7 +3622,24 @@ begin
       SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1_2);
     end;
   end;
+  if IsOpenSSL_TLSv1_3_Available then begin
+    if not(sslvTLSv1_3 in SSLVersions) then begin
+      SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_3);
+    end
+	else if (fMethod = sslvSSLv23) then begin
+      SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1_3);
+    end;
+  end;
 
+  if sslvTLSv1_3 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_3_VERSION)
+  else if sslvTLSv1_2 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION)
+  else if sslvTLSv1_1 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_1_VERSION)
+  else
+    SSL_CTX_set_min_proto_version(fContext, TLS1_VERSION);
+  SSL_CTX_set_max_proto_version(fContext, TLS1_3_VERSION);
   SSL_CTX_set_mode(fContext, SSL_MODE_AUTO_RETRY);
   // assign a password lookup routine
   // if PasswordRoutineOn then begin
