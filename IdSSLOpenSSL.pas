@@ -3631,12 +3631,12 @@ begin
     end;
   end;
 
-  if sslvTLSv1_3 in SSLVersions then
-    SSL_CTX_set_min_proto_version(fContext, TLS1_3_VERSION)
-  else if sslvTLSv1_2 in SSLVersions then
-    SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION)
-  else if sslvTLSv1_1 in SSLVersions then
+  if sslvTLSv1_1 in SSLVersions then
     SSL_CTX_set_min_proto_version(fContext, TLS1_1_VERSION)
+  else  if sslvTLSv1_2 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION)
+  else if sslvTLSv1_3 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_3_VERSION)
   else
     SSL_CTX_set_min_proto_version(fContext, TLS1_VERSION);
   SSL_CTX_set_max_proto_version(fContext, TLS1_3_VERSION);
