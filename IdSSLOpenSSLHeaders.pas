@@ -7703,6 +7703,8 @@ const
   SSL_OP_NO_TLSv1_2	= $08000000;
   {$EXTERNALSYM SSL_OP_NO_TLSv1_1}
   SSL_OP_NO_TLSv1_1	= $10000000;
+  {$EXTERNALSYM SSL_OP_NO_TLSv1_3}
+  SSL_OP_NO_TLSv1_3	= $20000000;
   {$EXTERNALSYM SSL_OP_PKCS1_CHECK_1}
   SSL_OP_PKCS1_CHECK_1 = $00; //was $08000000;
   {$EXTERNALSYM SSL_OP_PKCS1_CHECK_2}
@@ -18166,6 +18168,10 @@ procedure HMAC_Update(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t);
 procedure HMAC_Final(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT);
 {$ENDIF}
 
+var
+  {$EXTERNALSYM TLS_method}
+  TLS_method : function: PSSL_METHOD cdecl = nil;
+
 {begin stack fancy stuff}
 {
 For the sk functions having a type, you have to typecase one procedural pointer
@@ -18307,6 +18313,10 @@ function X509_CRL_get_REVOKED(x : PX509_CRL) : PSTACK_OF_X509_REVOKED;
 procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
  {$EXTERNALSYM SSL_CTX_set_options}
 function SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_min_proto_version}
+function SSL_CTX_set_min_proto_version(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_max_proto_version}
+function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_clear_options}
 function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_get_options}
@@ -18955,6 +18965,7 @@ function IsOpenSSL_TLSv1_0_Available : Boolean;
 function IsOpenSSL_TLSv1_1_Available : Boolean;
 function IsOpenSSL_TLSv1_2_Available : Boolean;
 function IsOpenSSL_DTLSv1_Available : Boolean;
+function IsOpenSSL_TLSv1_3_Available : Boolean;
 
 // RLebeau: should these be declared as EXTERNALSYM?
 procedure RAND_cleanup;
@@ -19086,6 +19097,12 @@ begin
   Result := Assigned(DTLSv1_method) and
     Assigned(DTLSv1_server_method) and
     Assigned(DTLSv1_client_method);
+end;
+
+function IsOpenSSL_TLSv1_3_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := True;
 end;
 
 //**************** FIPS Support backend *******************
@@ -22247,6 +22264,7 @@ them in case we use them later.}
   fn_DTLSv1_method = 'DTLSv1_method'; {Do not localize}
   fn_DTLSv1_server_method = 'DTLSv1_server_method'; {Do not localize}
   fn_DTLSv1_client_method = 'DTLSv1_client_method'; {Do not localize}
+  fn_TLS_method = 'TLS_method'; {Do not localize}
   {CH fn_SSL_get_ciphers = 'SSL_get_ciphers'; }  {Do not localize}
   {CH fn_SSL_do_handshake = 'SSL_do_handshake'; }  {Do not localize}
   {CH fn_SSL_renegotiate = 'SSL_renegotiate'; }  {Do not localize}
@@ -23216,7 +23234,9 @@ begin
   @SSL_get_current_cipher := LoadFunction(fn_SSL_get_current_cipher);  //Used by Indy
   @SSL_CIPHER_get_name := LoadFunction(fn_SSL_CIPHER_get_name);  //Used by Indy
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
-  @SSL_CIPHER_get_bits  := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
+  @SSL_CIPHER_get_bits := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
+  @TLS_method := LoadFunction(fn_TLS_method, True);
+
   // Thread safe
   @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock, False);  //Used by Indy
   if not Assigned(_CRYPTO_lock) then begin
@@ -24050,6 +24070,8 @@ begin
   @SSL_CIPHER_get_name := nil;
   @SSL_CIPHER_get_version := nil;
   @SSL_CIPHER_get_bits  := nil;
+  @TLS_method := nil;
+
   // Thread safe
   @_CRYPTO_num_locks := nil;
   @CRYPTO_set_locking_callback := nil;
@@ -25011,12 +25033,6 @@ begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_OPTIONS, op, nil);
 end;
 
-function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CLEAR_OPTIONS,op,nil);
-end;
-
 function SSL_CTX_set_min_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
@@ -25027,6 +25043,12 @@ function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MAX_PROTO_VERSION, op, nil);
+end;
+
+function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CLEAR_OPTIONS,op,nil);
 end;
 
 function SSL_CTX_get_options(ctx: PSSL_CTX) : TIdC_LONG;

@@ -3962,6 +3962,11 @@ begin
           Result := SelectTLS1Method(fMode);
         end;
       end;
+    sslvTLSv1_3:
+      if Assigned(TLS_method) then
+        Result := TLS_method()
+      else
+        Result := SelectTLS1Method(fMode);
   end;
   if Result = nil then
   begin
