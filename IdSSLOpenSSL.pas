@@ -952,13 +952,14 @@ begin
     LockInfoCB.Enter;
     try
       IdSSLSocket := TIdSSLSocket(SSL_get_app_data(SSLSocket));
-      if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper,
-        IInterface(LHelper)) then
-      begin
-        StatusStr := IndyFormat(RSOSSLStatusString,
-          [String(SSL_state_string_long(SSLSocket))]);
-        LHelper.StatusInfo(SSLSocket, where, ret, StatusStr);
-        LHelper := nil;
+      if Assigned(IdSSLSocket) then begin
+        if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper,
+          IInterface(LHelper)) then begin
+            StatusStr := IndyFormat(RSOSSLStatusString,
+              [String(SSL_state_string_long(SSLSocket))]);
+            LHelper.StatusInfo(SSLSocket, where, ret, StatusStr);
+            LHelper := nil;
+        end;
       end;
     finally
       LockInfoCB.Leave;
@@ -1014,25 +1015,27 @@ begin
       // the certificate is owned by the store
       try
         IdSSLSocket := TIdSSLSocket(SSL_get_app_data(hSSL));
-        Error := X509_STORE_CTX_get_error(ctx);
-        Depth := X509_STORE_CTX_get_error_depth(ctx);
-        if not((Ok > 0) and (IdSSLSocket.fSSLContext.VerifyDepth >= Depth)) then
-        begin
-          Ok := 0;
-          { if Error = X509_V_OK then begin
+        if Assigned(IdSSLSocket) then begin
+          Error := X509_STORE_CTX_get_error(ctx);
+          Depth := X509_STORE_CTX_get_error_depth(ctx);
+          if not((Ok > 0) and (IdSSLSocket.fSSLContext.VerifyDepth >= Depth)) then
+          begin
+            Ok := 0;
+            { if Error = X509_V_OK then begin
             Error := X509_V_ERR_CERT_CHAIN_TOO_LONG;
             end; }
-        end;
-        LOk := False;
-        if Ok = 1 then
-        begin
-          LOk := True;
-        end;
-        if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper,
-          IInterface(LHelper)) then
-        begin
-          VerifiedOK := LHelper.VerifyPeer(Certificate, LOk, Depth, Error);
-          LHelper := nil;
+          end;
+          LOk := False;
+          if Ok = 1 then
+          begin
+            LOk := True;
+          end;
+          if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper,
+            IInterface(LHelper)) then
+          begin
+            VerifiedOK := LHelper.VerifyPeer(Certificate, LOk, Depth, Error);
+            LHelper := nil;
+          end;
         end;
       finally
         FreeAndNil(Certificate);
