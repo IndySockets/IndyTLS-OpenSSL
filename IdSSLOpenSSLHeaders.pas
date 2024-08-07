@@ -7085,9 +7085,9 @@ const
   DTLS_CTRL_LISTEN = 75;
 
   {$EXTERNALSYM SSL_CTRL_SET_MIN_PROTO_VERSION}
-  SSL_CTRL_SET_MIN_PROTO_VERSION = 123;  //OpenSSL 1.1.1
+  SSL_CTRL_SET_MIN_PROTO_VERSION = 123;  //OpenSSL 1.1.0
   {$EXTERNALSYM SSL_CTRL_SET_MAX_PROTO_VERSION}
-  SSL_CTRL_SET_MAX_PROTO_VERSION = 124;  //OpenSSL 1.1.1
+  SSL_CTRL_SET_MAX_PROTO_VERSION = 124;  //OpenSSL 1.1.0
   {$EXTERNALSYM SSL_CTRL_GET_RI_SUPPORT}
   SSL_CTRL_GET_RI_SUPPORT	= 76;
   {$EXTERNALSYM SSL_CTRL_CLEAR_OPTIONS}
@@ -25047,13 +25047,21 @@ end;
 function SSL_CTX_set_min_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MIN_PROTO_VERSION, op, nil);
+  if not IsOpenSSL_Less_then_1_1_0 then begin
+    Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MIN_PROTO_VERSION, op, nil);
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MAX_PROTO_VERSION, op, nil);
+  if not IsOpenSSL_Less_then_1_1_0 then begin
+    Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MAX_PROTO_VERSION, op, nil);
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
