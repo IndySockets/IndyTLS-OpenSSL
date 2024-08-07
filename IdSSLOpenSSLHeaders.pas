@@ -18958,6 +18958,7 @@ type
   EIdDigestUpdate = class(EIdDigestError);
 
 function IsOpenSSL_1x : Boolean;
+function IsOpenSSL_Less_then_1_1_0 : boolean;
 function IsOpenSSL_SSLv2_Available : Boolean;
 function IsOpenSSL_SSLv3_Available : Boolean;
 function IsOpenSSL_SSLv23_Available : Boolean;
@@ -19038,6 +19039,16 @@ function IsOpenSSL_1x : Boolean;
 begin
   if Assigned( SSLeay ) then begin
     Result := (SSLeay and $F0000000) = $10000000;
+  end else begin
+    Result := False;
+  end;
+end;
+
+function IsOpenSSL_Less_then_1_1_0 : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  if Assigned( SSLeay ) then begin
+    Result := (SSLeay and $FF000000) < $10100000;
   end else begin
     Result := False;
   end;
@@ -23235,7 +23246,7 @@ begin
   @SSL_CIPHER_get_name := LoadFunction(fn_SSL_CIPHER_get_name);  //Used by Indy
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
   @SSL_CIPHER_get_bits := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
-  @TLS_method := LoadFunction(fn_TLS_method, True);
+  @TLS_method := LoadFunction(fn_TLS_method, not IsOpenSSL_Less_then_1_1_0);
 
   // Thread safe
   @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock, False);  //Used by Indy
