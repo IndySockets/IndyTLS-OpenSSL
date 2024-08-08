@@ -17297,8 +17297,10 @@ var
   SSL_CTX_set_default_passwd_cb_userdata: procedure(ctx: PSSL_CTX; u: Pointer) cdecl = nil;
   {$EXTERNALSYM SSL_CTX_check_private_key}
   SSL_CTX_check_private_key : function(ctx: PSSL_CTX): TIdC_INT cdecl = nil;
-
-
+  {$EXTERNALSYM SSL_CTX_get_cert_store}
+  SSL_CTX_get_cert_store : function(const Ctx: PSSL_CTX): PX509_STORE; cdecl = nil;
+  {$EXTERNALSYM SSL_get_ex_data_X509_STORE_CTX_idx}
+  SSL_get_ex_data_X509_STORE_CTX_idx : function: Integer; cdecl = nil;
   {$EXTERNALSYM SSL_new}
   SSL_new : function(ctx: PSSL_CTX): PSSL cdecl = nil;
   {$EXTERNALSYM SSL_free}
@@ -22253,7 +22255,7 @@ them in case we use them later.}
   fn_SSL_CTX_callback_ctrl = 'SSL_CTX_callback_ctrl'; {Do not localize}
   {CH fn_SSL_CTX_set_timeout = 'SSL_CTX_set_timeout'; }  {Do not localize}
   {CH fn_SSL_CTX_get_timeout = 'SSL_CTX_get_timeout'; }  {Do not localize}
-  {CH fn_SSL_CTX_get_cert_store = 'SSL_CTX_get_cert_store'; }  {Do not localize}
+  fn_SSL_CTX_get_cert_store = 'SSL_CTX_get_cert_store';  {Do not localize}
   {CH fn_SSL_CTX_set_cert_store = 'SSL_CTX_set_cert_store'; }  {Do not localize}
   {CH fn_SSL_want = 'SSL_want'; }  {Do not localize}
   {CH fn_SSL_clear = 'SSL_clear'; }  {Do not localize}
@@ -22438,7 +22440,7 @@ them in case we use them later.}
   {CH fn_SSL_CTX_set_ex_data = 'SSL_CTX_set_ex_data'; }  {Do not localize}
   {CH fn_SSL_CTX_get_ex_data = 'SSL_CTX_get_ex_data'; }  {Do not localize}
   {CH fn_SSL_CTX_get_ex_new_index = 'SSL_CTX_get_ex_new_index'; }  {Do not localize}
-  {CH fn_SSL_get_ex_data_X509_STORE_CTX_idx = 'SSL_get_ex_data_X509_STORE_CTX_idx'; }  {Do not localize}
+  fn_SSL_get_ex_data_X509_STORE_CTX_idx = 'SSL_get_ex_data_X509_STORE_CTX_idx';  {Do not localize}
   {$IFNDEF OPENSSL_NO_RSA}
   {CH fn_SSL_CTX_set_tmp_rsa_callback = 'SSL_CTX_set_tmp_rsa_callback'; }  {Do not localize}
   {CH fn_SSL_set_tmp_rsa_callback = 'SSL_set_tmp_rsa_callback'; }  {Do not localize}
@@ -23222,6 +23224,8 @@ begin
   @SSL_CTX_set_verify := LoadFunction(fn_SSL_CTX_set_verify); //Used by Indy
   @SSL_CTX_set_verify_depth := LoadFunction(fn_SSL_CTX_set_verify_depth); //Used by Indy
   @SSL_CTX_get_verify_depth := LoadFunction(fn_SSL_CTX_get_verify_depth);
+  @SSL_CTX_get_cert_store := LoadFunction(fn_SSL_CTX_get_cert_store);
+  @SSL_get_ex_data_X509_STORE_CTX_idx := LoadFunction(fn_SSL_get_ex_data_X509_STORE_CTX_idx, True);
   @SSL_CTX_set_default_passwd_cb := LoadFunction(fn_SSL_CTX_set_default_passwd_cb);   //Used by Indy
   @SSL_CTX_set_default_passwd_cb_userdata:= LoadFunction(fn_SSL_CTX_set_default_passwd_cb_userdata); //Used by Indy
   @SSL_CTX_check_private_key := LoadFunction(fn_SSL_CTX_check_private_key);   //Used by Indy
@@ -24109,6 +24113,8 @@ begin
   @SSL_CTX_set_verify := nil;
   @SSL_CTX_set_verify_depth := nil;
   @SSL_CTX_get_verify_depth := nil;
+  @SSL_CTX_get_cert_store := nil;
+  @SSL_get_ex_data_X509_STORE_CTX_idx := nil;
   @SSL_CTX_set_default_passwd_cb := nil;
   @SSL_CTX_set_default_passwd_cb_userdata := nil;
   @SSL_CTX_check_private_key := nil;
