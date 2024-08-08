@@ -13977,8 +13977,21 @@ type
   end;
   {$EXTERNALSYM PX509_CERT_AUX}
   PX509_CERT_AUX = ^X509_CERT_AUX;
-  {$NODEFINE X509}
-  X509 = record
+  {$NODEFINE X509_SIG_INFO}
+  X509_SIG_INFO = record
+    mdnid: TIdC_INT;
+    pknid: TIdC_INT;
+    secbits: TIdC_INT;
+    flags: TIdC_INT;
+  end;
+  {$NODEFINE CRYPTO_REF_COUNT}
+  CRYPTO_REF_COUNT = record
+    val: TIdC_INT;
+  end;
+
+//In OpenSSL 1.1.0, the X509 record type breaks with the previous versions.
+  {$NODEFINE X509_old}
+  X509_old = record
     cert_info: PX509_CINF;
     sig_alg : PX509_ALGOR;
     signature : PASN1_BIT_STRING;
@@ -14008,6 +14021,40 @@ type
     {$ENDIF}
     aux : PX509_CERT_AUX;
   end;
+  PX509_old = ^X509_old;
+  {$NODEFINE X509}
+  X509 = record
+    cert_info: X509_CINF;
+    sig_alg : X509_ALGOR;
+    signature : PASN1_BIT_STRING;
+    signinf: X509_SIG_INFO;
+    references: CRYPTO_REF_COUNT;
+    ex_data: CRYPTO_EX_DATA;
+    ex_pathlen: TIdC_LONG;
+    ex_pcpathlen: TIdC_LONG;
+    ex_flags: TIdC_UINT32;
+    ex_kusage: TIdC_UINT32;
+    ex_xkusage: TIdC_UINT32;
+    ex_nscert: TIdC_UINT32;
+    skid: PASN1_OCTET_STRING;
+    akid: PAUTHORITY_KEYID;
+    policy_cache: PX509_POLICY_CACHE;
+//    crldp: STACK_OF(DIST_POINT);
+//    altname: PSTACK_OF(GENERAL_NAME);
+//    nc^: PNAME_CONSTRAINTS;
+    {$IFNDEF OPENSSL_NO_RFC3779}
+    rfc3779_addr: PSTACK_OF(IPAddressFamily);
+    rfc3779_asid: Pstruct ASIdentifiers_st;
+    {$ENDIF}
+//    sha1_hash : array [0..SHA_DIGEST_LENGTH-1] of TIdAnsiChar;
+//    aux: pX509_CERT_AUX;
+//    lock: PCRYPTO_RWLOCK;
+//    ex_cached: volatile inT;
+//    distinguishing_id: PASN1_OCTET_STRING;
+//    libctx: POSSL_LIB_CTX;
+//    propq: PChar;
+  end;
+
   {$EXTERNALSYM X509_CRL_INFO}
   X509_CRL_INFO = record
     version : PASN1_INTEGER;
@@ -17157,6 +17204,14 @@ var
   X509_PUBKEY_get : function(key: PX509_PUBKEY): PEVP_PKEY cdecl = nil;
   {$EXTERNALSYM X509_verify}
   X509_verify : function(x509: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  {$EXTERNALSYM _X509_get_version}
+  _X509_get_version : function(x : PX509) : TIdC_LONG cdecl = nil;
+  {$EXTERNALSYM _X509_get_signature_type}
+  _X509_get_signature_type : function(x : PX509) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM X509_getm_notBefore}
+  X509_getm_notBefore : function(x : PX509) : PASN1_TIME cdecl = nil;
+  {$EXTERNALSYM X509_getm_notAfter}
+  X509_getm_notAfter : function(x : PX509) : PASN1_TIME cdecl = nil;
   {$EXTERNALSYM X509_sign}
   X509_sign : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
   {$EXTERNALSYM X509_REQ_sign}
@@ -19048,7 +19103,7 @@ function IsOpenSSL_Less_then_1_1_0 : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Assigned( SSLeay ) then begin
-    Result := (SSLeay and $FF000000) < $10100000;
+    Result := (SSLeay and $FFFF0000) < $10100000;
   end else begin
     Result := False;
   end;
@@ -21701,6 +21756,11 @@ them in case we use them later.}
   {CH fn_PKCS7_set_attributes = 'PKCS7_set_attributes'; }  {Do not localize}
   {CH fn_X509_verify_cert_error_string = 'X509_verify_cert_error_string'; }  {Do not localize}
   fn_X509_verify = 'X509_verify';   {Do not localize}
+  fn_X509_get_version = 'X509_get_version';  {Do not localize}
+  fn_X509_get_signature_type = 'X509_get_signature_type'; {Do not localize}
+  fn_X509_getm_notBefore = 'X509_getm_notBefore'; {Do not localize}
+  fn_X509_getm_notAfter = 'X509_getm_notAfter';  {Do not localize{
+
   {CH fn_X509_REQ_verify = 'X509_REQ_verify'; }  {Do not localize}
   {CH fn_X509_CRL_verify = 'X509_CRL_verify'; }  {Do not localize}
   {CH fn_NETSCAPE_SPKI_verify = 'NETSCAPE_SPKI_verify'; }  {Do not localize}
@@ -23185,6 +23245,8 @@ begin
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
   @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
+  @_X509_get_version := LoadFunctionCLib(fn_X509_get_version, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_get_signature_type := LoadFunctionCLib(fn_X509_get_signature_type, not IsOpenSSL_Less_then_1_1_0);
   @X509_NAME_cmp := LoadFunctionCLib(fn_X509_NAME_cmp); //Used by Indy
   @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash,False);  //Used by Indy
   @X509_NAME_hash_ex := LoadFunctionCLib(fn_X509_NAME_hash_ex,@X509_NAME_hash = nil); //Used by Indy
@@ -23215,6 +23277,10 @@ begin
   //X509_print
   @X509_print := LoadFunctionCLib(fn_X509_print, False );  //Used by Indy
   {$ENDIF}
+  @X509_verify := nil;
+  @X509_getm_notBefore := nil;
+  @X509_getm_notAfter := nil;
+
   @_RAND_cleanup := LoadFunctionCLib(fn_RAND_cleanup, False); //Used by Indy
   @_RAND_bytes := LoadFunctionCLib(fn_RAND_bytes); //Used by Indy
   @_RAND_pseudo_bytes := LoadFunctionCLib(fn_RAND_pseudo_bytes); //Used by Indy
@@ -23388,6 +23454,8 @@ we have to handle both cases.
   @X509_REQ_set_pubkey := LoadFunctionCLib(fn_X509_REQ_set_pubkey,False);
   @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get,False);
   @X509_verify := LoadFunctionCLib(fn_X509_verify,False);
+  @X509_getm_notBefore := LoadFunctionCLib(fn_X509_getm_notBefore, not IsOpenSSL_Less_then_1_1_0);
+  @X509_getm_notAfter := LoadFunctionCLib(fn_X509_getm_notAfter, not IsOpenSSL_Less_then_1_1_0);
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := LoadFunctionCLib(fn_PEM_read_bio_X509, False);
@@ -24046,6 +24114,8 @@ begin
   @X509V3_set_ctx := nil;
   @X509_EXTENSION_free := nil;
   @X509_add_ext := nil;
+  @_X509_get_version := nil;
+  @_X509_get_signature_type := nil;
   {$IFNDEF OPENSSL_NO_BIO}
   //X509_print
   @X509_print := nil;
@@ -24925,7 +24995,11 @@ end;
 function X509_get_version(x : PX509): TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := ASN1_INTEGER_get(x^.cert_info^.version);
+  if Assigned(_X509_get_version) then begin
+    Result := _X509_get_version(x);
+  end else begin
+    Result := ASN1_INTEGER_get( PX509_old(x)^.cert_info^.version);
+  end;
 end;
 
 function X509_get_signature_type(x : PX509) : TIdC_INT;
@@ -24966,7 +25040,11 @@ Nils
 }
 begin
   Assert(x<>nil);
-  Result := EVP_PKEY_type(OBJ_obj2nid(x.sig_alg.algorithm));
+  if Assigned(_X509_get_signature_type) then begin
+    Result := _X509_get_signature_type(x);
+  end else begin
+    Result := EVP_PKEY_type(OBJ_obj2nid(PX509_old(x)^.sig_alg.algorithm));
+  end;
 end;
 
 function X509_REQ_get_subject_name(x:PX509_REQ):PX509_NAME;
@@ -24981,7 +25059,11 @@ function X509_get_notBefore(x509: PX509):PASN1_TIME;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Assert(x509<>nil);
-  Result := x509.cert_info.validity.notBefore;
+  if Assigned(X509_getm_notBefore) then begin
+    Result := X509_getm_notBefore(x509);
+  end else begin
+    Result := PX509_old(x509)^.cert_info^.validity^.notBefore;
+  end;
 end;
 
 //function X509_get_notAfter(x509: PX509):PASN1_UTCTIME;
@@ -24989,7 +25071,11 @@ function X509_get_notAfter(x509: PX509):PASN1_TIME;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Assert(x509<>nil);
-  Result := x509.cert_info.validity.notAfter;
+  if Assigned(X509_getm_notAfter) then begin
+    Result := X509_getm_notAfter(x509);
+  end else begin
+    Result := PX509_old(x509)^.cert_info^.validity^.notAfter;
+  end;
 end;
 
 function X509_REQ_get_version(x : PX509_REQ): TIdC_LONG;
