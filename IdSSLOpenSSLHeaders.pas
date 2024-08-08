@@ -17113,6 +17113,16 @@ var
   i2d_X509_CRL : function(x: PX509_CRL; buf: PPByte): TIdC_INT cdecl = nil;
   {$EXTERNALSYM d2i_X509_CRL}
   d2i_X509_CRL : function(pr : PX509_CRL; _in : PPByte; len : TIdC_INT): PX509_REQ cdecl = nil;
+  {$EXTERNALSYM _X509_CRL_get_version}
+  _X509_CRL_get_version : function(crl : PX509_CRL) : TIdC_ULONG cdecl = nil;
+  {$EXTERNALSYM _X509_CRL_get_lastUpdate}
+  _X509_CRL_get_lastUpdate : function(crl : PX509_CRL) : PASN1_TIME cdecl = nil;
+  {$EXTERNALSYM _X509_CRL_get_lastUpdate}
+  _X509_CRL_get_nextUpdate : function(crl : PX509_CRL) : PASN1_TIME cdecl = nil;
+  {$EXTERNALSYM _X509_CRL_get_issuer}
+  _X509_CRL_get_issuer : function(crl : PX509_CRL) : PX509_NAME cdecl = nil;
+  {$EXTERNALSYM _X509_CRL_get_REVOKED}
+  _X509_CRL_get_REVOKED : function(crl : PX509_CRL) : PSTACK_OF_X509_REVOKED cdecl = nil;
   {$EXTERNALSYM i2d_RSAPrivateKey}
   i2d_RSAPrivateKey : function(x: PRSA; buf: PPByte): TIdC_INT cdecl = nil;
   {$EXTERNALSYM d2i_RSAPrivateKey}
@@ -17179,6 +17189,8 @@ var
   X509_REQ_new : function :PX509_REQ cdecl = nil;
   {$EXTERNALSYM X509_REQ_free}
   X509_REQ_free : procedure(x:PX509_REQ) cdecl = nil;
+  {$EXTERNALSYM X509_REQ_get_version}
+  _X509_REQ_get_version : function(req : PX509_REQ) : TIdC_LONG cdecl = nil;
   {$EXTERNALSYM X509_to_X509_REQ}
   X509_to_X509_REQ : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): PX509_REQ cdecl = nil;
   {$EXTERNALSYM X509_NAME_add_entry_by_txt}
@@ -17218,6 +17230,8 @@ var
   X509_REQ_sign : function(x: PX509_REQ; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
   {$EXTERNALSYM X509_REQ_add_extensions}
   X509_REQ_add_extensions : function(req: PX509_REQ; exts: PSTACK_OF_X509_EXTENSION): TIdC_INT cdecl = nil;
+  {$EXTERNALSYM _X509_REQ_get_subject_name}
+  _X509_REQ_get_subject_name : function(req : PX509_REQ) : PX509_NAME cdecl = nil;
   {$EXTERNALSYM X509V3_EXT_conf_nid}
   X509V3_EXT_conf_nid : function(conf: PLHASH; ctx: PX509V3_CTX; ext_nid: TIdC_INT; value: PIdAnsiChar): PX509_EXTENSION cdecl = nil;
   {$EXTERNALSYM X509_EXTENSION_create_by_NID}
@@ -21771,6 +21785,7 @@ them in case we use them later.}
   fn_X509V3_set_ctx = 'X509V3_set_ctx'; {Do not localize}
   fn_X509V3_EXT_conf_nid = 'X509V3_EXT_conf_nid'; {Do not localize}
   fn_X509_REQ_add_extensions = 'X509_REQ_add_extensions'; {Do not localize}
+  fn_X509_REQ_get_version = 'X509_REQ_get_version'; {Do not localize}
   {CH fn_X509_CRL_sign = 'X509_CRL_sign'; }  {Do not localize}
   {CH fn_NETSCAPE_SPKI_sign = 'NETSCAPE_SPKI_sign'; }  {Do not localize}
   fn_X509_digest = 'X509_digest';  {Do not localize}
@@ -21805,6 +21820,11 @@ them in case we use them later.}
   {CH fn_i2d_PKCS8_fp = 'i2d_PKCS8_fp'; }  {Do not localize}
   {CH fn_d2i_PKCS8_PRIV_KEY_INFO_fp = 'd2i_PKCS8_PRIV_KEY_INFO_fp'; }  {Do not localize}
   {CH fn_i2d_PKCS8_PRIV_KEY_INFO_fp = 'i2d_PKCS8_PRIV_KEY_INFO_fp'; }  {Do not localize}
+  fn_X509_CRL_get_version = 'X509_CRL_get_version'; {Do not localize}
+  fn_X509_CRL_get_lastUpdate = 'X509_CRL_get_lastUpdate'; {Do not localize}
+  fn_X509_CRL_get_nextUpdate = 'X509_CRL_get_nextUpdate'; {Do not localize}
+  fn_X509_CRL_get_issuer = 'X509_CRL_get_issuer'; {Do not localize}
+  fn_X509_CRL_get_REVOKED = 'X509_CRL_get_REVOKED'; {Do not localize}
   {$IFNDEF OPENSSL_NO_BIO}
   fn_d2i_X509_bio = 'd2i_X509_bio';  {Do not localize}
   fn_i2d_X509_bio = 'i2d_X509_bio';  {Do not localize}
@@ -21920,6 +21940,7 @@ them in case we use them later.}
   {CH fn_X509_REVOKED_free = 'X509_REVOKED_free'; }  {Do not localize}
   {CH fn_i2d_X509_REVOKED = 'i2d_X509_REVOKED'; }  {Do not localize}
   {CH fn_d2i_X509_REVOKED = 'd2i_X509_REVOKED'; }  {Do not localize}
+  _X509_CRL_get_versio = 'X509_CRL_get_versio'; {Do not localize}
   {CH fn_X509_CRL_INFO_new = 'X509_CRL_INFO_new'; }  {Do not localize}
   {CH fn_X509_CRL_INFO_free = 'X509_CRL_INFO_free'; }  {Do not localize}
   {CH fn_i2d_X509_CRL_INFO = 'i2d_X509_CRL_INFO'; }  {Do not localize}
@@ -21997,6 +22018,7 @@ them in case we use them later.}
   {CH fn_X509_CRL_print = 'X509_CRL_print'; }  {Do not localize}
   {CH fn_X509_REQ_print = 'X509_REQ_print'; }  {Do not localize}
   {CH fn_X509_REQ_print_ex = 'X509_REQ_print_ex'; } {Do not localize}
+  fn_X509_REQ_get_subject_name = 'X509_REQ_get_subject_name'; {Do not localize}
   {$ENDIF}
   {CH fn_X509_NAME_entry_count = 'X509_NAME_entry_count'; }  {Do not localize}
   {CH fn_X509_NAME_get_text_by_NID = 'X509_NAME_get_text_by_NID'; }  {Do not localize}
@@ -23271,6 +23293,7 @@ begin
   @X509_sign := LoadFunctionCLib(fn_X509_sign,False);
   @X509_REQ_sign := LoadFunctionCLib(fn_X509_REQ_sign,False);
   @X509_REQ_add_extensions := LoadFunctionCLib(fn_X509_REQ_add_extensions,False);
+  @_X509_REQ_get_version := LoadFunctionCLib(fn_X509_REQ_get_version, not IsOpenSSL_Less_then_1_1_0);
   @X509V3_EXT_conf_nid := LoadFunctionCLib(fn_X509V3_EXT_conf_nid,False);
   @X509_EXTENSION_create_by_NID := LoadFunctionCLib(fn_X509_EXTENSION_create_by_NID,False);
   @X509V3_set_ctx := LoadFunctionCLib(fn_X509V3_set_ctx);
@@ -23418,6 +23441,11 @@ we have to handle both cases.
   @d2i_X509_REQ := LoadFunctionCLib(fn_d2i_X509_REQ, False );
   @i2d_X509_CRL := LoadFunctionCLib(fn_i2d_X509_CRL, False );
   @d2i_X509_CRL := LoadFunctionCLib(fn_d2i_X509_CRL,False );
+  @_X509_CRL_get_version := LoadFunctionCLib(fn_X509_CRL_get_version, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_CRL_get_lastUpdate := LoadFunctionCLib(fn_X509_CRL_get_lastUpdate, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_CRL_get_nextUpdate := LoadFunctionCLib(fn_X509_CRL_get_nextUpdate, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_CRL_get_issuer := LoadFunctionCLib(fn_X509_CRL_get_issuer, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_CRL_get_REVOKED := LoadFunctionCLib(fn_X509_CRL_get_REVOKED, not IsOpenSSL_Less_then_1_1_0);
   @i2d_RSAPrivateKey := LoadFunctionCLib(fn_i2d_RSAPrivateKey,False );
   @d2i_RSAPrivateKey := LoadFunctionCLib(fn_d2i_RSAPrivateKey, False );
   @i2d_RSAPublicKey := LoadFunctionCLib(fn_i2d_RSAPublicKey,False);
@@ -23452,6 +23480,7 @@ we have to handle both cases.
   @X509_set_version := LoadFunctionCLib(fn_X509_set_version,False);
   @X509_get_serialNumber := LoadFunctionCLib(fn_X509_get_serialNumber);   //USED by Indy
   @X509_gmtime_adj := LoadFunctionCLib(fn_X509_gmtime_adj,False);
+  @_X509_REQ_get_subject_name := LoadFunctionCLib(fn_X509_REQ_get_subject_name, not IsOpenSSL_Less_then_1_1_0);
   @X509_set_notBefore := LoadFunctionCLib(fn_X509_set_notBefore,False);
   @X509_set_notAfter := LoadFunctionCLib(fn_X509_set_notAfter,False);
   @X509_set_pubkey := LoadFunctionCLib(fn_X509_set_pubkey,False);
@@ -24253,6 +24282,10 @@ begin
   @i2d_PUBKEY := nil;
   @d2i_PUBKEY := nil;
   //X509
+  @_X509_CRL_get_lastUpdate := nil;
+  @_X509_CRL_get_nextUpdate := nil;
+  @_X509_CRL_get_issuer := nil;
+  @_X509_CRL_get_REVOKED := nil;
   @X509_get_default_cert_file := nil;
   @X509_get_default_cert_file_env := nil;
   @X509_new := nil;
@@ -24269,6 +24302,8 @@ begin
   @X509_set_notAfter := nil;
   @X509_set_pubkey := nil;
   @X509_REQ_set_pubkey := nil;
+  @_X509_REQ_get_subject_name := nil;
+  @_X509_REQ_get_version := nil;
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := nil;
@@ -25056,7 +25091,11 @@ function X509_REQ_get_subject_name(x:PX509_REQ):PX509_NAME;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Assert(x<>nil);
-  Result := x^.req_info^.subject;
+  if Assigned(_X509_REQ_get_subject_name) then begin
+    Result := X509_REQ_get_subject_name(x);
+  end else begin
+    Result := x^.req_info^.subject;
+  end;
 end;
 
 //function X509_get_notBefore(x509: PX509):PASN1_UTCTIME;
@@ -25086,37 +25125,61 @@ end;
 function X509_REQ_get_version(x : PX509_REQ): TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := ASN1_INTEGER_get(x^.req_info^.version);
+  if Assigned(_X509_REQ_get_version) then begin
+    Result := _X509_REQ_get_version(x);
+  end else begin
+    Result := ASN1_INTEGER_get(x^.req_info^.version);
+  end;
 end;
 
 function X509_CRL_get_version(x : PX509_CRL) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := ASN1_INTEGER_get(x^.crl^.version);
+  if Assigned(_X509_CRL_get_version) then begin
+    Result := _X509_CRL_get_version(x);
+  end else begin
+    Result := ASN1_INTEGER_get(x^.crl^.version);
+  end;
 end;
 
 function X509_CRL_get_lastUpdate(x : PX509_CRL) : PASN1_TIME;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := x^.crl^.lastUpdate;
+  if Assigned(_X509_CRL_get_lastUpdate) then begin
+    Result := _X509_CRL_get_lastUpdate(x);
+  end else begin
+    Result := x^.crl^.lastUpdate;
+  end;
 end;
 
 function X509_CRL_get_nextUpdate(x : PX509_CRL) : PASN1_TIME;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := x^.crl^.nextUpdate;
+  if Assigned(_X509_CRL_get_nextUpdate) then begin
+    Result := _X509_CRL_get_nextUpdate(x);
+  end else begin
+    Result := x^.crl^.nextUpdate;
+  end;
 end;
 
 function X509_CRL_get_issuer(x : PX509_CRL) : PX509_NAME;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := x^.crl^.issuer
+  if Assigned(_X509_CRL_get_issuer) then begin
+    Result := _X509_CRL_get_issuer(x);
+  end else begin
+    Result := x^.crl^.issuer;
+  end;
 end;
 
 function X509_CRL_get_REVOKED(x : PX509_CRL) : PSTACK_OF_X509_REVOKED;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := x^.crl^.revoked;
+  if Assigned(_X509_CRL_get_REVOKED) then begin
+    Result := _X509_CRL_get_REVOKED(x);
+  end else begin
+    Result := x^.crl^.revoked;
+  end;
 end;
 
 procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
