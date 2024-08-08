@@ -21114,18 +21114,18 @@ them in case we use them later.}
   fn_EVP_desx_cbc = 'EVP_desx_cbc';  {Do not localize}
   fn_EVP_des_ede3_cfb8 = 'EVP_des_ede3_cfb8'; {Do not localize}
   fn_EVP_des_ede_ecb = 'EVP_des_ede_ecb'; {Do not localize}
-  fn_EVP_des_ede3_ecb = 'EVP_des_ede3_ecb';
-  fn_EVP_des_cfb64 = 'EVP_des_cfb64';
+  fn_EVP_des_ede3_ecb = 'EVP_des_ede3_ecb'; {Do not localize}
+  fn_EVP_des_cfb64 = 'EVP_des_cfb64'; {Do not localize}
 
-  fn_EVP_des_cfb1 = 'EVP_des_cfb1';
-  fn_EVP_des_cfb8 = 'EVP_des_cfb8';
-  fn_EVP_des_ede_cfb64 = 'EVP_des_ede_cfb64';
+  fn_EVP_des_cfb1 = 'EVP_des_cfb1'; {Do not localize}
+  fn_EVP_des_cfb8 = 'EVP_des_cfb8'; {Do not localize}
+  fn_EVP_des_ede_cfb64 = 'EVP_des_ede_cfb64'; {Do not localize}
 //#if 0
-  fn_EVP_des_ede_cfb1 = 'EVP_des_ede_cfb1';
-  fn_EVP_des_ede_cfb8 = 'EVP_des_ede_cfb8';
+  fn_EVP_des_ede_cfb1 = 'EVP_des_ede_cfb1'; {Do not localize}
+  fn_EVP_des_ede_cfb8 = 'EVP_des_ede_cfb8'; {Do not localize}
   //#endif
-  fn_EVP_des_ede3_cfb64 = 'EVP_des_ede3_cfb64';
-  fn_EVP_des_ede3_cfb1 = 'EVP_des_ede3_cfb1';
+  fn_EVP_des_ede3_cfb64 = 'EVP_des_ede3_cfb64'; {Do not localize}
+  fn_EVP_des_ede3_cfb1 = 'EVP_des_ede3_cfb1'; {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC4}
   fn_EVP_rc4 = 'EVP_rc4';  {Do not localize}
@@ -21309,75 +21309,75 @@ them in case we use them later.}
   fn_EVP_PBE_alg_add_type = 'EVP_PBE_alg_add_type'; {Do not localize}
   fn_EVP_PBE_find = 'EVP_PBE_find'; {Do not localize}
   fn_EVP_PBE_cleanup = 'EVP_PBE_cleanup';  {Do not localize}
-  fn_EVP_PKEY_asn1_get_count = 'EVP_PKEY_asn1_get_count';
-  fn_EVP_PKEY_asn1_get0 = 'EVP_PKEY_asn1_get0';
-  fn_EVP_PKEY_asn1_find = 'EVP_PKEY_asn1_find';
-  fn_EVP_PKEY_asn1_find_str = 'EVP_PKEY_asn1_find_str';
-  fn_EVP_PKEY_asn1_add0 = 'EVP_PKEY_asn1_add0';
-  fn_EVP_PKEY_asn1_add_alias = 'EVP_PKEY_asn1_add_alias';
-  fn_EVP_PKEY_asn1_get0_info = 'EVP_PKEY_asn1_get0_info';
-  fn_EVP_PKEY_get0_asn1 = 'EVP_PKEY_get0_asn1';
-  fn_EVP_PKEY_asn1_new = 'EVP_PKEY_asn1_new';
-  fn_EVP_PKEY_asn1_copy = 'EVP_PKEY_asn1_copy';
-  fn_EVP_PKEY_asn1_free = 'EVP_PKEY_asn1_free';
-  fn_EVP_PKEY_asn1_set_public = 'EVP_PKEY_asn1_set_public';
-  fn_EVP_PKEY_asn1_set_private = 'EVP_PKEY_asn1_set_private';
-  fn_EVP_PKEY_asn1_set_param = 'EVP_PKEY_asn1_set_param';
-  fn_EVP_PKEY_asn1_set_free = 'EVP_PKEY_asn1_set_free';
-  fn_EVP_PKEY_asn1_set_ctrl = 'EVP_PKEY_asn1_set_ctrl';
-  fn_EVP_PKEY_meth_find = 'EVP_PKEY_meth_find';
-  fn_EVP_PKEY_meth_new = 'EVP_PKEY_meth_new';
-  fn_EVP_PKEY_meth_get0_info = 'EVP_PKEY_meth_get0_info';
-  fn_EVP_PKEY_meth_copy = 'EVP_PKEY_meth_copy';
-  fn_EVP_PKEY_meth_free = 'EVP_PKEY_meth_free';
-  fn_EVP_PKEY_meth_add0 = 'EVP_PKEY_meth_add0';
-  fn_EVP_PKEY_CTX_new = 'EVP_PKEY_CTX_new';
-  fn_EVP_PKEY_CTX_new_id = 'EVP_PKEY_CTX_new_id';
-  fn_EVP_PKEY_CTX_dup = 'EVP_PKEY_CTX_dup';
-  fn_EVP_PKEY_CTX_free = 'EVP_PKEY_CTX_free';
-  fn_EVP_PKEY_CTX_ctrl = 'EVP_PKEY_CTX_ctrl';
-  fn_EVP_PKEY_CTX_ctrl_str = 'EVP_PKEY_CTX_ctrl_str';
-  fn_EVP_PKEY_CTX_get_operation = 'EVP_PKEY_CTX_get_operation';
-  fn_EVP_PKEY_CTX_set0_keygen_info = 'EVP_PKEY_CTX_set0_keygen_info';
-  fn_EVP_PKEY_new_mac_key = 'EVP_PKEY_new_mac_key';
-  fn_EVP_PKEY_CTX_set_data = 'EVP_PKEY_CTX_set_data';
-  fn_EVP_PKEY_CTX_get_data = 'EVP_PKEY_CTX_get_data';
-  fn_EVP_PKEY_CTX_get0_pkey = 'EVP_PKEY_CTX_get0_pkey';
-  fn_EVP_PKEY_CTX_get0_peerkey = 'EVP_PKEY_CTX_get0_peerkey';
-  fn_EVP_PKEY_CTX_set_app_data = 'EVP_PKEY_CTX_set_app_data';
-  fn_EVP_PKEY_CTX_get_app_data = 'EVP_PKEY_CTX_get_app_data';
-  fn_EVP_PKEY_sign_init = 'EVP_PKEY_sign_init';
-  fn_EVP_PKEY_sign = 'EVP_PKEY_sign';
-  fn_EVP_PKEY_verify_init = 'EVP_PKEY_verify_init';
-  fn_EVP_PKEY_verify = 'EVP_PKEY_verify';
-  fn_EVP_PKEY_verify_recover_init = 'EVP_PKEY_verify_recover_init';
-  fn_EVP_PKEY_verify_recover = 'EVP_PKEY_verify_recover';
-  fn_EVP_PKEY_encrypt_init = 'EVP_PKEY_encrypt_init';
-  fn_EVP_PKEY_decrypt_init = 'EVP_PKEY_decrypt_init';
-  fn_EVP_PKEY_derive_init = 'EVP_PKEY_derive_init';
-  fn_EVP_PKEY_derive_set_peer = 'EVP_PKEY_derive_set_peer';
-  fn_EVP_PKEY_derive = 'EVP_PKEY_derive';
-  fn_EVP_PKEY_paramgen_init = 'EVP_PKEY_paramgen_init';
-  fn_EVP_PKEY_paramgen = 'EVP_PKEY_paramgen';
-  fn_EVP_PKEY_keygen_init = 'EVP_PKEY_keygen_init';
-  fn_EVP_PKEY_keygen = 'EVP_PKEY_keygen';
-  fn_EVP_PKEY_CTX_set_cb = 'EVP_PKEY_CTX_set_cb';
-  fn_EVP_PKEY_CTX_get_cb = 'EVP_PKEY_CTX_get_cb';
-  fn_EVP_PKEY_CTX_get_keygen_info = 'EVP_PKEY_CTX_get_keygen_info';
-  fn_EVP_PKEY_meth_set_init = 'EVP_PKEY_meth_set_init';
-  fn_EVP_PKEY_meth_set_copy = 'EVP_PKEY_meth_set_copy';
-  fn_EVP_PKEY_meth_set_cleanup = 'EVP_PKEY_meth_set_cleanup';
-  fn_EVP_PKEY_meth_set_paramgen = 'EVP_PKEY_meth_set_paramgen';
-  fn_EVP_PKEY_meth_set_keygen = 'EVP_PKEY_meth_set_keygen';
-  fn_EVP_PKEY_meth_set_sign = 'EVP_PKEY_meth_set_sign';
-  fn_EVP_PKEY_meth_set_verify = 'EVP_PKEY_meth_set_verify';
-  fn_EVP_PKEY_meth_set_verify_recover = 'EVP_PKEY_meth_set_verify_recover';
-  fn_EVP_PKEY_meth_set_signctx = 'EVP_PKEY_meth_set_signctx';
-  fn_EVP_PKEY_meth_set_verifyctx = 'EVP_PKEY_meth_set_verifyctx';
-  fn_EVP_PKEY_meth_set_encrypt = 'EVP_PKEY_meth_set_encrypt';
-  fn_EVP_PKEY_meth_set_decrypt = 'EVP_PKEY_meth_set_decrypt';
-  fn_EVP_PKEY_meth_set_derive = 'EVP_PKEY_meth_set_derive';
-  fn_EVP_PKEY_meth_set_ctrl = 'EVP_PKEY_meth_set_ctrl';
+  fn_EVP_PKEY_asn1_get_count = 'EVP_PKEY_asn1_get_count'; {Do not localize}
+  fn_EVP_PKEY_asn1_get0 = 'EVP_PKEY_asn1_get0'; {Do not localize}
+  fn_EVP_PKEY_asn1_find = 'EVP_PKEY_asn1_find'; {Do not localize}
+  fn_EVP_PKEY_asn1_find_str = 'EVP_PKEY_asn1_find_str'; {Do not localize}
+  fn_EVP_PKEY_asn1_add0 = 'EVP_PKEY_asn1_add0'; {Do not localize}
+  fn_EVP_PKEY_asn1_add_alias = 'EVP_PKEY_asn1_add_alias'; {Do not localize}
+  fn_EVP_PKEY_asn1_get0_info = 'EVP_PKEY_asn1_get0_info'; {Do not localize}
+  fn_EVP_PKEY_get0_asn1 = 'EVP_PKEY_get0_asn1'; {Do not localize}
+  fn_EVP_PKEY_asn1_new = 'EVP_PKEY_asn1_new'; {Do not localize}
+  fn_EVP_PKEY_asn1_copy = 'EVP_PKEY_asn1_copy'; {Do not localize}
+  fn_EVP_PKEY_asn1_free = 'EVP_PKEY_asn1_free'; {Do not localize}
+  fn_EVP_PKEY_asn1_set_public = 'EVP_PKEY_asn1_set_public'; {Do not localize}
+  fn_EVP_PKEY_asn1_set_private = 'EVP_PKEY_asn1_set_private'; {Do not localize}
+  fn_EVP_PKEY_asn1_set_param = 'EVP_PKEY_asn1_set_param';  {Do not localize}
+  fn_EVP_PKEY_asn1_set_free = 'EVP_PKEY_asn1_set_free'; {Do not localize}
+  fn_EVP_PKEY_asn1_set_ctrl = 'EVP_PKEY_asn1_set_ctrl';  {Do not localize}
+  fn_EVP_PKEY_meth_find = 'EVP_PKEY_meth_find';  {Do not localize}
+  fn_EVP_PKEY_meth_new = 'EVP_PKEY_meth_new';   {Do not localize}
+  fn_EVP_PKEY_meth_get0_info = 'EVP_PKEY_meth_get0_info';  {Do not localize}
+  fn_EVP_PKEY_meth_copy = 'EVP_PKEY_meth_copy';  {Do not localize}
+  fn_EVP_PKEY_meth_free = 'EVP_PKEY_meth_free';  {Do not localize}
+  fn_EVP_PKEY_meth_add0 = 'EVP_PKEY_meth_add0'; {Do not localize}
+  fn_EVP_PKEY_CTX_new = 'EVP_PKEY_CTX_new'; {Do not localize}
+  fn_EVP_PKEY_CTX_new_id = 'EVP_PKEY_CTX_new_id';  {Do not localize}
+  fn_EVP_PKEY_CTX_dup = 'EVP_PKEY_CTX_dup';  {Do not localize}
+  fn_EVP_PKEY_CTX_free = 'EVP_PKEY_CTX_free'; {Do not localize}
+  fn_EVP_PKEY_CTX_ctrl = 'EVP_PKEY_CTX_ctrl';  {Do not localize}
+  fn_EVP_PKEY_CTX_ctrl_str = 'EVP_PKEY_CTX_ctrl_str'; {Do not localize}
+  fn_EVP_PKEY_CTX_get_operation = 'EVP_PKEY_CTX_get_operation';   {Do not localize}
+  fn_EVP_PKEY_CTX_set0_keygen_info = 'EVP_PKEY_CTX_set0_keygen_info';  {Do not localize}
+  fn_EVP_PKEY_new_mac_key = 'EVP_PKEY_new_mac_key';  {Do not localize}
+  fn_EVP_PKEY_CTX_set_data = 'EVP_PKEY_CTX_set_data';   {Do not localize}
+  fn_EVP_PKEY_CTX_get_data = 'EVP_PKEY_CTX_get_data';   {Do not localize}
+  fn_EVP_PKEY_CTX_get0_pkey = 'EVP_PKEY_CTX_get0_pkey';  {Do not localize}
+  fn_EVP_PKEY_CTX_get0_peerkey = 'EVP_PKEY_CTX_get0_peerkey';  {Do not localize}
+  fn_EVP_PKEY_CTX_set_app_data = 'EVP_PKEY_CTX_set_app_data';   {Do not localize}
+  fn_EVP_PKEY_CTX_get_app_data = 'EVP_PKEY_CTX_get_app_data'; {Do not localize}
+  fn_EVP_PKEY_sign_init = 'EVP_PKEY_sign_init';  {Do not localize}
+  fn_EVP_PKEY_sign = 'EVP_PKEY_sign';   {Do not localize}
+  fn_EVP_PKEY_verify_init = 'EVP_PKEY_verify_init';  {Do not localize}
+  fn_EVP_PKEY_verify = 'EVP_PKEY_verify';  {Do not localize}
+  fn_EVP_PKEY_verify_recover_init = 'EVP_PKEY_verify_recover_init';  {Do not localize}
+  fn_EVP_PKEY_verify_recover = 'EVP_PKEY_verify_recover';   {Do not localize}
+  fn_EVP_PKEY_encrypt_init = 'EVP_PKEY_encrypt_init';   {Do not localize}
+  fn_EVP_PKEY_decrypt_init = 'EVP_PKEY_decrypt_init'; {Do not localize}
+  fn_EVP_PKEY_derive_init = 'EVP_PKEY_derive_init';   {Do not localize}
+  fn_EVP_PKEY_derive_set_peer = 'EVP_PKEY_derive_set_peer';   {Do not localize}
+  fn_EVP_PKEY_derive = 'EVP_PKEY_derive';   {Do not localize}
+  fn_EVP_PKEY_paramgen_init = 'EVP_PKEY_paramgen_init';  {Do not localize}
+  fn_EVP_PKEY_paramgen = 'EVP_PKEY_paramgen';  {Do not localize}
+  fn_EVP_PKEY_keygen_init = 'EVP_PKEY_keygen_init';   {Do not localize}
+  fn_EVP_PKEY_keygen = 'EVP_PKEY_keygen';   {Do not localize}
+  fn_EVP_PKEY_CTX_set_cb = 'EVP_PKEY_CTX_set_cb';  {Do not localize}
+  fn_EVP_PKEY_CTX_get_cb = 'EVP_PKEY_CTX_get_cb';   {Do not localize}
+  fn_EVP_PKEY_CTX_get_keygen_info = 'EVP_PKEY_CTX_get_keygen_info';   {Do not localize}
+  fn_EVP_PKEY_meth_set_init = 'EVP_PKEY_meth_set_init';   {Do not localize}
+  fn_EVP_PKEY_meth_set_copy = 'EVP_PKEY_meth_set_copy';  {Do not localize}
+  fn_EVP_PKEY_meth_set_cleanup = 'EVP_PKEY_meth_set_cleanup';  {Do not localize}
+  fn_EVP_PKEY_meth_set_paramgen = 'EVP_PKEY_meth_set_paramgen';  {Do not localize}
+  fn_EVP_PKEY_meth_set_keygen = 'EVP_PKEY_meth_set_keygen';  {Do not localize}
+  fn_EVP_PKEY_meth_set_sign = 'EVP_PKEY_meth_set_sign';  {Do not localize}
+  fn_EVP_PKEY_meth_set_verify = 'EVP_PKEY_meth_set_verify';  {Do not localize}
+  fn_EVP_PKEY_meth_set_verify_recover = 'EVP_PKEY_meth_set_verify_recover';    {Do not localize}
+  fn_EVP_PKEY_meth_set_signctx = 'EVP_PKEY_meth_set_signctx';  {Do not localize}
+  fn_EVP_PKEY_meth_set_verifyctx = 'EVP_PKEY_meth_set_verifyctx';  {Do not localize}
+  fn_EVP_PKEY_meth_set_encrypt = 'EVP_PKEY_meth_set_encrypt';  {Do not localize}
+  fn_EVP_PKEY_meth_set_decrypt = 'EVP_PKEY_meth_set_decrypt';   {Do not localize}
+  fn_EVP_PKEY_meth_set_derive = 'EVP_PKEY_meth_set_derive';  {Do not localize}
+  fn_EVP_PKEY_meth_set_ctrl = 'EVP_PKEY_meth_set_ctrl';  {Do not localize}
 
   {$IFDEF OPENSSL_FIPS}
     {$IFNDEF OPENSSL_NO_ENGINE}
@@ -23190,7 +23190,7 @@ begin
 
   @SSL_get_peer_certificate := LoadFunction(fn_SSL_get_peer_certificate,False); //Used by Indy
   if @SSL_get_peer_certificate = nil then begin
-    @SSL_get_peer_certificate := LoadFunction('SSL_get1_peer_certificate'); //Used by Indy
+    @SSL_get_peer_certificate := LoadFunction('SSL_get1_peer_certificate'); //Used by Indy  {Do not localize}
   end;
   @SSL_CTX_set_verify := LoadFunction(fn_SSL_CTX_set_verify); //Used by Indy
   @SSL_CTX_set_verify_depth := LoadFunction(fn_SSL_CTX_set_verify_depth); //Used by Indy
@@ -23706,7 +23706,7 @@ we have to handle both cases.
 
   @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init, false);
   if @EVP_MD_CTX_init = nil then begin
-    @EVP_MD_CTX_init := LoadFunctionCLib('EVP_MD_CTX_reset');
+    @EVP_MD_CTX_init := LoadFunctionCLib('EVP_MD_CTX_reset');   {Do not localize}
   end;
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup, false);
   @EVP_MD_CTX_create := LoadFunctionCLib(fn_EVP_MD_CTX_create, False);
@@ -23786,11 +23786,11 @@ we have to handle both cases.
   end;
   @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_size, false);
   if @EVP_MD_size = nil then begin
-     @EVP_MD_size := LoadFunctionCLib('EVP_MD_get_type');
+     @EVP_MD_size := LoadFunctionCLib('EVP_MD_get_type');  {Do not localize}
   end;
   @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size, false);
   if @EVP_MD_block_size = nil then begin
-    @EVP_MD_block_size := LoadFunctionCLib('EVP_MD_get_block_size');
+    @EVP_MD_block_size := LoadFunctionCLib('EVP_MD_get_block_size');  {Do not localize}
   end;
   @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags,False);
   @EVP_MD_CTX_md := LoadFunctionCLib(fn_EVP_MD_CTX_md);
@@ -23800,11 +23800,11 @@ we have to handle both cases.
   @EVP_CIPHER_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_iv_length,False);
   @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags, false);
   if @EVP_CIPHER_flags = nil then begin
-     @EVP_CIPHER_flags := LoadFunctionCLib('EVP_CIPHER_get_flags');
+     @EVP_CIPHER_flags := LoadFunctionCLib('EVP_CIPHER_get_flags');  {Do not localize}
   end;
   @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type, false);
   if @EVP_CIPHER_type = nil then begin
-     @EVP_CIPHER_type := LoadFunctionCLib('EVP_CIPHER_get_type');
+     @EVP_CIPHER_type := LoadFunctionCLib('EVP_CIPHER_get_type');  {Do not localize}
   end;
   @EVP_CIPHER_CTX_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_cipher);
   @EVP_CIPHER_CTX_nid  := LoadFunctionCLib(fn_EVP_CIPHER_CTX_nid,False);
@@ -24003,35 +24003,35 @@ we have to handle both cases.
 
   @sk_num := LoadFunctionCLib(fn_sk_num, false);
   if @sk_num = nil then begin
-    @sk_num := LoadFunctionCLib('OPENSSL_sk_num');
+    @sk_num := LoadFunctionCLib('OPENSSL_sk_num');   {Do not localize}
   end;
   @sk_new := LoadFunctionCLib(fn_sk_new, false);
   if @sk_new = nil then begin
-    @sk_new := LoadFunctionCLib('OPENSSL_sk_new');
+    @sk_new := LoadFunctionCLib('OPENSSL_sk_new');    {Do not localize}
   end;
   @sk_new_null := LoadFunctionCLib(fn_sk_new_null, false);
   if @sk_new_null = nil then begin
-    @sk_new_null :=  LoadFunctionCLib('OPENSSL_sk_new_null');
+    @sk_new_null :=  LoadFunctionCLib('OPENSSL_sk_new_null');  {Do not localize}
   end;
   @sk_free := LoadFunctionCLib(fn_sk_free, false);
   if @sk_free = nil then begin
-    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_free');
+    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_free');  {Do not localize}
   end;
   @sk_push := LoadFunctionCLib(fn_sk_push, false);
   if @sk_push = nil then begin
-    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_push');
+    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_push');   {Do not localize}
   end;
   @sk_dup := LoadFunctionCLib(fn_sk_dup, false);
   if @sk_dup = nil then begin
-    @sk_dup := LoadFunctionCLib('OPENSSL_sk_dup');
+    @sk_dup := LoadFunctionCLib('OPENSSL_sk_dup');   {Do not localize}
   end;
   @sk_find := LoadFunctionCLib(fn_sk_find, false);
   if @sk_find = nil then begin
-    @sk_find := LoadFunctionCLib('OPENSSL_sk_find');
+    @sk_find := LoadFunctionCLib('OPENSSL_sk_find');   {Do not localize}
   end;
   @sk_value := LoadFunctionCLib(fn_sk_value, false);
   if @sk_value = nil then begin
-    @sk_value := LoadFunctionCLib('OPENSSL_sk_value');
+    @sk_value := LoadFunctionCLib('OPENSSL_sk_value');   {Do not localize}
   end;
   {$IFDEF OPENSSL_FIPS}
   @_FIPS_mode_set := LoadFunctionCLib(fn_FIPS_mode_set,False);
