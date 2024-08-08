@@ -32,10 +32,10 @@ package dclIndyTLSOpenSSL200;
 
 requires
   designide,
+  IndyTLSOpenSSL200,
   dclIndyCore200;
 
 contains
-  IdDsnRegisterOpenSSL in 'IdDsnRegisterOpenSSL.pas',
   IdRegisterOpenSSL in 'IdRegisterOpenSSL.pas';
 
 end.

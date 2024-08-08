@@ -23,10 +23,10 @@ package dclIndyTLSOpenSSL70;
 requires
   vcl,
   designide,
+  IndyTLSOpenSSL70,
   dclIndyCore70;
 
 contains
-  IdDsnRegisterOpenSSL in 'IdDsnRegisterOpenSSL.pas',
   IdRegisterOpenSSL in 'IdRegisterOpenSSL.pas';
 
 end.

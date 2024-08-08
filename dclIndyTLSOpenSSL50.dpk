@@ -22,10 +22,10 @@ package dclIndyTLSOpenSSL50;
 
 requires
   Vcl50,
+  IndyTLSOpenSSL50,
   dclIndyCore50;
 
 contains
-  IdDsnRegisterOpenSSL in 'IdDsnRegisterOpenSSL.pas',
   IdRegisterOpenSSL in 'IdRegisterOpenSSL.pas';
 
 end.

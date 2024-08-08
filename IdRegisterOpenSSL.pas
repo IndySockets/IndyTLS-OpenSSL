@@ -15,44 +15,73 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes;
+  Classes,
+  {$IFDEF DOTNET}
+  Borland.Vcl.Design.DesignIntF,
+  Borland.Vcl.Design.DesignEditors
+  {$ELSE}
+    {$IFDEF FPC}
+  PropEdits,
+  ComponentEditors
+    {$ELSE}
+      {$IFDEF VCL_6_OR_ABOVE}
+  DesignIntf,
+  DesignEditors
+      {$ELSE}
+  Dsgnintf
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+  ;
+
+{$IFDEF HAS_TSelectionEditor}
+type
+  TIdOpenSSLSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(Proc: TGetStrProc); override;
+  end;
+{$ENDIF}
 
 procedure Register;
 
 implementation
 
 uses
-  IdDsnResourceStrings,
+  IdDsnCoreResourceStrings, // for RSRegIndyIOHandlers in dclIndyCore package
   {$IFDEF FPC}
+  IdDsnResourceStrings,     // for RSProt in dclIndyProtocols package
   LResources,
   {$ENDIF}
   IdSSLOpenSSL;
 
 {$IFNDEF FPC}
-  {$IFDEF BORLAND}
   {$R IdRegisterOpenSSL.dcr}
-  {$ELSE}
-  {$R IdRegisterCoolOpenSSL.dcr}
-  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF HAS_TSelectionEditor}
+
+{TIdOpenSSLSelectionEditor}
+
+procedure TIdOpenSSLSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+begin
+  inherited RequiresUnits(Proc);
+  //for new callback event
+  Proc('IdCTypes'); {Do not localize}
+  Proc('IdSSLOpenSSLHeaders'); {Do not localize}
+end;
+
 {$ENDIF}
 
 procedure Register;
 begin
-  {$IFNDEF FPC}
+  RegisterComponents(RSRegIndyIOHandlers{$IFDEF FPC}+RSProt{$ENDIF}, [
+    TIdServerIOHandlerSSLOpenSSL,
+    TIdSSLIOHandlerSocketOpenSSL
+  ]);
 
-  RegisterComponents(RSRegIndyIOHandlers, [
-   TIdServerIOHandlerSSLOpenSSL,
-   TIdSSLIOHandlerSocketOpenSSL
-   ]);
-
-  {$ELSE}
-
-  //FreePascal Lazarus Registration
-  RegisterComponents(RSRegIndyIOHandlers+RSProt, [
-   TIdServerIOHandlerSSLOpenSSL,
-   TIdSSLIOHandlerSocketOpenSSL
-   ]);
-
+  {$IFDEF HAS_TSelectionEditor}
+  RegisterSelectionEditor(TIdServerIOHandlerSSLOpenSSL, TIdOpenSSLSelectionEditor);
+  RegisterSelectionEditor(TIdSSLIOHandlerSocketOpenSSL, TIdOpenSSLSelectionEditor);
   {$ENDIF}
 end;
 
