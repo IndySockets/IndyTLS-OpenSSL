@@ -2358,7 +2358,6 @@ begin
 end;
 
 {$ENDIF}
-{$IFNDEF WIN32_OR_WIN64}
 
 procedure _threadid_func(id: PCRYPTO_THREADID)cdecl;
 begin
@@ -2374,7 +2373,6 @@ begin
   // thread to thread or many on the same thread.
   Result := TIdC_ULONG(CurrentThreadId);
 end;
-{$ENDIF}
 
 procedure SslLockingCallback(Mode, n: TIdC_INT; Afile: PIdAnsiChar;
   line: TIdC_INT)cdecl;
@@ -2586,16 +2584,16 @@ begin
     begin
       CRYPTO_set_locking_callback(@SslLockingCallback);
     end;
-{$IFNDEF WIN32_OR_WIN64}
     if Assigned(CRYPTO_THREADID_set_callback) then
     begin
       CRYPTO_THREADID_set_callback(@_threadid_func);
     end
     else
     begin
-      CRYPTO_set_id_callback(@_GetThreadID);
+      if Assigned(CRYPTO_set_id_callback) then begin
+        CRYPTO_set_id_callback(@_GetThreadID);
+      end;
     end;
-{$ENDIF}
     SSLIsLoaded.Value := True;
     Result := True;
   finally
