@@ -18103,6 +18103,8 @@ var
   PKCS12_free: procedure(p12: PPKCS12) cdecl = nil;
   {$EXTERNALSYM SSL_load_client_CA_file}
   SSL_load_client_CA_file: function(const _file: PIdAnsiChar): PSTACK_OF_X509_NAME cdecl = nil;
+  {$EXTERNALSYM _SSL_CTX_set_info_callback}
+  _SSL_CTX_set_info_callback : procedure(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback) cdecl = nil;
   {$EXTERNALSYM SSL_CTX_set_client_CA_list}
   SSL_CTX_set_client_CA_list: procedure(ctx: PSSL_CTX; list: PSTACK_OF_X509_NAME) cdecl = nil;
   {$EXTERNALSYM SSL_CTX_set_default_verify_paths}
@@ -22255,6 +22257,7 @@ them in case we use them later.}
   {CH fn_SSL_CTX_set_client_cert_engine = 'SSL_CTX_set_client_cert_engine'; } {Do not localize}
   {$endif}
   {CH fn_SSL_CTX_use_certificate_chain_file = 'SSL_CTX_use_certificate_chain_file'; }  {Do not localize}
+  fn_SSL_CTX_set_info_callback = 'SSL_CTX_set_info_callback'; {Do not localize}
   fn_SSL_load_client_CA_file = 'SSL_load_client_CA_file';  {Do not localize}
   {CH fn_SSL_add_file_cert_subjects_to_stack = 'SSL_add_file_cert_subjects_to_stack'; }  {Do not localize}
   {CH fn_ERR_load_SSL_strings = 'ERR_load_SSL_strings'; }  {Do not localize}
@@ -23303,6 +23306,7 @@ begin
   // More SSL functions
   @SSL_set_ex_data := LoadFunction(fn_SSL_set_ex_data,False);
   @SSL_get_ex_data := LoadFunction(fn_SSL_get_ex_data,False);
+  @_SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback, not IsOpenSSL_Less_then_1_1_0);
   @SSL_load_client_CA_file := LoadFunction(fn_SSL_load_client_CA_file);  //Used by Indy
   @SSL_CTX_set_client_CA_list := LoadFunction(fn_SSL_CTX_set_client_CA_list); //Used by Indy
   @SSL_CTX_set_default_verify_paths := LoadFunction(fn_SSL_CTX_set_default_verify_paths); //Used by Indy
@@ -24142,6 +24146,7 @@ begin
   // More SSL functions
   @SSL_set_ex_data := nil;
   @SSL_get_ex_data := nil;
+  @_SSL_CTX_set_info_callback := nil;
   @SSL_load_client_CA_file := nil;
   @SSL_CTX_set_client_CA_list := nil;
   @SSL_CTX_set_default_verify_paths := nil;
@@ -25118,7 +25123,11 @@ procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Assert(ctx<>nil);
-  ctx.info_callback := cb;
+  if Assigned(_SSL_CTX_set_info_callback) then begin
+    _SSL_CTX_set_info_callback(ctx,cb);
+  end else begin
+    ctx.info_callback := cb;
+  end;
 end;
 
 //* Note: SSL[_CTX]_set_{options,mode} use |= op on the previous value,
