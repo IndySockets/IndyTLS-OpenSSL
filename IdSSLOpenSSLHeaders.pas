@@ -19046,7 +19046,7 @@ type
   EIdDigestUpdate = class(EIdDigestError);
 
 function IsOpenSSL_1x : Boolean;
-function IsOpenSSL_Less_then_1_1_0 : boolean;
+function IsOpenSSL_Less_than_1_1_0 : boolean;
 function IsOpenSSL_SSLv2_Available : Boolean;
 function IsOpenSSL_SSLv3_Available : Boolean;
 function IsOpenSSL_SSLv23_Available : Boolean;
@@ -19144,7 +19144,7 @@ begin
   end;
 end;
 
-function IsOpenSSL_Less_then_1_1_0 : Boolean;
+function IsOpenSSL_Less_than_1_1_0 : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Assigned( SSLeay ) then begin
@@ -23314,8 +23314,8 @@ begin
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
   @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
-  @_X509_get_version := LoadFunctionCLib(fn_X509_get_version, not IsOpenSSL_Less_then_1_1_0);
-  @_X509_get_signature_type := LoadFunctionCLib(fn_X509_get_signature_type, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_get_version := LoadFunctionCLib(fn_X509_get_version, not IsOpenSSL_Less_than_1_1_0);
+  @_X509_get_signature_type := LoadFunctionCLib(fn_X509_get_signature_type, not IsOpenSSL_Less_than_1_1_0);
   @X509_NAME_cmp := LoadFunctionCLib(fn_X509_NAME_cmp); //Used by Indy
   @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash,False);  //Used by Indy
   @X509_NAME_hash_ex := LoadFunctionCLib(fn_X509_NAME_hash_ex,@X509_NAME_hash = nil); //Used by Indy
@@ -23337,7 +23337,7 @@ begin
   @X509_sign := LoadFunctionCLib(fn_X509_sign,False);
   @X509_REQ_sign := LoadFunctionCLib(fn_X509_REQ_sign,False);
   @X509_REQ_add_extensions := LoadFunctionCLib(fn_X509_REQ_add_extensions,False);
-  @_X509_REQ_get_version := LoadFunctionCLib(fn_X509_REQ_get_version, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_REQ_get_version := LoadFunctionCLib(fn_X509_REQ_get_version, not IsOpenSSL_Less_than_1_1_0);
   @X509V3_EXT_conf_nid := LoadFunctionCLib(fn_X509V3_EXT_conf_nid,False);
   @X509_EXTENSION_create_by_NID := LoadFunctionCLib(fn_X509_EXTENSION_create_by_NID,False);
   @X509V3_set_ctx := LoadFunctionCLib(fn_X509V3_set_ctx);
@@ -23373,7 +23373,7 @@ begin
   // More SSL functions
   @SSL_set_ex_data := LoadFunction(fn_SSL_set_ex_data,False);
   @SSL_get_ex_data := LoadFunction(fn_SSL_get_ex_data,False);
-  @_SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback, not IsOpenSSL_Less_then_1_1_0);
+  @_SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback, not IsOpenSSL_Less_than_1_1_0);
   @SSL_load_client_CA_file := LoadFunction(fn_SSL_load_client_CA_file);  //Used by Indy
   @SSL_CTX_set_client_CA_list := LoadFunction(fn_SSL_CTX_set_client_CA_list); //Used by Indy
   @SSL_CTX_set_default_verify_paths := LoadFunction(fn_SSL_CTX_set_default_verify_paths); //Used by Indy
@@ -23383,7 +23383,7 @@ begin
   @SSL_CIPHER_get_name := LoadFunction(fn_SSL_CIPHER_get_name);  //Used by Indy
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
   @SSL_CIPHER_get_bits := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
-  @TLS_method := LoadFunction(fn_TLS_method, not IsOpenSSL_Less_then_1_1_0);
+  @TLS_method := LoadFunction(fn_TLS_method, not IsOpenSSL_Less_than_1_1_0);
 
   // Thread safe
   @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock, False);  //Used by Indy
@@ -23492,11 +23492,11 @@ we have to handle both cases.
   @d2i_X509_REQ := LoadFunctionCLib(fn_d2i_X509_REQ, False );
   @i2d_X509_CRL := LoadFunctionCLib(fn_i2d_X509_CRL, False );
   @d2i_X509_CRL := LoadFunctionCLib(fn_d2i_X509_CRL,False );
-  @_X509_CRL_get_version := LoadFunctionCLib(fn_X509_CRL_get_version, not IsOpenSSL_Less_then_1_1_0);
-  @_X509_CRL_get_lastUpdate := LoadFunctionCLib(fn_X509_CRL_get_lastUpdate, not IsOpenSSL_Less_then_1_1_0);
-  @_X509_CRL_get_nextUpdate := LoadFunctionCLib(fn_X509_CRL_get_nextUpdate, not IsOpenSSL_Less_then_1_1_0);
-  @_X509_CRL_get_issuer := LoadFunctionCLib(fn_X509_CRL_get_issuer, not IsOpenSSL_Less_then_1_1_0);
-  @_X509_CRL_get_REVOKED := LoadFunctionCLib(fn_X509_CRL_get_REVOKED, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_CRL_get_version := LoadFunctionCLib(fn_X509_CRL_get_version, not IsOpenSSL_Less_than_1_1_0);
+  @_X509_CRL_get_lastUpdate := LoadFunctionCLib(fn_X509_CRL_get_lastUpdate, not IsOpenSSL_Less_than_1_1_0);
+  @_X509_CRL_get_nextUpdate := LoadFunctionCLib(fn_X509_CRL_get_nextUpdate, not IsOpenSSL_Less_than_1_1_0);
+  @_X509_CRL_get_issuer := LoadFunctionCLib(fn_X509_CRL_get_issuer, not IsOpenSSL_Less_than_1_1_0);
+  @_X509_CRL_get_REVOKED := LoadFunctionCLib(fn_X509_CRL_get_REVOKED, not IsOpenSSL_Less_than_1_1_0);
   @i2d_RSAPrivateKey := LoadFunctionCLib(fn_i2d_RSAPrivateKey,False );
   @d2i_RSAPrivateKey := LoadFunctionCLib(fn_d2i_RSAPrivateKey, False );
   @i2d_RSAPublicKey := LoadFunctionCLib(fn_i2d_RSAPublicKey,False);
@@ -23531,7 +23531,7 @@ we have to handle both cases.
   @X509_set_version := LoadFunctionCLib(fn_X509_set_version,False);
   @X509_get_serialNumber := LoadFunctionCLib(fn_X509_get_serialNumber);   //USED by Indy
   @X509_gmtime_adj := LoadFunctionCLib(fn_X509_gmtime_adj,False);
-  @_X509_REQ_get_subject_name := LoadFunctionCLib(fn_X509_REQ_get_subject_name, not IsOpenSSL_Less_then_1_1_0);
+  @_X509_REQ_get_subject_name := LoadFunctionCLib(fn_X509_REQ_get_subject_name, not IsOpenSSL_Less_than_1_1_0);
   @X509_set_notBefore := LoadFunctionCLib(fn_X509_set_notBefore,False);
   @X509_set_notAfter := LoadFunctionCLib(fn_X509_set_notAfter,False);
   @X509_set_pubkey := LoadFunctionCLib(fn_X509_set_pubkey,False);
@@ -23539,8 +23539,8 @@ we have to handle both cases.
   @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get,False);
   @X509_verify := LoadFunctionCLib(fn_X509_verify,False);
   @X509_verify_cert_error_string := LoadFunctionCLib(fn_X509_verify_cert_error_string,False);
-  @X509_getm_notBefore := LoadFunctionCLib(fn_X509_getm_notBefore, not IsOpenSSL_Less_then_1_1_0);
-  @X509_getm_notAfter := LoadFunctionCLib(fn_X509_getm_notAfter, not IsOpenSSL_Less_then_1_1_0);
+  @X509_getm_notBefore := LoadFunctionCLib(fn_X509_getm_notBefore, not IsOpenSSL_Less_than_1_1_0);
+  @X509_getm_notAfter := LoadFunctionCLib(fn_X509_getm_notAfter, not IsOpenSSL_Less_than_1_1_0);
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := LoadFunctionCLib(fn_PEM_read_bio_X509, False);
@@ -25265,7 +25265,7 @@ end;
 function SSL_CTX_set_min_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  if not IsOpenSSL_Less_then_1_1_0 then begin
+  if not IsOpenSSL_Less_than_1_1_0 then begin
     Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MIN_PROTO_VERSION, op, nil);
   end else begin
     Result := 0;
@@ -25275,7 +25275,7 @@ end;
 function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  if not IsOpenSSL_Less_then_1_1_0 then begin
+  if not IsOpenSSL_Less_than_1_1_0 then begin
     Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MAX_PROTO_VERSION, op, nil);
   end else begin
     Result := 0;
