@@ -19241,9 +19241,12 @@ function OpenSSLGetDigestCtx( AInst : PEVP_MD) : TIdHashIntCtx;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var LRet : Integer;
 begin
-  Result := AllocMem(SizeOf(EVP_MD_CTX));
-  EVP_MD_CTX_init(Result);
-
+  if Assigned(EVP_MD_CTX_new) then begin
+    Result := EVP_MD_CTX_new;
+  end else begin
+    Result := AllocMem(SizeOf(EVP_MD_CTX));
+    EVP_MD_CTX_init(Result);
+  end;
   LRet := EVP_DigestInit_ex(Result, AInst, nil);
   if LRet <> 1 then begin
     EIdDigestInitEx.RaiseException('EVP_DigestInit_ex error');
@@ -19435,10 +19438,14 @@ begin
     EIdDigestFinalEx.RaiseException('EVP_DigestFinal_ex error');
   end;
   SetLength(Result,LLen);
-  if assigned(EVP_MD_CTX_cleanup) then begin
-    EVP_MD_CTX_cleanup(ACtx);
+  if Assigned(EVP_MD_CTX_free) then begin
+     EVP_MD_CTX_free(ACtx);
+  end else begin
+    if assigned(EVP_MD_CTX_cleanup) then begin
+      EVP_MD_CTX_cleanup(ACtx);
+    end;
+    FreeMem(ACtx,SizeOf(EVP_MD_CTX));
   end;
-  FreeMem(ACtx,SizeOf(EVP_MD_CTX));
 end;
 
 function OpenSSLIsHMACAvail : Boolean;
