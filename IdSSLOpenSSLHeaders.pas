@@ -19213,8 +19213,7 @@ end;
 function IsOpenSSL_TLSv1_3_Available : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := Assigned(TLS_method) and
-    Assigned(TLSv1_method);
+  Result := Assigned(TLS_method);
 end;
 
 //**************** FIPS Support backend *******************
@@ -22843,13 +22842,13 @@ begin
     Exit;
   end;
   {$IFDEF WINDOWS}
-{  if ACritical then begin
+  if ACritical then begin
     Err := GetLastError();
     if Err <> ERROR_PROC_NOT_FOUND then begin
       FFailedLoadList.Add(IndyFormat(RSOSSMissingExport_WithErrCode, [AOldName, Err]));
       Exit;
     end;
-  end;   }
+  end;
   {$ENDIF}
   Result := LoadLibFunction(hIdCrypto, ANewName);
   if (Result <> nil) or (not ACritical) then begin
@@ -23196,6 +23195,7 @@ begin
       LMinor := (LVersion and $0FF00000) shr 20;
       if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
         LMajor := (LVersion and $F000) shr 12;
+//        LMinor := (LVersion and $0F00) shr 8;
       end;
       if (LMajor > 3) then // OpenSSL 3.x or higher
       begin
