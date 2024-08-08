@@ -14133,6 +14133,7 @@ type
     get_crl : function (ctx : PX509_STORE_CTX; crl : PPX509_CRL; x : PX509) : TIdC_INT; cdecl;// retrieve CRL
     check_crl : function(ctx : PX509_STORE_CTX; crl : PX509_CRL) : TIdC_INT; cdecl; // Check CRL validity
     cert_crl : function(ctx : PX509_STORE_CTX; crl : PX509_CRL; x : PX509) : TIdC_INT; cdecl; // Check certificate against CRL
+    check_policy : function(ctx : PX509_STORE_CTX): TIdC_INT; cdecl;
     lookup_certs : function(ctx : PX509_STORE_CTX; nm : PX509_NAME) : PSTACK_OF_X509 cdecl;
     lookup_crls : function(ctx : PX509_STORE_CTX; nm : PX509_NAME) : PSTACK_OF_X509_CRL cdecl;
     cleanup : function(ctx : PX509_STORE_CTX) : TIdC_INT; cdecl;
@@ -14178,6 +14179,8 @@ type
     get_by_issuer_serial : function(ctx : PX509_LOOKUP; _type : TIdC_INT; name : PX509_NAME; serial : PASN1_INTEGER; ret : PX509_OBJECT) : TIdC_INT; cdecl;
     get_by_fingerprint : function (ctx : PX509_LOOKUP; _type : TIdC_INT; bytes : PIdAnsiChar; len : TIdC_INT; ret : PX509_OBJECT): TIdC_INT; cdecl;
     get_by_alias : function(ctx : PX509_LOOKUP; _type : TIdC_INT; str : PIdAnsiChar; ret : PX509_OBJECT) : TIdC_INT; cdecl;
+    get_by_subject_ex : function(ctx : PX509_LOOKUP; _type : TIdC_INT; name : PX509_NAME; ret : PX509_OBJECT; libctx: Pointer; str : PIdAnsiChar) : TIdC_INT; cdecl;
+    ctrl_ex : function(ctx : PX509_LOOKUP; cmd: TIdC_INT; argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar; libctx: Pointer; propq: PIdAnsiChar) : TIdC_INT; cdecl;
   end;
   {$EXTERNALSYM PX509_LOOKUP_METHOD}
   PX509_LOOKUP_METHOD      = ^X509_LOOKUP_METHOD;
