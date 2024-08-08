@@ -17216,6 +17216,8 @@ var
   X509_set_pubkey : function(x: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   {$EXTERNALSYM X509_REQ_set_pubkey}
   X509_REQ_set_pubkey : function(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  {$EXTERNALSYM X509_verify_cert_error_string}
+  X509_verify_cert_error_string : function(n: TIdC_LONG): PIdAnsiChar cdecl = nil;
   {$EXTERNALSYM X509_PUBKEY_get}
   X509_PUBKEY_get : function(key: PX509_PUBKEY): PEVP_PKEY cdecl = nil;
   {$EXTERNALSYM X509_verify}
@@ -21797,7 +21799,7 @@ them in case we use them later.}
   {CH fn_PKCS7_get_signed_attribute = 'PKCS7_get_signed_attribute'; }  {Do not localize}
   {CH fn_PKCS7_set_signed_attributes = 'PKCS7_set_signed_attributes'; }  {Do not localize}
   {CH fn_PKCS7_set_attributes = 'PKCS7_set_attributes'; }  {Do not localize}
-  {CH fn_X509_verify_cert_error_string = 'X509_verify_cert_error_string'; }  {Do not localize}
+  fn_X509_verify_cert_error_string = 'X509_verify_cert_error_string';  {Do not localize}
   fn_X509_verify = 'X509_verify';   {Do not localize}
   fn_X509_get_version = 'X509_get_version';  {Do not localize}
   fn_X509_get_signature_type = 'X509_get_signature_type'; {Do not localize}
@@ -23526,6 +23528,7 @@ we have to handle both cases.
   @X509_REQ_set_pubkey := LoadFunctionCLib(fn_X509_REQ_set_pubkey,False);
   @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get,False);
   @X509_verify := LoadFunctionCLib(fn_X509_verify,False);
+  @X509_verify_cert_error_string := LoadFunctionCLib(fn_X509_verify_cert_error_string,False);
   @X509_getm_notBefore := LoadFunctionCLib(fn_X509_getm_notBefore, not IsOpenSSL_Less_then_1_1_0);
   @X509_getm_notAfter := LoadFunctionCLib(fn_X509_getm_notAfter, not IsOpenSSL_Less_then_1_1_0);
   //PEM
@@ -24345,6 +24348,8 @@ begin
   @X509_set_notAfter := nil;
   @X509_set_pubkey := nil;
   @X509_REQ_set_pubkey := nil;
+  @X509_verify := nil;
+  @X509_verify_cert_error_string := nil;
   @_X509_REQ_get_subject_name := nil;
   @_X509_REQ_get_version := nil;
   //PEM
