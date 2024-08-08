@@ -19184,7 +19184,8 @@ end;
 function IsOpenSSL_TLSv1_3_Available : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := True;
+  Result := Assigned(TLS_method) and
+    Assigned(TLSv1_method);
 end;
 
 //**************** FIPS Support backend *******************
