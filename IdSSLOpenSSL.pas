@@ -1004,7 +1004,11 @@ begin
   try
     VerifiedOK := True;
     try
-      hSSL := X509_STORE_CTX_get_app_data(ctx);
+      if Assigned(X509_STORE_CTX_get_ex_data) then begin
+        hSSL := X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx);
+      end else begin
+        hSSL := X509_STORE_CTX_get_app_data(ctx);
+      end;
       if hSSL = nil then
       begin
         Result := Ok;
