@@ -17022,6 +17022,10 @@ var
   EVP_MD_CTX_create: function : PEVP_MD_CTX cdecl = nil;
   {$EXTERNALSYM EVP_MD_CTX_destroy}
   EVP_MD_CTX_destroy : procedure(ctx : PEVP_MD_CTX) cdecl = nil;
+  {$EXTERNALSYM EVP_MD_CTX_new}
+  EVP_MD_CTX_new: function : PEVP_MD_CTX cdecl = nil;
+  {$EXTERNALSYM EVP_MD_CTX_free}
+  EVP_MD_CTX_free : function(ctx : PEVP_MD_CTX) : TIdC_Int cdecl = nil;
   {$EXTERNALSYM EVP_MD_CTX_copy}
   EVP_MD_CTX_copy : function(_out : PEVP_MD_CTX; _in: PEVP_MD_CTX): TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_MD_CTX_copy_ex}
@@ -18139,7 +18143,13 @@ var
  {$EXTERNALSYM ERR_error_string_n}
   ERR_error_string_n: procedure(e: TIdC_ULONG; buf: PIdAnsiChar; len : size_t) cdecl = nil;
  {$EXTERNALSYM ERR_put_error}
-  ERR_put_error : procedure (lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT) cdecl = nil;
+  _ERR_put_error : procedure (lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT) cdecl = nil;
+ {$EXTERNALSYM ERR_new}
+  Err_new : procedure cdecl = nil;
+ {$EXTERNALSYM ERR_set_debug}
+  ERR_set_debug : procedure (_file : PIdAnsiChar; line: TIdC_INT; func: PIdAnsiChar) cdecl = nil;
+ {$EXTERNALSYM ERR_set_error}
+  ERR_set_error : procedure (lib, reason : TIdC_INT; fmt : PIdAnsiChar) cdecl = nil;
  {$EXTERNALSYM ERR_get_error}
   ERR_get_error : function: TIdC_ULONG cdecl = nil;
  {$EXTERNALSYM ERR_peek_error}
@@ -19065,6 +19075,18 @@ uses
       , DynLibs  // needed for FreeLibrary
     {$ENDIF}
   {$ENDIF};
+
+procedure ERR_put_error(lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  if Assigned(_ERR_put_error) then begin
+    _ERR_put_error(lib,func, reason, _file, line);
+  end else begin
+    Err_new();
+    ERR_set_debug(_file, line, nil);
+    ERR_set_error(lib, reason, nil);
+  end;
+end;
 
 {$IFNDEF OPENSSL_NO_HMAC}
 procedure HMAC_Init_ex(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
@@ -20994,6 +21016,8 @@ them in case we use them later.}
    fn_EVP_MD_CTX_cleanup = 'EVP_MD_CTX_cleanup';  {Do not localize}
    fn_EVP_MD_CTX_create = 'EVP_MD_CTX_create';  {Do not localize}
    fn_EVP_MD_CTX_destroy = 'EVP_MD_CTX_destroy';  {Do not localize}
+   fn_EVP_MD_CTX_new = 'EVP_MD_CTX_new';  {Do not localize}
+   fn_EVP_MD_CTX_free = 'EVP_MD_CTX_free';  {Do not localize}
    fn_EVP_MD_CTX_copy_ex = 'EVP_MD_CTX_copy_ex';  {Do not localize}
    fn_EVP_MD_CTX_set_flags = 'EVP_MD_CTX_set_flags';  {Do not localize}
    fn_EVP_MD_CTX_clear_flags = 'EVP_MD_CTX_clear_flags';  {Do not localize}
@@ -22478,6 +22502,9 @@ them in case we use them later.}
   {CH fn_ERR_load_RAND_strings = 'ERR_load_RAND_strings'; } {Do not localize}
   //experimental
   fn_ERR_put_error = 'ERR_put_error';  {Do not localize}
+  fn_ERR_new = 'ERR_new';  {Do not localize}
+  fn_ERR_set_error = 'ERR_set_error';  {Do not localize}
+  fn_ERR_set_debug = 'ERR_set_debug';  {Do not localize}
   fn_ERR_get_error = 'ERR_get_error';  {Do not localize}
 {CH fn_ERR_get_error_line = 'ERR_get_error_line'; }  {Do not localize}
 {CH fn_ERR_get_error_line_data = 'ERR_get_error_line_data'; }  {Do not localize}
@@ -23344,28 +23371,35 @@ begin
 
   // Thread safe
   @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock, False);  //Used by Indy
+  {$IFDEF ANDROID}
   if not Assigned(_CRYPTO_lock) then begin
     @_CRYPTO_lock := @Indy_CRYPTO_lock;
   end;
+  {$ENDIF}
   @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks, false); //Used by Indy
   if not Assigned(_CRYPTO_num_locks) then begin
     @_CRYPTO_num_locks := @Indy_CRYPTO_num_locks;
   end;
   @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback,false); //Used by Indy
+  {$IFNDEF WIN32_OR_WIN64}
 {
 In OpenSSL 1.0.0, you should use these callback functions instead of the
 depreciated set_id_callback.  They are not in the older 0.9.8 OpenSSL series so
 we have to handle both cases.
 }
-  @CRYPTO_THREADID_set_callback := LoadFunctionCLib(fn_CRYPTO_THREADID_set_callback,False);  //Used by Indy
-  @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric,False); //Used by Indy
-  @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer,False);
+  @CRYPTO_THREADID_set_callback := LoadFunctionCLib(fn_CRYPTO_THREADID_set_callback, False);  //Used by Indy
+  @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric, False); //Used by Indy
+  @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer, False);
   if not Assigned(CRYPTO_THREADID_set_callback) then begin  //Used by Indy
     @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback,false);  //Used by Indy
   end else begin
     @CRYPTO_set_id_callback := nil;
   end;
-  @ERR_put_error := LoadFunctionCLib(fn_ERR_put_error,False);
+  {$ENDIF}
+  @_ERR_put_error := LoadFunctionCLib(fn_ERR_put_error,False);
+  @ERR_new := LoadFunctionCLib(fn_ERR_new,False);
+  @ERR_set_debug := LoadFunctionCLib(fn_ERR_set_debug,False);
+  @ERR_set_error := LoadFunctionCLib(fn_ERR_set_error,False);
   @ERR_get_error := LoadFunctionCLib(fn_ERR_get_error,False);
   @ERR_peek_error := LoadFunctionCLib(fn_ERR_peek_error,False);
   @ERR_peek_last_error := LoadFunctionCLib(fn_ERR_peek_last_error);  //Used by Indy
@@ -23711,6 +23745,8 @@ we have to handle both cases.
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup, false);
   @EVP_MD_CTX_create := LoadFunctionCLib(fn_EVP_MD_CTX_create, False);
   @EVP_MD_CTX_destroy := LoadFunctionCLib(fn_EVP_MD_CTX_destroy, False);
+  @EVP_MD_CTX_new := LoadFunctionCLib(fn_EVP_MD_CTX_new, False);
+  @EVP_MD_CTX_free := LoadFunctionCLib(fn_EVP_MD_CTX_free, False);
   @EVP_MD_CTX_copy := LoadFunctionCLib(fn_EVP_MD_CTX_copy, False);
   @EVP_MD_CTX_copy_ex := LoadFunctionCLib(fn_EVP_MD_CTX_copy_ex, False);
   //@EVP_MD_CTX_set_flags := LoadFunctionCLib(fn_EVP_MD_CTX_set_flags, False);
@@ -24196,7 +24232,7 @@ begin
   @CRYPTO_THREADID_set_pointer := nil;
   @CRYPTO_set_id_callback := nil;
 
-  @ERR_put_error := nil;
+  @_ERR_put_error := nil;
   @ERR_get_error := nil;
   @ERR_peek_error := nil;
   @ERR_peek_last_error := nil;
@@ -24524,6 +24560,8 @@ begin
   @EVP_MD_CTX_cleanup := nil;
   @EVP_MD_CTX_create := nil;
   @EVP_MD_CTX_destroy := nil;
+  @EVP_MD_CTX_new := nil;
+  @EVP_MD_CTX_free := nil;
   @EVP_MD_CTX_copy := nil;
   @EVP_MD_CTX_copy_ex := nil;
   //@EVP_MD_CTX_set_flags := nil;
