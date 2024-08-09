@@ -17951,6 +17951,10 @@ var
   SSL_set_ex_data: function(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_get_ex_data}
   SSL_get_ex_data: function(ssl: PSSL; idx: TIdC_INT): Pointer cdecl = nil;
+  {$EXTERNALSYM SSL_CTX_get_ex_data}
+  SSL_CTX_get_ex_data : function(ssl : PSSL_CTX; idx : TIdC_INT) : Pointer cdecl = nil;
+  {$EXTERNALSYM SSL_CTX_set_ex_data}
+  SSL_CTX_set_ex_data : function(ssl : PSSL_CTX; idx : TIdC_INT; data : Pointer) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM PKCS12_create}
   PKCS12_create: function(pass, name: PIdAnsiChar; pkey: PEVP_PKEY; cert : PX509;
     ca: PSTACK_OF_X509; nid_key, nid_cert, iter, mac_iter, keytype : TIdC_INT) : PPKCS12 cdecl = nil;
@@ -18255,6 +18259,10 @@ function SSL_CTX_get_mode(ctx : PSSL_CTX) : TIdC_LONG;
 function SSL_set_mtu(ssl : PSSL; mtu : TIdC_LONG) : TIdC_LONG;
  {$EXTERNALSYM SSL_get_secure_renegotiation_support}
 function SSL_get_secure_renegotiation_support(ssl : PSSL) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_app_data}
+function SSL_CTX_set_app_data(ctx : PSSL_CTX; arg : Pointer) : TIdC_INT;
+ {$EXTERNALSYM SSL_CTX_get_app_data}
+function SSL_CTX_get_app_data(ctx : PSSL_CTX) : Pointer;
  {$EXTERNALSYM SSL_CTX_sess_number}
 function SSL_CTX_sess_number(ctx : PSSL_CTX) : TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_sess_connect}
@@ -22276,8 +22284,8 @@ them in case we use them later.}
   {CH fn_SSL_SESSION_set_ex_data = 'SSL_SESSION_set_ex_data'; }  {Do not localize}
   {CH fn_SSL_SESSION_get_ex_data = 'SSL_SESSION_get_ex_data'; }  {Do not localize}
   {CH fn_SSL_SESSION_get_ex_new_index = 'SSL_SESSION_get_ex_new_index'; }  {Do not localize}
-  {CH fn_SSL_CTX_set_ex_data = 'SSL_CTX_set_ex_data'; }  {Do not localize}
-  {CH fn_SSL_CTX_get_ex_data = 'SSL_CTX_get_ex_data'; }  {Do not localize}
+  fn_SSL_CTX_set_ex_data = 'SSL_CTX_set_ex_data';  {Do not localize}
+  fn_SSL_CTX_get_ex_data = 'SSL_CTX_get_ex_data';  {Do not localize}
   {CH fn_SSL_CTX_get_ex_new_index = 'SSL_CTX_get_ex_new_index'; }  {Do not localize}
   fn_SSL_get_ex_data_X509_STORE_CTX_idx = 'SSL_get_ex_data_X509_STORE_CTX_idx';  {Do not localize}
   {$IFNDEF OPENSSL_NO_RSA}
@@ -23201,6 +23209,8 @@ begin
   // More SSL functions
   @SSL_set_ex_data := LoadFunction(fn_SSL_set_ex_data,False);
   @SSL_get_ex_data := LoadFunction(fn_SSL_get_ex_data,False);
+  @SSL_CTX_get_ex_data := LoadFunction(fn_SSL_CTX_get_ex_data); //Used by Indy
+  @SSL_CTX_set_ex_data := LoadFunction(fn_SSL_CTX_set_ex_data); //Used by Indy
   @SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback);
   @SSL_load_client_CA_file := LoadFunction(fn_SSL_load_client_CA_file);  //Used by Indy
   @SSL_CTX_set_client_CA_list := LoadFunction(fn_SSL_CTX_set_client_CA_list); //Used by Indy
@@ -24059,6 +24069,8 @@ begin
   // More SSL functions
   @SSL_set_ex_data := nil;
   @SSL_get_ex_data := nil;
+  @SSL_CTX_set_ex_data := nil;
+  @SSL_CTX_get_ex_data := nil;
   @SSL_CTX_set_info_callback := nil;
   @SSL_load_client_CA_file := nil;
   @SSL_CTX_set_client_CA_list := nil;
@@ -25159,6 +25171,17 @@ begin
   Result := SSL_ctrl(ssl, SSL_CTRL_GET_RI_SUPPORT, 0, nil);
 end;
 //
+function SSL_CTX_set_app_data(ctx : PSSL_CTX; arg : Pointer) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_set_ex_data( ctx, 0, arg);
+end;
+
+function SSL_CTX_get_app_data(ctx : PSSL_CTX) : Pointer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_get_ex_data( ctx, 0);
+end;
 
 function SSL_CTX_sess_number(ctx : PSSL_CTX) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
