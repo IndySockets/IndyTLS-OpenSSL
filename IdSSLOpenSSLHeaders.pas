@@ -18095,6 +18095,10 @@ procedure HMAC_Final(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT);
 var
   {$EXTERNALSYM TLS_method}
   TLS_method : function: PSSL_METHOD cdecl = nil;
+  {$EXTERNALSYM TLS_client_method}
+  TLS_client_method : function : PSSL_METHOD cdecl = nil;
+  {$EXTERNALSYM TLS_server_method}
+  TLS_server_method : function : PSSL_METHOD cdecl = nil;
 
 {begin stack fancy stuff}
 {
@@ -19049,7 +19053,9 @@ end;
 function IsOpenSSL_TLSv1_3_Available : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := Assigned(TLS_method);
+  Result := Assigned(TLS_method) and
+    Assigned(TLS_client_method) and
+    Assigned(TLS_server_method);
 end;
 
 //**************** FIPS Support backend *******************
@@ -22235,6 +22241,8 @@ them in case we use them later.}
   fn_DTLSv1_server_method = 'DTLSv1_server_method'; {Do not localize}
   fn_DTLSv1_client_method = 'DTLSv1_client_method'; {Do not localize}
   fn_TLS_method = 'TLS_method'; {Do not localize}
+  fn_TLS_client_method = 'TLS_client_method';  {Do not localize}
+  fn_TLS_server_method = 'TLS_server_method';  {Do not localize}
   {CH fn_SSL_get_ciphers = 'SSL_get_ciphers'; }  {Do not localize}
   {CH fn_SSL_do_handshake = 'SSL_do_handshake'; }  {Do not localize}
   {CH fn_SSL_renegotiate = 'SSL_renegotiate'; }  {Do not localize}
@@ -23222,7 +23230,8 @@ begin
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
   @SSL_CIPHER_get_bits := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
   @TLS_method := LoadFunction(fn_TLS_method, not IsOpenSSL_Less_than_1_1_0);
-
+  @TLS_client_method := LoadFunction(fn_TLS_client_method, not IsOpenSSL_Less_than_1_1_0); //Used by Indy
+  @TLS_server_method := LoadFunction(fn_TLS_server_method, not IsOpenSSL_Less_than_1_1_0); //Used by Indy
   // Thread safe
   @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock, False);  //Used by Indy
   {$IFDEF ANDROID}
@@ -24082,6 +24091,8 @@ begin
   @SSL_CIPHER_get_version := nil;
   @SSL_CIPHER_get_bits  := nil;
   @TLS_method := nil;
+  @TLS_client_method := nil;
+  @TLS_server_method := nil;
 
   // Thread safe
   @_CRYPTO_num_locks := nil;
