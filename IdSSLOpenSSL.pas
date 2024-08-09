@@ -3979,10 +3979,42 @@ begin
         end;
       end;
     sslvTLSv1_3:
-      if Assigned(TLS_method) then
-        Result := TLS_method()
+      case fMode of
+        sslmServer:
+          begin
+            if Assigned(TLS_server_method) then
+            begin
+              Result := TLS_server_method();
+            end
+            else
+            begin
+              // TODO: fallback to TLSv1.1 if available?
+              Result := SelectTLS1Method(fMode);
+            end;
+          end;
+        sslmClient:
+          begin
+            if Assigned(TLS_client_method) then
+            begin
+              Result := TLS_client_method();
+            end
+            else
+            begin
+              // TODO: fallback to TLSv1.1 if available?
+              Result := SelectTLS1Method(fMode);
+            end;
+          end;
       else
-        Result := SelectTLS1Method(fMode);
+        if Assigned(TLS_method) then
+        begin
+          Result := SelectTLS1Method(fMode);
+        end
+        else
+        begin
+          // TODO: fallback to TLSv1.1 if available?
+          Result := SelectTLS1Method(fMode);
+        end;
+      end;
   end;
   if Result = nil then
   begin
