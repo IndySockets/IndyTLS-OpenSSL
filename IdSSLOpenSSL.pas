@@ -1131,7 +1131,9 @@ begin
       SetLength(LPassword, MAX_SSL_PASSWORD_LENGTH + 1);
       LPassword[MAX_SSL_PASSWORD_LENGTH] := TIdAnsiChar(0);
       LPasswordPtr := PIdAnsiChar(LPassword);
-      if Assigned(ctx^.default_passwd_callback) then
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{      if Assigned(ctx^.default_passwd_callback) then
       begin
         ctx^.default_passwd_callback(LPasswordPtr, MAX_SSL_PASSWORD_LENGTH, 0,
           ctx^.default_passwd_callback_userdata);
@@ -1141,7 +1143,7 @@ begin
       begin
         // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
         // when default_passwd_callback is nil
-      end;
+      end;            }
       P12 := d2i_PKCS12_bio(B, nil);
       if not Assigned(P12) then
       begin
@@ -1210,7 +1212,9 @@ begin
       SetLength(LPassword, MAX_SSL_PASSWORD_LENGTH + 1);
       LPassword[MAX_SSL_PASSWORD_LENGTH] := TIdAnsiChar(0);
       LPasswordPtr := PIdAnsiChar(LPassword);
-      if Assigned(ctx^.default_passwd_callback) then
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{      if Assigned(ctx^.default_passwd_callback) then
       begin
         ctx^.default_passwd_callback(LPasswordPtr, MAX_SSL_PASSWORD_LENGTH, 0,
           ctx^.default_passwd_callback_userdata);
@@ -1220,7 +1224,7 @@ begin
       begin
         // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
         // when default_passwd_callback is nil
-      end;
+      end;   }
       P12 := d2i_PKCS12_bio(B, nil);
       if not Assigned(P12) then
       begin
@@ -1673,9 +1677,11 @@ begin
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_PEM_LIB;
-            LKey := PEM_read_bio_PrivateKey(B, nil,
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{            LKey := PEM_read_bio_PrivateKey(B, nil,
               ctx^.default_passwd_callback,
-              ctx^.default_passwd_callback_userdata);
+              ctx^.default_passwd_callback_userdata);        }
           end;
         SSL_FILETYPE_ASN1:
           begin
@@ -1740,8 +1746,10 @@ begin
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_PEM_LIB;
-            LX := PEM_read_bio_X509(B, nil, ctx^.default_passwd_callback,
-              ctx^.default_passwd_callback_userdata);
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{            LX := PEM_read_bio_X509(B, nil, ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);     }
           end
       else
         begin
@@ -1799,8 +1807,10 @@ begin
       Exit;
     end;
     try
-      LX := PEM_read_bio_X509_AUX(B, nil, ctx^.default_passwd_callback,
-        ctx^.default_passwd_callback_userdata);
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{      LX := PEM_read_bio_X509_AUX(B, nil, ctx^.default_passwd_callback,
+        ctx^.default_passwd_callback_userdata);  }
       if (LX = nil) then
       begin
         SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_CHAIN_FILE, ERR_R_PEM_LIB);
@@ -1817,8 +1827,10 @@ begin
         begin
           SSL_CTX_clear_chain_certs(ctx);
           repeat
-            ca := PEM_read_bio_X509(B, nil, ctx^.default_passwd_callback,
-              ctx^.default_passwd_callback_userdata);
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{            ca := PEM_read_bio_X509(B, nil, ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);  }
             if ca = nil then
             begin
               Break;
@@ -1910,7 +1922,9 @@ function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
   const ACAFile, ACAPath: String): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath); }
 end;
 
 function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX; const AFileName: String;
@@ -1955,8 +1969,10 @@ begin
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_DH_LIB;
-            LDH := PEM_read_bio_DHparams(B, nil, ctx^.default_passwd_callback,
-              ctx^.default_passwd_callback_userdata);
+//JPM - Todo: somehow fix this so we don't use the feilds in SSL_CTX.
+//We weren't supposed to do that since Open SSL 1.0.2 and probably earlier.
+{            LDH := PEM_read_bio_DHparams(B, nil, ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);  }
           end
       else
         begin

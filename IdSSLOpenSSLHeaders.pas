@@ -15634,7 +15634,7 @@ _des_cblock = DES_cblock
 {$ENDIF}
   // typedef struct ssl_method_st
   {$NODEFINE PSSL_CTX}
-  PSSL_CTX = ^SSL_CTX;
+  PSSL_CTX = Pointer;
   {$EXTERNALSYM SRTP_PROTECTION_PROFILE}
   SRTP_PROTECTION_PROFILE = record
     name : PIdAnsiChar;
@@ -15790,174 +15790,6 @@ _des_cblock = DES_cblock
   {$EXTERNALSYM PSTACK_OF_SRTP_PROTECTION_PROFILE}
   PSTACK_OF_SRTP_PROTECTION_PROFILE = PSTACK;
   {$ENDIF}
-  {$NODEFINE SSL_CTX}
-  SSL_CTX = record
-    method: PSSL_METHOD;
-    cipher_list: PSTACK_OF_SSL_CIPHER;
-    // same as above but sorted for lookup
-    cipher_list_by_id: PSTACK_OF_SSL_CIPHER;
-    cert_store: PX509_STORE;
-    sessions: Plash_of_SSL_SESSION;
-    // a set of SSL_SESSIONs
-    // Most session-ids that will be cached, default is
-    // SSL_SESSION_CACHE_MAX_SIZE_DEFAULT. 0 is unlimited.
-    session_cache_size: TIdC_ULONG;
-    session_cache_head: PSSL_SESSION;
-    session_cache_tail: PSSL_SESSION;
-    // This can have one of 2 values, ored together,
-    // SSL_SESS_CACHE_CLIENT,
-    // SSL_SESS_CACHE_SERVER,
-    // Default is SSL_SESSION_CACHE_SERVER, which means only
-    // SSL_accept which cache SSL_SESSIONS.
-    session_cache_mode: TIdC_INT;
-    session_timeout: TIdC_LONG;
-    // If this callback is not null, it will be called each
-    // time a session id is added to the cache.  If this function
-    // returns 1, it means that the callback will do a
-    // SSL_SESSION_free() when it has finished using it.  Otherwise,
-    // on 0, it means the callback has finished with it.
-    // If remove_session_cb is not null, it will be called when
-    // a session-id is removed from the cache.  After the call,
-    // OpenSSL will SSL_SESSION_free() it.
-    new_session_cb: function (ssl : PSSL; sess: PSSL_SESSION): TIdC_INT; cdecl;
-    remove_session_cb: procedure (ctx : PSSL_CTX; sess : PSSL_SESSION); cdecl;
-    get_session_cb: function (ssl : PSSL; data : PByte; len: TIdC_INT; copy : PIdC_INT) : PSSL_SESSION; cdecl;
-    stats : SSL_CTX_stats;
-    
-    references: TIdC_INT;
-    // if defined, these override the X509_verify_cert() calls
-    app_verify_callback: function (_para1 : PX509_STORE_CTX; _para2 : Pointer) : TIdC_INT; cdecl;
-    app_verify_arg: Pointer;
-    // before OpenSSL 0.9.7, 'app_verify_arg' was ignored
-    // ('app_verify_callback' was called with just one argument)
-    // Default password callback.
-    default_passwd_callback: ppem_password_cb;
-    // Default password callback user data.
-    default_passwd_callback_userdata: Pointer;
-    // get client cert callback
-    client_cert_cb: function (SSL : PSSL; x509 : PPX509; pkey : PPEVP_PKEY) : TIdC_INT; cdecl;
-    // verify cookie callback
-    app_gen_cookie_cb: function (ssl : PSSL; cookie : PByte; cookie_len : TIdC_UINT) : TIdC_INT; cdecl;
-    app_verify_cookie_cb: Pointer;
-    ex_data : CRYPTO_EX_DATA;
-    rsa_md5 : PEVP_MD; // For SSLv2 - name is 'ssl2-md5'
-    md5: PEVP_MD; // For SSLv3/TLSv1 'ssl3-md5'
-    sha1: PEVP_MD; // For SSLv3/TLSv1 'ssl3->sha1'
-    extra_certs: PSTACK_OF_X509;
-    comp_methods: PSTACK_OF_COMP; // stack of SSL_COMP, SSLv3/TLSv1
-    // Default values used when no per-SSL value is defined follow
-    info_callback: PSSL_CTX_info_callback; // used if SSL's info_callback is NULL
-    // what we put in client cert requests
-    client_CA : PSTACK_OF_X509_NAME;
-    // Default values to use in SSL structures follow (these are copied by SSL_new)
-    options : TIdC_ULONG;
-    mode : TIdC_ULONG;
-    max_cert_list : TIdC_LONG;
-    cert : PCERT;
-    read_ahead : TIdC_INT;
-    // callback that allows applications to peek at protocol messages
-    msg_callback : procedure (write_p, version, content_type : TIdC_INT; const buf : Pointer; len : size_t; ssl : PSSL; arg : Pointer); cdecl;
-    msg_callback_arg : Pointer;
-    verify_mode : TIdC_INT;
-    sid_ctx_length : TIdC_UINT;
-    sid_ctx : array[0..SSL_MAX_SID_CTX_LENGTH - 1] of TIdAnsiChar;
-    default_verify_callback : function(ok : TIdC_INT; ctx : PX509_STORE_CTX) : TIdC_INT; cdecl; // called 'verify_callback' in the SSL
-    // Default generate session ID callback.
-    generate_session_id : PGEN_SESSION_CB;
-    param : PX509_VERIFY_PARAM;
-    {$IFDEF OMIT_THIS}
-    purpose : TIdC_INT;  // Purpose setting
-    trust : TIdC_INT;    // Trust setting
-    {$ENDIF}
-
-    quiet_shutdown : TIdC_INT;
-	//* Maximum amount of data to send in one fragment.
-	// * actual record size can be more than this due to
-	// * padding and MAC overheads.
-	// */
-	  max_send_fragment : TIdC_UINT;
-    {$IFNDEF OPENSSL_ENGINE}
-	///* Engine to pass requests for client certs to
-	// */
-	  client_cert_engine : PENGINE;
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_TLSEXT}
-//* TLS extensions servername callback */
-    tlsext_servername_callback : PSSL_CTEX_tlsext_servername_callback;
-    tlsext_servername_arg : Pointer;
-    //* RFC 4507 session ticket keys */
-    tlsext_tick_key_name : array [0..(16-1)] of TIdAnsiChar;
-    tlsext_tick_hmac_key : array [0..(16-1)] of TIdAnsiChar;
-    tlsext_tick_aes_key : array [0..(16-1)] of TIdAnsiChar;
-	//* Callback to support customisation of ticket key setting */
- //	int (*tlsext_ticket_key_cb)(SSL *ssl,
- //					unsigned char *name, unsigned char *iv,
- //					EVP_CIPHER_CTX *ectx,
- //					HMAC_CTX *hctx, int enc);
-    tlsext_ticket_key_cb : Ptlsext_ticket_key_cb;
-	//* certificate status request info */
-	//* Callback for status request */
-	//int (*tlsext_status_cb)(SSL *ssl, void *arg);
-    tlsext_status_cb : Ptlsext_status_cb;
-	  tlsext_status_arg : Pointer;
-    {$ENDIF}
-	//* draft-rescorla-tls-opaque-prf-input-00.txt information */
-     tlsext_opaque_prf_input_callback : function(para1 : PSSL; peerinput : Pointer; len : size_t; arg : Pointer ) : TIdC_INT cdecl;
-	//int (*tlsext_opaque_prf_input_callback)(SSL *, void *peerinput, size_t len, void *arg);
-     tlsext_opaque_prf_input_callback_arg : Pointer;
-
-{$ifndef OPENSSL_NO_PSK}
-	   psk_identity_hint : PIdAnsiChar;
-     psk_client_callback : function (ssl : PSSL; hint : PIdAnsiChar;
-       identity : PIdAnsiChar; max_identity_len : TIdC_UINT;
-       psk : PIdAnsiChar; max_psk_len : TIdC_UINT ) : TIdC_UINT cdecl;
- //	unsigned int (*psk_client_callback)(SSL *ssl, const char *hint, char *identity,
-//		unsigned int max_identity_len, unsigned char *psk,
-//		unsigned int max_psk_len);
-     psk_server_callback : function (ssl : PSSL; identity, psk : PIdAnsiChar; max_psk_len : TIdC_UINT) : TIdC_UINT cdecl;
-//	unsigned int (*psk_server_callback)(SSL *ssl, const char *identity,
-//		unsigned char *psk, unsigned int max_psk_len);
-{$endif}
-
-{$ifndef OPENSSL_NO_BUF_FREELISTS}
-	  freelist_max_len : TIdC_UINT;
-	  wbuf_freelist : Pssl3_buf_freelist_st;
-	  rbuf_freelist : Pssl3_buf_freelist_st;
-{$endif}
-{$ifndef OPENSSL_NO_SRP}
-	  srp_ctx : SRP_CTX; //* ctx for SRP authentication */
-{$endif}
-
-{$ifndef OPENSSL_NO_TLSEXT}
-//# ifndef OPENSSL_NO_NEXTPROTONEG
-	//* Next protocol negotiation information */
-	//* (for experimental NPN extension). */
-
-	//* For a server, this contains a callback function by which the set of
-	// * advertised protocols can be provided. */
-    next_protos_advertised_cb : function(s : PSSL; out but : PIdAnsiChar;
-     out len : TIdC_UINT; arg : Pointer) : TIdC_INT cdecl;
-//	int (*next_protos_advertised_cb)(SSL *s, const unsigned char **buf,
-//			                 unsigned int *len, void *arg);
-	  next_protos_advertised_cb_arg : Pointer;
-	//* For a client, this contains a callback function that selects the
-	// * next protocol from the list provided by the server. */
-    next_proto_select_cb : function(s : PSSL; out _out : PIdAnsiChar;
-      outlen : PIdAnsiChar;
-      _in : PIdAnsiChar;
-      inlen : TIdC_UINT;
-      arg : Pointer) : TIdC_INT cdecl;
-//	int (*next_proto_select_cb)(SSL *s, unsigned char **out,
-//				    unsigned char *outlen,
-//				    const unsigned char *in,
-//				    unsigned int inlen,
-//				    void *arg);
-	  next_proto_select_cb_arg : Pointer;
-//# endif
-        //* SRTP profiles we are willing to do from RFC 5764 */
-      srtp_profiles : PSTACK_OF_SRTP_PROTECTION_PROFILE;
-{$endif}
-  end;
   {$EXTERNALSYM PSSL2_STATE}    
   PSSL2_STATE = ^SSL2_STATE;
   {$EXTERNALSYM PSSL3_STATE}    
@@ -18128,8 +17960,8 @@ var
   PKCS12_free: procedure(p12: PPKCS12) cdecl = nil;
   {$EXTERNALSYM SSL_load_client_CA_file}
   SSL_load_client_CA_file: function(const _file: PIdAnsiChar): PSTACK_OF_X509_NAME cdecl = nil;
-  {$EXTERNALSYM _SSL_CTX_set_info_callback}
-  _SSL_CTX_set_info_callback : procedure(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback) cdecl = nil;
+  {$EXTERNALSYM SSL_CTX_set_info_callback}
+  SSL_CTX_set_info_callback : procedure(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback) cdecl = nil;
   {$EXTERNALSYM SSL_CTX_set_client_CA_list}
   SSL_CTX_set_client_CA_list: procedure(ctx: PSSL_CTX; list: PSTACK_OF_X509_NAME) cdecl = nil;
   {$EXTERNALSYM SSL_CTX_set_default_verify_paths}
@@ -18397,8 +18229,6 @@ function X509_CRL_get_nextUpdate(x : PX509_CRL) : PASN1_TIME;
 function X509_CRL_get_issuer(x : PX509_CRL) : PX509_NAME;
  {$EXTERNALSYM X509_CRL_get_REVOKED}
 function X509_CRL_get_REVOKED(x : PX509_CRL) : PSTACK_OF_X509_REVOKED;
- {$EXTERNALSYM SSL_CTX_set_info_callback}
-procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
  {$EXTERNALSYM SSL_CTX_set_options}
 function SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_set_min_proto_version}
@@ -18571,8 +18401,6 @@ function SSL_set_tlsext_heartbeat_no_requests(ssl : PSSL; arg : TIdC_LONG) : TId
 function TLS1_get_version(s : PSSL) : TIdC_INT;
  {$EXTERNALSYM TLS1_get_client_version}
 function TLS1_get_client_version(s : PSSL) : TIdC_INT;
- {$EXTERNALSYM SSL_CTX_get_version}
-function SSL_CTX_get_version(ctx: PSSL_CTX):TIdC_INT;
 //* BIO_s_connect() and BIO_s_socks4a_connect() */
  {$EXTERNALSYM BIO_set_conn_hostname}
 function BIO_set_conn_hostname(b : PBIO; name : PIdAnsiChar) : TIdC_LONG;
@@ -23373,7 +23201,7 @@ begin
   // More SSL functions
   @SSL_set_ex_data := LoadFunction(fn_SSL_set_ex_data,False);
   @SSL_get_ex_data := LoadFunction(fn_SSL_get_ex_data,False);
-  @_SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback, not IsOpenSSL_Less_than_1_1_0);
+  @SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback);
   @SSL_load_client_CA_file := LoadFunction(fn_SSL_load_client_CA_file);  //Used by Indy
   @SSL_CTX_set_client_CA_list := LoadFunction(fn_SSL_CTX_set_client_CA_list); //Used by Indy
   @SSL_CTX_set_default_verify_paths := LoadFunction(fn_SSL_CTX_set_default_verify_paths); //Used by Indy
@@ -24231,7 +24059,7 @@ begin
   // More SSL functions
   @SSL_set_ex_data := nil;
   @SSL_get_ex_data := nil;
-  @_SSL_CTX_set_info_callback := nil;
+  @SSL_CTX_set_info_callback := nil;
   @SSL_load_client_CA_file := nil;
   @SSL_CTX_set_client_CA_list := nil;
   @SSL_CTX_set_default_verify_paths := nil;
@@ -25242,17 +25070,6 @@ begin
   end;
 end;
 
-procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Assert(ctx<>nil);
-  if Assigned(_SSL_CTX_set_info_callback) then begin
-    _SSL_CTX_set_info_callback(ctx,cb);
-  end else begin
-    ctx.info_callback := cb;
-  end;
-end;
-
 //* Note: SSL[_CTX]_set_{options,mode} use |= op on the previous value,
 // * they cannot be used to clear bits. */
 
@@ -25803,13 +25620,6 @@ begin
     Result := s.client_version
   else
     Result := 0;
-end;
-
-function SSL_CTX_get_version(ctx: PSSL_CTX):TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Assert(ctx<>nil);
-  Result := ctx^.method^.version;
 end;
 
 //* BIO_s_connect() and BIO_s_socks4a_connect() */
