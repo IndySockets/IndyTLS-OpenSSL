@@ -40,7 +40,7 @@ function SSL_CTX_use_certificate_func(ctx: PSSL_CTX; x: PX509): TIdC_INT cdecl; 
 
 function SSL_CTX_use_certificate_file_func(ctx: PSSL_CTX; const _file: PIdAnsiChar; _type: TIdC_INT): TIdC_INT cdecl; external SSL_LIB_NAME name 'SSL_CTX_use_certificate_file';
 
-//procedure SSL_load_error_strings_proc cdecl; external SSL_LIB_NAME name 'SSL_load_error_strings';
+procedure SSL_load_error_strings_proc cdecl; external SSL_LIB_NAME name 'SSL_load_error_strings';
 
 function SSL_state_string_long_func(s: PSSL): PIdAnsiChar cdecl; external SSL_LIB_NAME name 'SSL_state_string_long';
 
@@ -48,9 +48,7 @@ function SSL_alert_desc_string_long_func(value : TIdC_INT) : PIdAnsiChar cdecl; 
 
 function SSL_alert_type_string_long_func(value : TIdC_INT) : PIdAnsiChar cdecl; external SSL_LIB_NAME name 'SSL_alert_type_string_long';
 
-function SSL_get_peer_certificate_func(s: PSSL): PX509 cdecl; external SSL_LIB_NAME name 'SSL_get1_peer_certificate';
-
-function SSL_get_ex_data_X509_STORE_CTX_idx_func: Integer cdecl; external SSLCLIB_LIB_name name 'SSL_get_ex_data_X509_STORE_CTX_idx';
+function SSL_get_peer_certificate_func(s: PSSL): PX509 cdecl; external SSL_LIB_NAME name 'SSL_get_peer_certificate';
 
 procedure SSL_CTX_set_verify_proc(ctx: PSSL_CTX; mode: TIdC_INT; callback: TSSL_CTX_set_verify_callback) cdecl; external SSL_LIB_NAME name 'SSL_CTX_set_verify';
 
@@ -91,24 +89,24 @@ function SSL_CTX_callback_ctrl_func(ssl : PSSL_CTX; cmd : TIdC_INT; fp : SSL_cal
 function SSL_get_error_func(s: PSSL; ret_code: TIdC_INT): TIdC_INT cdecl; external SSL_LIB_NAME name 'SSL_get_error';
 
 {$IFNDEF OPENSSL_NO_SSL2}
-//function SSLv2_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv2_method';
+function SSLv2_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv2_method';
 
-//function SSLv2_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv2_server_method';
+function SSLv2_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv2_server_method';
 
-//function SSLv2_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv2_client_method';
+function SSLv2_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv2_client_method';
 {$ENDIF}
 
-//function SSLv3_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv3_method';
+function SSLv3_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv3_method';
 
-//function SSLv3_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv3_server_method';
+function SSLv3_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv3_server_method';
 
-//function SSLv3_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv3_client_method';
+function SSLv3_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv3_client_method';
 
-//function SSLv23_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv23_method';
+function SSLv23_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv23_method';
 
-//function SSLv23_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv23_server_method';
+function SSLv23_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv23_server_method';
 
-//function SSLv23_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv23_client_method';
+function SSLv23_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'SSLv23_client_method';
 
 function TLSv1_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_method';
 
@@ -146,15 +144,15 @@ function SSL_CTX_load_verify_locations_func(ctx: PSSL_CTX; const CAfile: PIdAnsi
 
 function SSL_get_session_func(const ssl: PSSL): PSSL_SESSION cdecl; external SSL_LIB_NAME name 'SSL_get_session';
 
-//function SSLeay_add_ssl_algorithms_func: TIdC_INT cdecl; external SSL_LIB_NAME name 'SSL_library_init';
+function SSLeay_add_ssl_algorithms_func: TIdC_INT cdecl; external SSL_LIB_NAME name 'SSL_library_init';
 
 function SSL_SESSION_get_id_func(const s: PSSL_SESSION; length: PIdC_UINT): PIdAnsiChar cdecl; external SSL_LIB_NAME name 'SSL_SESSION_get_id';
 
 procedure SSL_copy_session_id_proc(sslTo: PSSL; const sslFrom: PSSL) cdecl; external SSL_LIB_NAME name 'SSL_copy_session_id';
 
-//function SSLeay_version_func(_type : TIdC_INT) : PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'SSLeay_version';
+function SSLeay_version_func(_type : TIdC_INT) : PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'SSLeay_version';
 
-//function SSLeay_func: TIdC_ULONG cdecl; external SSLCLIB_LIB_name name 'SSLeay';
+function SSLeay_func: TIdC_ULONG cdecl; external SSLCLIB_LIB_name name 'SSLeay';
 
 function d2i_X509_NAME_func(pr : PPX509_NAME; _in : PPByte; length : TIdC_LONG):PX509_NAME cdecl; external SSLCLIB_LIB_name name 'd2i_X509_NAME';
 
@@ -164,7 +162,7 @@ function X509_NAME_oneline_func(a: PX509_NAME; buf: PIdAnsiChar; size: TIdC_INT)
 
 function X509_NAME_cmp_func(const a, b: PX509_NAME): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_NAME_cmp';
 
-function X509_NAME_hash_func(x: PX509_NAME): TIdC_ULONG cdecl; external SSLCLIB_LIB_name name 'X509_NAME_hash_ex';
+function X509_NAME_hash_func(x: PX509_NAME): TIdC_ULONG cdecl; external SSLCLIB_LIB_name name 'X509_NAME_hash';
 
 function X509_set_issuer_name_func(x: PX509; name: PX509_NAME): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_issuer_name';
 
@@ -280,22 +278,19 @@ function SSL_CIPHER_get_version_func(const c: PSSL_CIPHER): PIdAnsiChar cdecl; e
 
 function SSL_CIPHER_get_bits_func(const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT cdecl; external SSL_LIB_NAME name 'SSL_CIPHER_get_bits';
 
-//procedure CRYPTO_lock_proc(mode, _type : TIdC_INT; const _file : PIdAnsiChar; line : TIdC_INT) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_lock';
+procedure CRYPTO_lock_proc(mode, _type : TIdC_INT; const _file : PIdAnsiChar; line : TIdC_INT) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_lock';
 
-//function CRYPTO_num_locks_func: TIdC_INT cdecl; external SSLCLIB_LIB_name name 'CRYPTO_num_locks';
+function CRYPTO_num_locks_func: TIdC_INT cdecl; external SSLCLIB_LIB_name name 'CRYPTO_num_locks';
 
-//procedure CRYPTO_set_locking_callback_proc(func: TIdSslLockingCallback) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_set_locking_callback';
+procedure CRYPTO_set_locking_callback_proc(func: TIdSslLockingCallback) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_set_locking_callback';
 
-//function CRYPTO_THREADID_set_callback_func(threadid_func : TCRYPTO_THREADID_set_callback_threadid_func) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'CRYPTO_THREADID_set_callback';
+function CRYPTO_THREADID_set_callback_func(threadid_func : TCRYPTO_THREADID_set_callback_threadid_func) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'CRYPTO_THREADID_set_callback';
 
-//procedure CRYPTO_THREADID_set_numeric_proc(id : PCRYPTO_THREADID; val : TIdC_ULONG) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_THREADID_set_numeric';
+procedure CRYPTO_THREADID_set_numeric_proc(id : PCRYPTO_THREADID; val : TIdC_ULONG) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_THREADID_set_numeric';
 
-//procedure CRYPTO_THREADID_set_pointer_proc(id : PCRYPTO_THREADID; ptr : Pointer) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_THREADID_set_pointer';
+procedure CRYPTO_THREADID_set_pointer_proc(id : PCRYPTO_THREADID; ptr : Pointer) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_THREADID_set_pointer';
 
-procedure ERR_new_proc cdecl; external SSLCLIB_LIB_name name 'ERR_new';
-procedure ERR_set_debug_proc(_file : PIdAnsiChar; line: TIdC_INT; func: PIdAnsiChar) cdecl; external SSLCLIB_LIB_name name 'ERR_set_debug';
-procedure ERR_set_error_proc(lib, reason : TIdC_INT; fmt : PIdAnsiChar) cdecl; external SSLCLIB_LIB_name name 'ERR_set_error';
-//procedure ERR_put_error_proc(lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT) cdecl; external SSLCLIB_LIB_name name 'ERR_put_error';
+procedure ERR_put_error_proc(lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT) cdecl; external SSLCLIB_LIB_name name 'ERR_put_error';
 
 function ERR_get_error_func: TIdC_ULONG cdecl; external SSLCLIB_LIB_name name 'ERR_get_error';
 
@@ -317,19 +312,19 @@ function ERR_reason_error_string_func(e : TIdC_ULONG): PIdAnsiChar cdecl; extern
 
 procedure ERR_load_ERR_strings_proc cdecl; external SSLCLIB_LIB_name name 'ERR_load_ERR_strings';
 
-//procedure ERR_load_crypto_strings_proc cdecl; external SSLCLIB_LIB_name name 'ERR_load_crypto_strings';
+procedure ERR_load_crypto_strings_proc cdecl; external SSLCLIB_LIB_name name 'ERR_load_crypto_strings';
 
-//procedure ERR_free_strings_proc cdecl; external SSLCLIB_LIB_name name 'ERR_free_strings';
+procedure ERR_free_strings_proc cdecl; external SSLCLIB_LIB_name name 'ERR_free_strings';
 
 procedure ERR_remove_thread_state_proc(const tId : PCRYPTO_THREADID) cdecl; external SSLCLIB_LIB_name name 'ERR_remove_thread_state';
 
-//procedure CRYPTO_cleanup_all_ex_data_proc cdecl; external SSLCLIB_LIB_name name 'CRYPTO_cleanup_all_ex_data';
+procedure CRYPTO_cleanup_all_ex_data_proc cdecl; external SSLCLIB_LIB_name name 'CRYPTO_cleanup_all_ex_data';
 
 function SSL_COMP_get_compression_methods_func: PSTACK_OF_SSL_COMP cdecl; external SSL_LIB_NAME name 'SSL_COMP_get_compression_methods';
 
-//procedure SSL_COMP_free_compression_methods_func; cdecl; external SSL_LIB_NAME name 'SSL_COMP_free_compression_methods'
+procedure SSL_COMP_free_compression_methods_func; cdecl; external SSL_LIB_NAME name 'SSL_COMP_free_compression_methods'
 
-procedure sk_pop_free_proc(st: PSTACK; func: Tsk_pop_free_func) cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_pop_free';
+procedure sk_pop_free_proc(st: PSTACK; func: Tsk_pop_free_func) cdecl; external SSLCLIB_LIB_name name 'sk_pop_free';
 
 procedure RSA_free_proc(rsa: PRSA) cdecl; external SSLCLIB_LIB_name name 'RSA_free';
 
@@ -462,9 +457,9 @@ function X509_get_serialNumber_func(x: PX509): PASN1_INTEGER cdecl; external SSL
 
 function X509_gmtime_adj_func(s: PASN1_TIME; adj: TIdC_LONG): PASN1_TIME cdecl; external SSLCLIB_LIB_name name 'X509_gmtime_adj';
 
-//function X509_set_notBefore_func(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_notBefore';
+function X509_set_notBefore_func(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_notBefore';
 
-//function X509_set_notAfter_func(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_notAfter';
+function X509_set_notAfter_func(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_notAfter';
 
 function X509_set_pubkey_func(x: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_pubkey';
 
@@ -473,8 +468,6 @@ function X509_REQ_set_pubkey_func(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT cdecl
 function X509_PUBKEY_get_func(key: PX509_PUBKEY): PEVP_PKEY cdecl; external SSLCLIB_LIB_name name 'X509_PUBKEY_get';
 
 function X509_verify_func(x509: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_verify';
-
-function X509_verify_cert_error_string_func(n: TIdC_LONG): PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'X509_verify_cert_error_string';
 
 {$IFNDEF SSLEAY_MACROS}
 function PEM_read_bio_X509_func(bp: PBIO; x: PPX509; cb: ppem_password_cb; u: Pointer): PX509 cdecl; external SSLCLIB_LIB_name name 'PEM_read_bio_X509';
@@ -578,15 +571,13 @@ function EVP_md4_func: PEVP_MD cdecl; external SSLCLIB_LIB_name name 'EVP_md4';
 //function EVP_md2_func: PEVP_MD cdecl; external SSLCLIB_LIB_name name 'EVP_md2';
 //{$ENDIF}
 
-//procedure EVP_MD_CTX_init_proc(ctx : PEVP_MD_CTX) cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_init';
+procedure EVP_MD_CTX_init_proc(ctx : PEVP_MD_CTX) cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_init';
 
-//function EVP_MD_CTX_cleanup_func(ctx : PEVP_MD_CTX) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_cleanup';
+function EVP_MD_CTX_cleanup_func(ctx : PEVP_MD_CTX) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_cleanup';
 
-//function EVP_MD_CTX_create_func : PEVP_MD_CTX cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_create';
+function EVP_MD_CTX_create_func : PEVP_MD_CTX cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_create';
 
-//procedure EVP_MD_CTX_destroy_proc(ctx : PEVP_MD_CTX) cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_destroy';
-function EVP_MD_CTX_new_func : PEVP_MD_CTX cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_new';
-function EVP_MD_CTX_free_func(ctx : PEVP_MD_CTX) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_free';
+procedure EVP_MD_CTX_destroy_proc(ctx : PEVP_MD_CTX) cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_destroy';
 
 function EVP_MD_CTX_copy_func(_out : PEVP_MD_CTX; _in: PEVP_MD_CTX) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_copy';
 
@@ -609,7 +600,7 @@ function EVP_PKEY_assign_func(pkey: PEVP_PKEY; _type: TIdC_INT; key: Pointer): T
 function EVP_get_digestbyname_func(const name: PIdAnsiChar): PEVP_MD cdecl; external SSLCLIB_LIB_name name 'EVP_get_digestbyname';
 
 {$IFNDEF OPENSSL_NO_HMAC}
-//procedure HMAC_CTX_init_proc(ctx : PHMAC_CTX) cdecl; external SSLCLIB_LIB_name name 'HMAC_CTX_init';
+procedure HMAC_CTX_init_proc(ctx : PHMAC_CTX) cdecl; external SSLCLIB_LIB_name name 'HMAC_CTX_init';
 
 function HMAC_Init_ex_func(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
   md : PEVP_MD; impl : PENGINE) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'HMAC_Init_ex';
@@ -618,7 +609,7 @@ function HMAC_Update_func(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t) : T
 
 function HMAC_Final_func(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'HMAC_Final';
 
-//procedure HMAC_CTX_cleanup_proc(ctx : PHMAC_CTX) cdecl; external SSLCLIB_LIB_name name 'HMAC_CTX_cleanup';
+procedure HMAC_CTX_cleanup_proc(ctx : PHMAC_CTX) cdecl; external SSLCLIB_LIB_name name 'HMAC_CTX_cleanup';
 {$ENDIF}
 
 function  OBJ_obj2nid_func(const o: PASN1_OBJECT): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'OBJ_obj2nid';
@@ -648,16 +639,16 @@ function CRYPTO_malloc_func(num: TIdC_INT; const _file: PIdAnsiChar; line: TIdC_
 
 procedure CRYPTO_free_proc(ptr : Pointer) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_free';
 
-//procedure CRYPTO_mem_leaks_proc(b:PBIO) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_mem_leaks';
+procedure CRYPTO_mem_leaks_proc(b:PBIO) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_mem_leaks';
 
-//function CRYPTO_mem_ctrl_func(mode: TIdC_INT): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'CRYPTO_mem_ctrl';
+function CRYPTO_mem_ctrl_func(mode: TIdC_INT): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'CRYPTO_mem_ctrl';
 
-//procedure CRYPTO_set_mem_debug_functions_proc(
-//  m: Tset_mem_debug_functions_m;
-//  r: Tset_mem_debug_functions_r;
-//  f : Tset_mem_debug_functions_f;
-//  so : Tset_mem_debug_functions_so;
-//  go : Tset_mem_debug_functions_go) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_set_mem_debug_functions';
+procedure CRYPTO_set_mem_debug_functions_proc(
+  m: Tset_mem_debug_functions_m;
+  r: Tset_mem_debug_functions_r;
+  f : Tset_mem_debug_functions_f;
+  so : Tset_mem_debug_functions_so;
+  go : Tset_mem_debug_functions_go) cdecl; external SSLCLIB_LIB_name name 'CRYPTO_set_mem_debug_functions';
 
 function PKCS12_create_func(pass, name: PIdAnsiChar; pkey: PEVP_PKEY; cert : PX509;
   ca: PSTACK_OF_X509; nid_key, nid_cert, iter, mac_iter, keytype : TIdC_INT) : PPKCS12 cdecl; external SSLCLIB_LIB_name name 'PKCS12_create';
@@ -668,41 +659,33 @@ procedure PKCS12_free_proc(p12: PPKCS12) cdecl; external SSLCLIB_LIB_name name '
 
 //procedure OpenSSL_add_all_algorithms_proc cdecl; external SSLCLIB_LIB_name name 'OpenSSL_add_all_algorithms';
 
-//procedure OpenSSL_add_all_ciphers_proc cdecl; external SSLCLIB_LIB_name name 'OpenSSL_add_all_ciphers';
+procedure OpenSSL_add_all_ciphers_proc cdecl; external SSLCLIB_LIB_name name 'OpenSSL_add_all_ciphers';
 
-//procedure OpenSSL_add_all_digests_proc cdecl; external SSLCLIB_LIB_name name 'OpenSSL_add_all_digests';
+procedure OpenSSL_add_all_digests_proc cdecl; external SSLCLIB_LIB_name name 'OpenSSL_add_all_digests';
 
-//procedure EVP_cleanup_proc cdecl; external SSLCLIB_LIB_name name 'EVP_cleanup';
+procedure EVP_cleanup_proc cdecl; external SSLCLIB_LIB_name name 'EVP_cleanup';
 
-function sk_num_func(const x : PSTACK) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_num';
+function sk_num_func(const x : PSTACK) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'sk_num';
 
-function sk_new_func( cmp : Tsk_new_cmp) : PStack cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_new';
+function sk_new_func( cmp : Tsk_new_cmp) : PStack cdecl; external SSLCLIB_LIB_name name 'sk_new';
 
-function sk_new_null_func: PSTACK cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_new_null';
+function sk_new_null_func: PSTACK cdecl; external SSLCLIB_LIB_name name 'sk_new_null';
 
-procedure sk_free_proc(st : PSTACK) cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_free';
+procedure sk_free_proc(st : PSTACK) cdecl; external SSLCLIB_LIB_name name 'sk_free';
 
-function sk_push_func(st: PSTACK; data: PIdAnsiChar): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_push';
+function sk_push_func(st: PSTACK; data: PIdAnsiChar): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'sk_push';
 
-function sk_dup_func(st : PSTACK) : PSTACK cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_dup';
+function sk_dup_func(st : PSTACK) : PSTACK cdecl; external SSLCLIB_LIB_name name 'sk_dup';
 
-function sk_find_func(st : PSTACK; Data : PIdAnsiChar) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_find';
+function sk_find_func(st : PSTACK; Data : PIdAnsiChar) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'sk_find';
 
-function sk_value_func(x : PSTACK; i : TIdC_INT) : PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'OPENSSL_sk_value';
+function sk_value_func(x : PSTACK; i : TIdC_INT) : PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'sk_value';
 
 {$IFDEF OPENSSL_FIPS}
 //function FIPS_mode_set_func(onoff : TIdC_INT) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'FIPS_mode_set';
 
 //function FIPS_mode_func: TIdC_INT cdecl; external SSLCLIB_LIB_name name 'FIPS_mode';
 {$ENDIF}
-
-procedure SSL_CTX_set_info_callback_func(Ctx: PSSL_CTX; Callback: PSSL_CTX_info_callback) cdecl; external SSL_LIB_name name 'SSL_CTX_set_info_callback';
-function OpenSSL_version_num_func: LongWord cdecl; external SSLCLIB_LIB_name name 'OpenSSL_version_num';
-function OpenSSL_version_func(t: Integer): PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'OpenSSL_version';
-
-function TLS_method_func: PSSL_METHOD cdecl; external SSL_LIB_name name 'TLS_method';
-function SSL_get_version_func(S: PSSL): PIdAnsiChar cdecl; external SSL_LIB_name name 'SSL_get_version';
-function SSL_CTX_get_cert_store_func(const Ctx: PSSL_CTX): PX509_STORE cdecl; external SSL_LIB_name name 'SSL_CTX_get_cert_store';
 
 procedure LoadSymbols;
 begin
@@ -714,7 +697,7 @@ begin
   SSL_CTX_use_PrivateKey := SSL_CTX_use_PrivateKey_func;
   SSL_CTX_use_certificate := SSL_CTX_use_certificate_func;
   SSL_CTX_use_certificate_file := SSL_CTX_use_certificate_file_func;
-  SSL_load_error_strings := nil;
+  SSL_load_error_strings := SSL_load_error_strings_proc;
   SSL_state_string_long := SSL_state_string_long_func;
   SSL_alert_desc_string_long := SSL_alert_desc_string_long_func;
   SSL_alert_type_string_long := SSL_alert_type_string_long_func;
@@ -740,20 +723,20 @@ begin
   SSL_CTX_callback_ctrl := SSL_CTX_callback_ctrl_func;
   SSL_get_error := SSL_get_error_func;
   {$IFNDEF OPENSSL_NO_SSL2}
-  SSLv2_method := nil;
-  SSLv2_server_method := nil;
-  SSLv2_client_method := nil;
+  SSLv2_method := SSLv2_method_func;
+  SSLv2_server_method := SSLv2_server_method_func;
+  SSLv2_client_method := SSLv2_client_method_func;
   {$ELSE}
   SSLv2_method := nil;
   SSLv2_server_method := nil;
   SSLv2_client_method := nil;
   {$ENDIF}
-  SSLv3_method := nil;
-  SSLv3_server_method := nil;
-  SSLv3_client_method := nil;
-  SSLv23_method := nil;
-  SSLv23_server_method := nil;
-  SSLv23_client_method := nil;
+  SSLv3_method := SSLv3_method_func;
+  SSLv3_server_method := SSLv3_server_method_func;
+  SSLv3_client_method := SSLv3_client_method_func;
+  SSLv23_method := SSLv23_method_func;
+  SSLv23_server_method := SSLv23_server_method_func;
+  SSLv23_client_method := SSLv23_client_method_func;
   TLSv1_method := TLSv1_method_func;
   TLSv1_server_method := TLSv1_server_method_func;
   TLSv1_client_method := TLSv1_client_method_func;
@@ -772,12 +755,12 @@ begin
   SSL_set_shutdown := SSL_set_shutdown_proc;
   SSL_CTX_load_verify_locations := SSL_CTX_load_verify_locations_func;
   SSL_get_session := SSL_get_session_func;
-//  SSLeay_add_ssl_algorithms := SSLeay_add_ssl_algorithms_func;
+  SSLeay_add_ssl_algorithms := SSLeay_add_ssl_algorithms_func;
   SSL_SESSION_get_id := SSL_SESSION_get_id_func;
   SSL_copy_session_id := SSL_copy_session_id_proc;
    // CRYPTO LIB
-  _SSLeay_version := nil;
-  SSLeay := nil;
+  _SSLeay_version := SSLeay_version_func;
+  SSLeay := SSLeay_func;
   d2i_X509_NAME := d2i_X509_NAME_func;
   i2d_X509_NAME := i2d_X509_NAME_func;
   X509_NAME_oneline := X509_NAME_oneline_func;
@@ -846,26 +829,23 @@ begin
   SSL_CIPHER_get_version := SSL_CIPHER_get_version_func;
   SSL_CIPHER_get_bits  := SSL_CIPHER_get_bits_func;
   // Thread safe
-  _CRYPTO_lock := nil;
-  _CRYPTO_num_locks := nil;
-  CRYPTO_set_locking_callback := nil;
+  _CRYPTO_lock := CRYPTO_lock_proc;
+  _CRYPTO_num_locks := CRYPTO_num_locks_func;
+  CRYPTO_set_locking_callback := CRYPTO_set_locking_callback_proc;
   {$IFNDEF WIN32_OR_WIN64}
 {
 In OpenSSL 1.0.0, you should use these callback functions instead of the
 depreciated set_id_callback.  They are not in the older 0.9.8 OpenSSL series so
 we have to handle both cases.
 }
-  CRYPTO_THREADID_set_callback := nil;
-  CRYPTO_THREADID_set_numeric := nil;
-  CRYPTO_THREADID_set_pointer := nil;  {Do not localize}
+  CRYPTO_THREADID_set_callback := CRYPTO_THREADID_set_callback_func;
+  CRYPTO_THREADID_set_numeric := CRYPTO_THREADID_set_numeric_proc;
+  CRYPTO_THREADID_set_pointer := CRYPTO_THREADID_set_pointer_proc;  {Do not localize}
 //  if not assigned(CRYPTO_THREADID_set_callback) then begin
 //    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback);
 //  end;
   {$ENDIF}
-  ERR_new := ERR_new_proc;
-  ERR_set_debug := ERR_set_debug_proc;
-  ERR_set_error := ERR_set_error_proc;
-//  ERR_put_error := ERR_put_error_proc;
+  ERR_put_error := ERR_put_error_proc;
   ERR_get_error := ERR_get_error_func;
   ERR_peek_error := ERR_peek_error_func;
   ERR_peek_last_error := ERR_peek_last_error_func;
@@ -876,15 +856,15 @@ we have to handle both cases.
   ERR_func_error_string := ERR_func_error_string_func;
   ERR_reason_error_string := ERR_reason_error_string_func;
   ERR_load_ERR_strings := ERR_load_ERR_strings_proc;
-  ERR_load_crypto_strings := nil;
-  ERR_free_strings := nil;
+  ERR_load_crypto_strings := ERR_load_crypto_strings_proc;
+  ERR_free_strings := ERR_free_strings_proc;
   ERR_remove_thread_state := ERR_remove_thread_state_proc;
 //  if not Assigned(ERR_remove_thread_state) then begin
 //    @ERR_remove_state := LoadFunctionCLib(fn_ERR_remove_state);
 //  end;
-  CRYPTO_cleanup_all_ex_data := nil;
+  CRYPTO_cleanup_all_ex_data := CRYPTO_cleanup_all_ex_data_proc;
   SSL_COMP_get_compression_methods := SSL_COMP_get_compression_methods_func;
-  SSL_COMP_free_compression_methods := nil;
+  SSL_COMP_free_compression_methods := SSL_COMP_free_compression_methods_func;
   sk_pop_free := sk_pop_free_proc;
   //RSA
   RSA_free := RSA_free_proc;
@@ -960,8 +940,8 @@ we have to handle both cases.
   X509_set_version := X509_set_version_func;
   X509_get_serialNumber := X509_get_serialNumber_func;
   X509_gmtime_adj := X509_gmtime_adj_func;
-  X509_set_notBefore := nil;
-  X509_set_notAfter := nil;
+  X509_set_notBefore := X509_set_notBefore_func;
+  X509_set_notAfter := X509_set_notAfter_func;
   X509_set_pubkey := X509_set_pubkey_func;
   X509_REQ_set_pubkey := X509_REQ_set_pubkey_func;
   X509_PUBKEY_get := X509_PUBKEY_get_func;
@@ -1023,18 +1003,16 @@ we have to handle both cases.
 //  {$IFNDEF OPENSSL_NO_MD2}
 //  EVP_md2 := EVP_md2_func;
 //  {$ENDIF}
-//  EVP_MD_CTX_init := EVP_MD_CTX_init_proc;
-//  EVP_MD_CTX_cleanup := EVP_MD_CTX_cleanup_func;
-//  EVP_MD_CTX_create := EVP_MD_CTX_create_func;
-//  EVP_MD_CTX_destroy := EVP_MD_CTX_destroy_proc;
-  EVP_MD_CTX_new := EVP_MD_CTX_new_func;
-  EVP_MD_CTX_free := EVP_MD_CTX_free_func;
+  EVP_MD_CTX_init := EVP_MD_CTX_init_proc;
+  EVP_MD_CTX_cleanup := EVP_MD_CTX_cleanup_func;
+  EVP_MD_CTX_create := EVP_MD_CTX_create_func;
+  EVP_MD_CTX_destroy := EVP_MD_CTX_destroy_proc;
   EVP_MD_CTX_copy := EVP_MD_CTX_copy_func;
   EVP_MD_CTX_copy_ex := EVP_MD_CTX_copy_ex_func;
   EVP_DigestInit_ex := EVP_DigestInit_ex_func;
   EVP_DigestUpdate := EVP_DigestUpdate_func;
   EVP_DigestFinal_ex := EVP_DigestFinal_ex_func;
-//  EVP_MD_CTX_cleanup := EVP_MD_CTX_cleanup_func;
+  EVP_MD_CTX_cleanup := EVP_MD_CTX_cleanup_func;
   EVP_PKEY_type := EVP_PKEY_type_func;
   EVP_PKEY_new := EVP_PKEY_new_func;
   EVP_PKEY_free := EVP_PKEY_free_proc;
@@ -1042,7 +1020,7 @@ we have to handle both cases.
   EVP_get_digestbyname := EVP_get_digestbyname_func;
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
-  HMAC_CTX_init := nil;
+  HMAC_CTX_init := HMAC_CTX_init_proc;
 //  if IsOpenSSL_1x then begin
     _1_0_HMAC_Init_ex :=  HMAC_Init_ex_func;
     _1_0_HMAC_Update  := HMAC_Update_func;
@@ -1052,7 +1030,7 @@ we have to handle both cases.
 //    @_HMAC_Update := LoadFunctionCLib(fn_HMAC_Update);
 //    @_HMAC_Final := LoadFunctionCLib(fn_HMAC_Final);
 //  end;
-  HMAC_CTX_cleanup := nil;
+  HMAC_CTX_cleanup := HMAC_CTX_cleanup_proc;
   {$ENDIF}
   //OBJ
   OBJ_obj2nid := OBJ_obj2nid_func;
@@ -1068,16 +1046,16 @@ we have to handle both cases.
   CRYPTO_set_mem_functions := CRYPTO_set_mem_functions_func;
   CRYPTO_malloc := CRYPTO_malloc_func;
   CRYPTO_free := CRYPTO_free_proc;
-  CRYPTO_mem_leaks := nil;
-  CRYPTO_mem_ctrl := nil;
-  CRYPTO_set_mem_debug_functions := nil;
+  CRYPTO_mem_leaks := CRYPTO_mem_leaks_proc;
+  CRYPTO_mem_ctrl := CRYPTO_mem_ctrl_func;
+  CRYPTO_set_mem_debug_functions := CRYPTO_set_mem_debug_functions_proc;
   PKCS12_create := PKCS12_create_func;
   i2d_PKCS12_bio := i2d_PKCS12_bio_func;
   PKCS12_free := PKCS12_free_proc;
 //  OpenSSL_add_all_algorithms := OpenSSL_add_all_algorithms_proc;
-  OpenSSL_add_all_ciphers := nil;
-  OpenSSL_add_all_digests := nil;
-  EVP_cleanup := nil;
+  OpenSSL_add_all_ciphers := OpenSSL_add_all_ciphers_proc;
+  OpenSSL_add_all_digests := OpenSSL_add_all_digests_proc;
+  EVP_cleanup := EVP_cleanup_proc;
 
   sk_num := sk_num_func;
   sk_new := sk_new_func;
@@ -1091,15 +1069,6 @@ we have to handle both cases.
 //  _FIPS_mode_set := FIPS_mode_set_func;
 //  _FIPS_mode := FIPS_mode_func;
   {$ENDIF}
-  SSL_CTX_set_info_callback := SSL_CTX_set_info_callback_func;
-
-  OpenSSL_version_num := OpenSSL_version_num_func;
-  OpenSSL_version := OpenSSL_version_func;
-  TLS_method := TLS_method_func;
-  SSL_get_version := SSL_get_version_func;
-  SSL_CTX_get_cert_store := SSL_CTX_get_cert_store_func;
-
-  SSL_get_ex_data_X509_STORE_CTX_idx := SSL_get_ex_data_X509_STORE_CTX_idx_func;
 end;
 
 initialization
