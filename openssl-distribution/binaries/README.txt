@@ -1,0 +1,1 @@
+This directory contains OpenSSL 3.0 .DLL's for software developers.
