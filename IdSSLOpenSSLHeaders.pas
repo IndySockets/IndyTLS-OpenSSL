@@ -1,10 +1,46 @@
 {
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
   This file is part of the Indy (Internet Direct) project, and is offered
   under the dual-licensing agreement described on the Indy website.
   (http://www.indyproject.org/)
 
   Copyright:
-   (c) 1993-2024, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
+{
+  Rev 1.8    28.09.2004 21:38:44  Andreas Hausladen
+  commented out unused function ErrMsg
+
+  Rev 1.7    2004-05-07 16:52:50  Mattias
+  Minor cleanup
+
+  Rev 1.6    2004-05-07 16:34:36  Mattias
+  Implemented  OpenSSL locking callbacks
+
+  Rev 1.5    10/16/03 11:16:44 PM  RLebeau
+  Updated to better support C++Builder by adding an $EXTERNSYM define to
+  'time_t' so that it won't be included in the auto-generated HPP file.  The
+  native time.h header file is used instead.
+
+  Rev 1.4    10/17/2003 1:08:12 AM  DSiders
+  Added localization comments.
+
+  Rev 1.3    12/9/2002 12:48:42 PM  JPMugaas
+  Fixed stupid compile error for the moment.  The Macros in err.h have to be
+  sorted out later.
+
+  Rev 1.1    12/8/2002 07:25:52 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.0    11/13/2002 08:01:32 AM  JPMugaas
 }
 unit IdSSLOpenSSLHeaders;
 
@@ -7030,6 +7066,11 @@ const
   {$EXTERNALSYM DTLS_CTRL_LISTEN}
   DTLS_CTRL_LISTEN = 75;
 
+  {$EXTERNALSYM SSL_CTRL_SET_MIN_PROTO_VERSION}
+  SSL_CTRL_SET_MIN_PROTO_VERSION = 123;
+  {$EXTERNALSYM SSL_CTRL_SET_MAX_PROTO_VERSION}
+  SSL_CTRL_SET_MAX_PROTO_VERSION = 124;
+
   {$EXTERNALSYM SSL_CTRL_GET_RI_SUPPORT}
   SSL_CTRL_GET_RI_SUPPORT	= 76;
   {$EXTERNALSYM SSL_CTRL_CLEAR_OPTIONS}
@@ -7645,6 +7686,8 @@ const
   SSL_OP_NO_TLSv1_2	= $08000000;
   {$EXTERNALSYM SSL_OP_NO_TLSv1_1}
   SSL_OP_NO_TLSv1_1	= $10000000;
+  {$EXTERNALSYM SSL_OP_NO_TLSv1_3}
+  SSL_OP_NO_TLSv1_3	= $20000000;
   {$EXTERNALSYM SSL_OP_PKCS1_CHECK_1}
   SSL_OP_PKCS1_CHECK_1 = $00; //was $08000000;
   {$EXTERNALSYM SSL_OP_PKCS1_CHECK_2}
@@ -8338,6 +8381,12 @@ const
   SSL_MAC_FLAG_WRITE_MAC_STREAM = 2;
   {$EXTERNALSYM TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES}
   TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES = 0;
+  {$EXTERNALSYM TLS1_2_VERSION}
+  TLS1_3_VERSION = $0304;
+  {$EXTERNALSYM TLS1_2_VERSION_MAJOR}
+  TLS1_3_VERSION_MAJOR = $03;
+  {$EXTERNALSYM TLS1_2_VERSION_MINOR}
+  TLS1_3_VERSION_MINOR = $04;
   {$EXTERNALSYM TLS1_2_VERSION}
   TLS1_2_VERSION = $0303;
   {$EXTERNALSYM TLS1_2_VERSION_MAJOR}
@@ -13890,10 +13939,10 @@ type
   {$EXTERNALSYM X509_CINF}
   X509_CINF = record
     version: PASN1_INTEGER;
-    serialNumber: PASN1_INTEGER;
-    signature: PX509_ALGOR;
+    serialNumber: ASN1_INTEGER;
+    signature: X509_ALGOR;
     issuer: PX509_NAME;
-    validity: PX509_VAL;
+    validity: X509_VAL;
     subject: PX509_NAME;
     key: PX509_PUBKEY;
     issuerUID: PASN1_BIT_STRING; // [ 1 ] optional in v2
@@ -13911,36 +13960,47 @@ type
   end;
   {$EXTERNALSYM PX509_CERT_AUX}
   PX509_CERT_AUX = ^X509_CERT_AUX;
+  {$NODEFINE X509_SIG_INFO}
+  X509_SIG_INFO = record
+    mdnid: TIdC_INT;
+    pknid: TIdC_INT;
+    secbits: TIdC_INT;
+    flags: TIdC_INT;
+  end;
+  CRYPTO_REF_COUNT = record
+    val: TIdC_INT;
+  end;
   {$NODEFINE X509}
   X509 = record
-    cert_info: PX509_CINF;
-    sig_alg : PX509_ALGOR;
+    cert_info: X509_CINF;
+    sig_alg : X509_ALGOR;
     signature : PASN1_BIT_STRING;
-    valid : TIdC_INT;
-    references : TIdC_INT;
-    name : PIdAnsiChar;
-    ex_data : CRYPTO_EX_DATA;
-    // These contain copies of various extension values
-    ex_pathlen : TIdC_LONG;
-    ex_pcpathlen : TIdC_LONG;
-    ex_flags : TIdC_ULONG;
-    ex_kusage : TIdC_ULONG;
-    ex_xkusage : TIdC_ULONG;
-    ex_nscert : TIdC_ULONG;
-    skid : PASN1_OCTET_STRING;
-    akid : PAUTHORITY_KEYID;
-    policy_cache : PX509_POLICY_CACHE;
-    crldp : PSTACK_OF_DIST_POINT;
-    altname : PSTACK_OF_GENERAL_NAME;
-    nc : PNAME_CONSTRAINTS;
+    signinf: X509_SIG_INFO;
+    references: CRYPTO_REF_COUNT;
+    ex_data: CRYPTO_EX_DATA;
+    ex_pathlen: TIdC_LONG;
+    ex_pcpathlen: TIdC_LONG;
+    ex_flags: TIdC_UINT32;
+    ex_kusage: TIdC_UINT32;
+    ex_xkusage: TIdC_UINT32;
+    ex_nscert: TIdC_UINT32;
+    skid: PASN1_OCTET_STRING;
+    akid: PAUTHORITY_KEYID;
+    policy_cache: PX509_POLICY_CACHE;
+//    crldp: STACK_OF(DIST_POINT);
+//    altname: PSTACK_OF(GENERAL_NAME);
+//    nc^: PNAME_CONSTRAINTS;
     {$IFNDEF OPENSSL_NO_RFC3779}
-    rfc3779_addr : PSTACK_OF_IPAddressFamily;
-    rfc3779_asid : PASIdentifiers;
+    rfc3779_addr: PSTACK_OF(IPAddressFamily);
+    rfc3779_asid: Pstruct ASIdentifiers_st;
     {$ENDIF}
-    {$IFNDEF OPENSSL_NO_SHA}
-    sha1_hash : array [0..SHA_DIGEST_LENGTH-1] of TIdAnsiChar;
-    {$ENDIF}
-    aux : PX509_CERT_AUX;
+//    sha1_hash : array [0..SHA_DIGEST_LENGTH-1] of TIdAnsiChar;
+//    aux: pX509_CERT_AUX;
+//    lock: PCRYPTO_RWLOCK;
+//    ex_cached: volatile inT;
+//    distinguishing_id: PASN1_OCTET_STRING;
+//    libctx: POSSL_LIB_CTX;
+//    propq: PChar;
   end;
   {$EXTERNALSYM X509_CRL_INFO}
   X509_CRL_INFO = record
@@ -14020,11 +14080,15 @@ type
     get_crl : function (ctx : PX509_STORE_CTX; crl : PPX509_CRL; x : PX509) : TIdC_INT; cdecl;// retrieve CRL
     check_crl : function(ctx : PX509_STORE_CTX; crl : PX509_CRL) : TIdC_INT; cdecl; // Check CRL validity
     cert_crl : function(ctx : PX509_STORE_CTX; crl : PX509_CRL; x : PX509) : TIdC_INT; cdecl; // Check certificate against CRL
+
+    check_policy : function(ctx : PX509_STORE_CTX): TIdC_INT; cdecl;
+
     lookup_certs : function(ctx : PX509_STORE_CTX; nm : PX509_NAME) : PSTACK_OF_X509 cdecl;
     lookup_crls : function(ctx : PX509_STORE_CTX; nm : PX509_NAME) : PSTACK_OF_X509_CRL cdecl;
     cleanup : function(ctx : PX509_STORE_CTX) : TIdC_INT; cdecl;
     ex_data : CRYPTO_EX_DATA;
     references : TIdC_INT;
+    lock: Pointer;
   end;
   {$EXTERNALSYM PX509_STORE}
   PX509_STORE = ^X509_STORE;
@@ -14065,6 +14129,8 @@ type
     get_by_issuer_serial : function(ctx : PX509_LOOKUP; _type : TIdC_INT; name : PX509_NAME; serial : PASN1_INTEGER; ret : PX509_OBJECT) : TIdC_INT; cdecl;
     get_by_fingerprint : function (ctx : PX509_LOOKUP; _type : TIdC_INT; bytes : PIdAnsiChar; len : TIdC_INT; ret : PX509_OBJECT): TIdC_INT; cdecl;
     get_by_alias : function(ctx : PX509_LOOKUP; _type : TIdC_INT; str : PIdAnsiChar; ret : PX509_OBJECT) : TIdC_INT; cdecl;
+    get_by_subject_ex : function(ctx : PX509_LOOKUP; _type : TIdC_INT; name : PX509_NAME; ret : PX509_OBJECT; libctx: Pointer; str : PIdAnsiChar) : TIdC_INT; cdecl;
+    ctrl_ex : function(ctx : PX509_LOOKUP; cmd: TIdC_INT; argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar; libctx: Pointer; propq: PIdAnsiChar) : TIdC_INT; cdecl;
   end;
   {$EXTERNALSYM PX509_LOOKUP_METHOD}
   PX509_LOOKUP_METHOD      = ^X509_LOOKUP_METHOD;
@@ -15651,6 +15717,37 @@ _des_cblock = DES_cblock
                           // supplying session-id's from other
                           // processes - spooky :-)
   end;
+  {$EXTERNALSYM SSL_CTX_TLS_Extensions}
+  SSL_CTX_TLS_Extensions = record
+    servername_cb : PSSL_CTEX_tlsext_servername_callback;
+    servername_arg : Pointer;
+    tick_key_name : array [0..(16-1)] of TIdAnsiChar;
+    secure : Pointer;
+    {$IFNDEF OPENSSL_NO_DEPRECATED_3_0}
+    ticket_key_cb : Ptlsext_ticket_key_cb;
+    {$ENDIF}
+    ticket_key_evp_cb: Ptlsext_ticket_key_cb;
+    status_cb : Ptlsext_status_cb;
+	  status_arg : Pointer;
+    status_type : TIdC_INT;
+	  max_fragment_len_mode: Byte;
+    ecpointformats_len: Cardinal;
+    ecpointformats: PIdAnsiChar;
+    supportedgroups_len: Cardinal;
+    supportedgroups: Pointer;
+    supported_groups_default: Pointer;
+    supported_groups_default_len: size_t;
+    alpn_select_cb: function(ASSL: PSSL; var Output: Pointer; var OutputLength: Integer; aInput: Pointer; aInputLength: Integer;  aArguments: Pointer): Integer; cdecl;
+    alpn_select_cb_arg: Pointer;
+    alpn: PIdAnsiChar;
+    alpn_len: Cardinal;
+    {$IFNDEF OPENSSL_NO_NEXTPROTONEG}
+    npn_advertised_cb: Pointer;
+    npn_advertised_cb_arg: Pointer;
+    npn_select_cb: Pointer;
+    npn_select_cb_arg: Pointer;
+    {$ENDIF}
+  end;
   {$EXTERNALSYM lash_of_SSL_SESSION}
   lash_of_SSL_SESSION = record
    dummy : TIdC_INT;
@@ -15674,18 +15771,22 @@ _des_cblock = DES_cblock
   {$EXTERNALSYM PSTACK_OF_SRTP_PROTECTION_PROFILE}
   PSTACK_OF_SRTP_PROTECTION_PROFILE = PSTACK;
   {$ENDIF}
+
+
   {$NODEFINE SSL_CTX}
   SSL_CTX = record
+    libctx: Pointer;
     method: PSSL_METHOD;
     cipher_list: PSTACK_OF_SSL_CIPHER;
     // same as above but sorted for lookup
     cipher_list_by_id: PSTACK_OF_SSL_CIPHER;
+    tls13_ciphersuites: PSTACK_OF_SSL_CIPHER;
     cert_store: PX509_STORE;
     sessions: Plash_of_SSL_SESSION;
     // a set of SSL_SESSIONs
     // Most session-ids that will be cached, default is
     // SSL_SESSION_CACHE_MAX_SIZE_DEFAULT. 0 is unlimited.
-    session_cache_size: TIdC_ULONG;
+    session_cache_size: size_t;
     session_cache_head: PSSL_SESSION;
     session_cache_tail: PSSL_SESSION;
     // This can have one of 2 values, ored together,
@@ -15693,7 +15794,7 @@ _des_cblock = DES_cblock
     // SSL_SESS_CACHE_SERVER,
     // Default is SSL_SESSION_CACHE_SERVER, which means only
     // SSL_accept which cache SSL_SESSIONS.
-    session_cache_mode: TIdC_INT;
+    session_cache_mode: Cardinal;
     session_timeout: TIdC_LONG;
     // If this callback is not null, it will be called each
     // time a session id is added to the cache.  If this function
@@ -15705,10 +15806,12 @@ _des_cblock = DES_cblock
     // OpenSSL will SSL_SESSION_free() it.
     new_session_cb: function (ssl : PSSL; sess: PSSL_SESSION): TIdC_INT; cdecl;
     remove_session_cb: procedure (ctx : PSSL_CTX; sess : PSSL_SESSION); cdecl;
-    get_session_cb: function (ssl : PSSL; data : PByte; len: TIdC_INT; copy : PIdC_INT) : PSSL_SESSION; cdecl;
+    get_session_cb: function (ssl : PSSL; const data : PByte; len: TIdC_INT; copy : PIdC_INT) : PSSL_SESSION; cdecl;
     stats : SSL_CTX_stats;
-    
     references: TIdC_INT;
+    {$IFDEF TSAN_REQUIRES_LOCKING}
+      tsan_lock: Pointer;
+    {$ENDIF}
     // if defined, these override the X509_verify_cert() calls
     app_verify_callback: function (_para1 : PX509_STORE_CTX; _para2 : Pointer) : TIdC_INT; cdecl;
     app_verify_arg: Pointer;
@@ -15722,9 +15825,10 @@ _des_cblock = DES_cblock
     client_cert_cb: function (SSL : PSSL; x509 : PPX509; pkey : PPEVP_PKEY) : TIdC_INT; cdecl;
     // verify cookie callback
     app_gen_cookie_cb: function (ssl : PSSL; cookie : PByte; cookie_len : TIdC_UINT) : TIdC_INT; cdecl;
-    app_verify_cookie_cb: Pointer;
+    app_verify_cookie_cb: function (ssl : PSSL; const cookie : PByte; cookie_len : TIdC_UINT) : TIdC_INT; cdecl;
+    gen_stateless_cookie_cb: function (ssl : PSSL; cookie : PByte; cookie_len : size_t) : TIdC_INT; cdecl;
+    verify_stateless_cookie_cb: function (ssl : PSSL; const cookie : PByte; cookie_len : size_t) : TIdC_INT; cdecl;
     ex_data : CRYPTO_EX_DATA;
-    rsa_md5 : PEVP_MD; // For SSLv2 - name is 'ssl2-md5'
     md5: PEVP_MD; // For SSLv3/TLSv1 'ssl3-md5'
     sha1: PEVP_MD; // For SSLv3/TLSv1 'ssl3->sha1'
     extra_certs: PSTACK_OF_X509;
@@ -15732,116 +15836,47 @@ _des_cblock = DES_cblock
     // Default values used when no per-SSL value is defined follow
     info_callback: PSSL_CTX_info_callback; // used if SSL's info_callback is NULL
     // what we put in client cert requests
+    CA : PSTACK_OF_X509_NAME;
     client_CA : PSTACK_OF_X509_NAME;
     // Default values to use in SSL structures follow (these are copied by SSL_new)
-    options : TIdC_ULONG;
-    mode : TIdC_ULONG;
-    max_cert_list : TIdC_LONG;
+    options : UInt64;
+    mode : Cardinal;
+    min_proto_version: TIdC_INT;
+    max_proto_version: TIdC_INT;
+    max_cert_list : Cardinal;
     cert : PCERT;
     read_ahead : TIdC_INT;
     // callback that allows applications to peek at protocol messages
     msg_callback : procedure (write_p, version, content_type : TIdC_INT; const buf : Pointer; len : size_t; ssl : PSSL; arg : Pointer); cdecl;
     msg_callback_arg : Pointer;
     verify_mode : TIdC_INT;
-    sid_ctx_length : TIdC_UINT;
+    sid_ctx_length : Cardinal;
     sid_ctx : array[0..SSL_MAX_SID_CTX_LENGTH - 1] of TIdAnsiChar;
     default_verify_callback : function(ok : TIdC_INT; ctx : PX509_STORE_CTX) : TIdC_INT; cdecl; // called 'verify_callback' in the SSL
     // Default generate session ID callback.
     generate_session_id : PGEN_SESSION_CB;
     param : PX509_VERIFY_PARAM;
-    {$IFDEF OMIT_THIS}
-    purpose : TIdC_INT;  // Purpose setting
-    trust : TIdC_INT;    // Trust setting
-    {$ENDIF}
-
     quiet_shutdown : TIdC_INT;
-	//* Maximum amount of data to send in one fragment.
-	// * actual record size can be more than this due to
-	// * padding and MAC overheads.
-	// */
-	  max_send_fragment : TIdC_UINT;
+    {$IFNDEF OPENSSL_NO_CT}
+    ct_validation_callback: Pointer;
+    ct_validation_callback_arg: Pointer;
+    {$ENDIF}
+    split_send_fragment: Cardinal;
+	  max_send_fragment : Cardinal;
+    max_pipelines: Cardinal;
+    default_read_buf_len: Cardinal;
     {$IFNDEF OPENSSL_ENGINE}
 	///* Engine to pass requests for client certs to
 	// */
 	  client_cert_engine : PENGINE;
     {$ENDIF}
+    client_hello_cb: pointer;
+    client_hello_cb_arg: pointer;
     {$IFNDEF OPENSSL_NO_TLSEXT}
-//* TLS extensions servername callback */
-    tlsext_servername_callback : PSSL_CTEX_tlsext_servername_callback;
-    tlsext_servername_arg : Pointer;
-    //* RFC 4507 session ticket keys */
-    tlsext_tick_key_name : array [0..(16-1)] of TIdAnsiChar;
-    tlsext_tick_hmac_key : array [0..(16-1)] of TIdAnsiChar;
-    tlsext_tick_aes_key : array [0..(16-1)] of TIdAnsiChar;
-	//* Callback to support customisation of ticket key setting */
- //	int (*tlsext_ticket_key_cb)(SSL *ssl,
- //					unsigned char *name, unsigned char *iv,
- //					EVP_CIPHER_CTX *ectx,
- //					HMAC_CTX *hctx, int enc);
-    tlsext_ticket_key_cb : Ptlsext_ticket_key_cb;
-	//* certificate status request info */
-	//* Callback for status request */
-	//int (*tlsext_status_cb)(SSL *ssl, void *arg);
-    tlsext_status_cb : Ptlsext_status_cb;
-	  tlsext_status_arg : Pointer;
+    ext: SSL_CTX_TLS_Extensions;
     {$ENDIF}
-	//* draft-rescorla-tls-opaque-prf-input-00.txt information */
-     tlsext_opaque_prf_input_callback : function(para1 : PSSL; peerinput : Pointer; len : size_t; arg : Pointer ) : TIdC_INT cdecl;
-	//int (*tlsext_opaque_prf_input_callback)(SSL *, void *peerinput, size_t len, void *arg);
-     tlsext_opaque_prf_input_callback_arg : Pointer;
-
-{$ifndef OPENSSL_NO_PSK}
-	   psk_identity_hint : PIdAnsiChar;
-     psk_client_callback : function (ssl : PSSL; hint : PIdAnsiChar;
-       identity : PIdAnsiChar; max_identity_len : TIdC_UINT;
-       psk : PIdAnsiChar; max_psk_len : TIdC_UINT ) : TIdC_UINT cdecl;
- //	unsigned int (*psk_client_callback)(SSL *ssl, const char *hint, char *identity,
-//		unsigned int max_identity_len, unsigned char *psk,
-//		unsigned int max_psk_len);
-     psk_server_callback : function (ssl : PSSL; identity, psk : PIdAnsiChar; max_psk_len : TIdC_UINT) : TIdC_UINT cdecl;
-//	unsigned int (*psk_server_callback)(SSL *ssl, const char *identity,
-//		unsigned char *psk, unsigned int max_psk_len);
-{$endif}
-
-{$ifndef OPENSSL_NO_BUF_FREELISTS}
-	  freelist_max_len : TIdC_UINT;
-	  wbuf_freelist : Pssl3_buf_freelist_st;
-	  rbuf_freelist : Pssl3_buf_freelist_st;
-{$endif}
-{$ifndef OPENSSL_NO_SRP}
-	  srp_ctx : SRP_CTX; //* ctx for SRP authentication */
-{$endif}
-
-{$ifndef OPENSSL_NO_TLSEXT}
-//# ifndef OPENSSL_NO_NEXTPROTONEG
-	//* Next protocol negotiation information */
-	//* (for experimental NPN extension). */
-
-	//* For a server, this contains a callback function by which the set of
-	// * advertised protocols can be provided. */
-    next_protos_advertised_cb : function(s : PSSL; out but : PIdAnsiChar;
-     out len : TIdC_UINT; arg : Pointer) : TIdC_INT cdecl;
-//	int (*next_protos_advertised_cb)(SSL *s, const unsigned char **buf,
-//			                 unsigned int *len, void *arg);
-	  next_protos_advertised_cb_arg : Pointer;
-	//* For a client, this contains a callback function that selects the
-	// * next protocol from the list provided by the server. */
-    next_proto_select_cb : function(s : PSSL; out _out : PIdAnsiChar;
-      outlen : PIdAnsiChar;
-      _in : PIdAnsiChar;
-      inlen : TIdC_UINT;
-      arg : Pointer) : TIdC_INT cdecl;
-//	int (*next_proto_select_cb)(SSL *s, unsigned char **out,
-//				    unsigned char *outlen,
-//				    const unsigned char *in,
-//				    unsigned int inlen,
-//				    void *arg);
-	  next_proto_select_cb_arg : Pointer;
-//# endif
-        //* SRTP profiles we are willing to do from RFC 5764 */
-      srtp_profiles : PSTACK_OF_SRTP_PROTECTION_PROFILE;
-{$endif}
   end;
+
   {$EXTERNALSYM PSSL2_STATE}    
   PSSL2_STATE = ^SSL2_STATE;
   {$EXTERNALSYM PSSL3_STATE}    
@@ -16907,6 +16942,10 @@ var
   EVP_MD_CTX_create: function : PEVP_MD_CTX cdecl = nil;
   {$EXTERNALSYM EVP_MD_CTX_destroy}
   EVP_MD_CTX_destroy : procedure(ctx : PEVP_MD_CTX) cdecl = nil;
+  {$EXTERNALSYM EVP_MD_CTX_new}
+  EVP_MD_CTX_new: function : PEVP_MD_CTX cdecl = nil;
+  {$EXTERNALSYM EVP_MD_CTX_free}
+  EVP_MD_CTX_free : function(ctx : PEVP_MD_CTX) : TIdC_Int cdecl = nil;
   {$EXTERNALSYM EVP_MD_CTX_copy}
   EVP_MD_CTX_copy : function(_out : PEVP_MD_CTX; _in: PEVP_MD_CTX): TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_MD_CTX_copy_ex}
@@ -17087,6 +17126,8 @@ var
   X509_PUBKEY_get : function(key: PX509_PUBKEY): PEVP_PKEY cdecl = nil;
   {$EXTERNALSYM X509_verify}
   X509_verify : function(x509: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  {$EXTERNALSYM X509_verify_cert_error_string}
+  X509_verify_cert_error_string : function(n: TIdC_LONG): PIdAnsiChar cdecl = nil;
   {$EXTERNALSYM X509_sign}
   X509_sign : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
   {$EXTERNALSYM X509_REQ_sign}
@@ -17993,8 +18034,12 @@ var
   //experimental
  {$EXTERNALSYM ERR_error_string_n}
   ERR_error_string_n: procedure(e: TIdC_ULONG; buf: PIdAnsiChar; len : size_t) cdecl = nil;
- {$EXTERNALSYM ERR_put_error}
-  ERR_put_error : procedure (lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT) cdecl = nil;
+ {$EXTERNALSYM ERR_new}
+  Err_new : procedure cdecl = nil;
+ {$EXTERNALSYM ERR_set_debug}
+  ERR_set_debug : procedure (_file : PIdAnsiChar; line: TIdC_INT; func: PIdAnsiChar) cdecl = nil;
+ {$EXTERNALSYM ERR_set_error}
+  ERR_set_error : procedure (lib, reason : TIdC_INT; fmt : PIdAnsiChar) cdecl = nil;
  {$EXTERNALSYM ERR_get_error}
   ERR_get_error : function: TIdC_ULONG cdecl = nil;
  {$EXTERNALSYM ERR_peek_error}
@@ -18042,7 +18087,6 @@ any IFDEF's and cases where the FIPS functions aren't in the .DLL}
  {$EXTERNALSYM _FIPS_mode}
   _FIPS_mode : function () : TIdC_INT cdecl = nil;
 {$ENDIF}
-
 {$IFNDEF OPENSSL_NO_HMAC}
 {
 NOTE:
@@ -18094,6 +18138,26 @@ procedure HMAC_Update(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t);
 procedure HMAC_Final(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT);
 {$ENDIF}
 
+var
+  {$EXTERNALSYM SSL_CTX_set_info_callback}
+  SSL_CTX_set_info_callback : procedure(Ctx: PSSL_CTX; Callback: PSSL_CTX_info_callback); cdecl = nil;
+
+  {$EXTERNALSYM OpenSSL_version_num}
+  OpenSSL_version_num : function: LongWord; cdecl = nil;
+  {$EXTERNALSYM OpenSSL_version}
+  OpenSSL_version : function(t: Integer): PIdAnsiChar; cdecl = nil;
+
+  {$EXTERNALSYM TLS_method}
+  TLS_method : function: PSSL_METHOD cdecl = nil;
+
+  {$EXTERNALSYM SSL_get_version}
+  SSL_get_version : function(S: PSSL): PIdAnsiChar; cdecl = nil;
+  {$EXTERNALSYM SSL_CTX_get_cert_store}
+  SSL_CTX_get_cert_store : function(const Ctx: PSSL_CTX): PX509_STORE; cdecl = nil;
+
+  {$EXTERNALSYM SSL_get_ex_data_X509_STORE_CTX_idx}
+  SSL_get_ex_data_X509_STORE_CTX_idx : function: Integer; cdecl = nil;
+  
 {begin stack fancy stuff}
 {
 For the sk functions having a type, you have to typecase one procedural pointer
@@ -18231,10 +18295,13 @@ function X509_CRL_get_nextUpdate(x : PX509_CRL) : PASN1_TIME;
 function X509_CRL_get_issuer(x : PX509_CRL) : PX509_NAME;
  {$EXTERNALSYM X509_CRL_get_REVOKED}
 function X509_CRL_get_REVOKED(x : PX509_CRL) : PSTACK_OF_X509_REVOKED;
- {$EXTERNALSYM SSL_CTX_set_info_callback}
-procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
  {$EXTERNALSYM SSL_CTX_set_options}
 function SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_min_proto_version}
+function SSL_CTX_set_min_proto_version(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_max_proto_version}
+function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
+
  {$EXTERNALSYM SSL_CTX_clear_options}
 function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_get_options}
@@ -18883,6 +18950,7 @@ function IsOpenSSL_TLSv1_0_Available : Boolean;
 function IsOpenSSL_TLSv1_1_Available : Boolean;
 function IsOpenSSL_TLSv1_2_Available : Boolean;
 function IsOpenSSL_DTLSv1_Available : Boolean;
+function IsOpenSSL_TLSv1_3_Available : Boolean;
 
 // RLebeau: should these be declared as EXTERNALSYM?
 procedure RAND_cleanup;
@@ -18910,6 +18978,14 @@ uses
       , DynLibs  // needed for FreeLibrary
     {$ENDIF}
   {$ENDIF};
+
+procedure ERR_put_error(lib, func, reason : TIdC_INT; _file : PIdAnsiChar; line : TIdC_INT);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Err_new();
+  ERR_set_debug(_file, line, nil);
+  ERR_set_error(lib, reason, nil);
+end;
 
 {$IFNDEF OPENSSL_NO_HMAC}
 procedure HMAC_Init_ex(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
@@ -19008,6 +19084,12 @@ begin
     Assigned(TLSv1_2_client_method);
 end;
 
+function IsOpenSSL_TLSv1_3_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := True;
+end;
+
 function IsOpenSSL_DTLSv1_Available : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
@@ -19043,8 +19125,7 @@ function OpenSSLGetDigestCtx( AInst : PEVP_MD) : TIdHashIntCtx;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var LRet : Integer;
 begin
-  Result := AllocMem(SizeOf(EVP_MD_CTX));
-  EVP_MD_CTX_init(Result);
+  Result := EVP_MD_CTX_new;
 
   LRet := EVP_DigestInit_ex(Result, AInst, nil);
   if LRet <> 1 then begin
@@ -19237,8 +19318,7 @@ begin
     EIdDigestFinalEx.RaiseException('EVP_DigestFinal_ex error');
   end;
   SetLength(Result,LLen);
-  EVP_MD_CTX_cleanup(ACtx);
-  FreeMem(ACtx,SizeOf(EVP_MD_CTX));
+  EVP_MD_CTX_free(ACtx);
 end;
 
 function OpenSSLIsHMACAvail : Boolean;
@@ -19553,13 +19633,14 @@ const
   {$ENDIF}
   {$IFDEF WINDOWS}
 const
-  SSL_DLL_name         = 'ssleay32.dll';  {Do not localize}
-  //The following is a workaround for an alternative name for
-  //one of the OpenSSL .DLL's.  If you compile the .DLL's using
-  //mingw32, the SSL .dll might be named 'libssl32.dll' instead of
-  //ssleay32.dll like you would expect.
-  SSL_DLL_name_alt     = 'libssl32.dll';  {Do not localize}
-  SSLCLIB_DLL_name     = 'libeay32.dll';  {Do not localize}
+  {$IFDEF CPUX64}
+  SSL_DLL_name         = 'libssl-3-x64.dll';  {Do not localize}
+  SSLCLIB_DLL_name     = 'libcrypto-3-x64.dll';  {Do not localize}
+  {$ELSE}
+  SSL_DLL_name         = 'libssl-3.dll';  {Do not localize}
+  SSLCLIB_DLL_name     = 'libcrypto-3.dll';  {Do not localize}
+
+  {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -19601,23 +19682,23 @@ end;
 const
 {most of these are commented out because we aren't using them now.  I am keeping
 them in case we use them later.}
-  fn_sk_num = 'sk_num';   {Do not localize}
-  fn_sk_value = 'sk_value';   {Do not localize}
+  fn_sk_num = 'OPENSSL_sk_num';   {Do not localize}
+  fn_sk_value = 'OPENSSL_sk_value';   {Do not localize}
   {CH fn_sk_set = 'sk_set'; }  {Do not localize}
-  fn_sk_new = 'sk_new';   {Do not localize}
-  fn_sk_new_null = 'sk_new_null'; {Do not localize}
-  fn_sk_free = 'sk_free';   {Do not localize}
-  fn_sk_pop_free = 'sk_pop_free';  {Do not localize}
+  fn_sk_new = 'OPENSSL_sk_new';   {Do not localize}
+  fn_sk_new_null = 'OPENSSL_sk_new_null'; {Do not localize}
+  fn_sk_free = 'OPENSSL_sk_free';   {Do not localize}
+  fn_sk_pop_free = 'OPENSSL_sk_pop_free';  {Do not localize}
   {CH fn_sk_insert = 'sk_insert'; }  {Do not localize}
   {CH fn_sk_delete = 'sk_delete'; }  {Do not localize}
   {CH fn_sk_delete_ptr = 'sk_delete_ptr'; }  {Do not localize}
-  fn_sk_find = 'sk_find';  {Do not localize}
-  fn_sk_push = 'sk_push';  {Do not localize}
+  fn_sk_find = 'OPENSSL_sk_find';  {Do not localize}
+  fn_sk_push = 'OPENSSL_sk_push';  {Do not localize}
   {CH fn_sk_unshift = 'sk_unshift'; }  {Do not localize}
   {CH fn_sk_shift = 'sk_shift'; }  {Do not localize}
   {CH fn_sk_pop = 'sk_pop'; }  {Do not localize}
   {CH fn_sk_zero = 'sk_zero'; }  {Do not localize}
-  fn_sk_dup = 'sk_dup';  {Do not localize}
+  fn_sk_dup = 'OPENSSL_sk_dup';  {Do not localize}
   {CH fn_sk_sort = 'sk_sort'; }  {Do not localize}
   fn_SSLeay_version = 'SSLeay_version';  {Do not localize}
   fn_SSLeay = 'SSLeay';   {Do not localize}
@@ -20776,9 +20857,12 @@ them in case we use them later.}
   {CH fn_OBJ_create_objects = 'OBJ_create_objects'; }  {Do not localize}
   {===}
    fn_EVP_MD_type = 'EVP_MD_type'; {Do not localize}
+   fn_EVP_MD_get_type = 'EVP_MD_get_type'; {Do not localize}
    fn_EVP_MD_pkey_type = 'EVP_MD_pkey_type';  {Do not localize}
    fn_EVP_MD_size = 'EVP_MD_size'; {Do not localize}
+   fn_EVP_MD_get_size = 'EVP_MD_get_size'; {Do not localize}
    fn_EVP_MD_block_size = 'EVP_MD_block_size';  {Do not localize}
+   fn_EVP_MD_get_block_size = 'EVP_MD_get_block_size';  {Do not localize}
    fn_EVP_MD_flags = 'EVP_MD_flags'; {Do not localize}
    fn_EVP_MD_CTX_md = 'EVP_MD_CTX_md';   {Do not localize}
    fn_EVP_CIPHER_nid = 'EVP_CIPHER_nid';  {Do not localize}
@@ -20799,6 +20883,8 @@ them in case we use them later.}
    fn_EVP_MD_CTX_cleanup = 'EVP_MD_CTX_cleanup';  {Do not localize}
    fn_EVP_MD_CTX_create = 'EVP_MD_CTX_create';  {Do not localize}
    fn_EVP_MD_CTX_destroy = 'EVP_MD_CTX_destroy';  {Do not localize}
+   fn_EVP_MD_CTX_new = 'EVP_MD_CTX_new';  {Do not localize}
+   fn_EVP_MD_CTX_free = 'EVP_MD_CTX_free';  {Do not localize}
    fn_EVP_MD_CTX_copy_ex = 'EVP_MD_CTX_copy_ex';  {Do not localize}
    fn_EVP_MD_CTX_set_flags = 'EVP_MD_CTX_set_flags';  {Do not localize}
    fn_EVP_MD_CTX_clear_flags = 'EVP_MD_CTX_clear_flags';  {Do not localize}
@@ -21576,7 +21662,7 @@ them in case we use them later.}
   {CH fn_PKCS7_get_signed_attribute = 'PKCS7_get_signed_attribute'; }  {Do not localize}
   {CH fn_PKCS7_set_signed_attributes = 'PKCS7_set_signed_attributes'; }  {Do not localize}
   {CH fn_PKCS7_set_attributes = 'PKCS7_set_attributes'; }  {Do not localize}
-  {CH fn_X509_verify_cert_error_string = 'X509_verify_cert_error_string'; }  {Do not localize}
+  fn_X509_verify_cert_error_string = 'X509_verify_cert_error_string';  {Do not localize}
   fn_X509_verify = 'X509_verify';   {Do not localize}
   {CH fn_X509_REQ_verify = 'X509_REQ_verify'; }  {Do not localize}
   {CH fn_X509_CRL_verify = 'X509_CRL_verify'; }  {Do not localize}
@@ -22099,7 +22185,7 @@ them in case we use them later.}
   {CH fn_SSL_CTX_add_session = 'SSL_CTX_add_session'; }  {Do not localize}
   {CH fn_SSL_CTX_remove_session = 'SSL_CTX_remove_session'; }  {Do not localize}
   {CH fn_d2i_SSL_SESSION = 'd2i_SSL_SESSION'; }  {Do not localize}
-  fn_SSL_get_peer_certificate = 'SSL_get_peer_certificate';  {Do not localize}
+  fn_SSL_get_peer_certificate = 'SSL_get1_peer_certificate';  {Do not localize}
   {CH fn_SSL_get_peer_cert_chain = 'SSL_get_peer_cert_chain'; }  {Do not localize}
   {CH fn_SSL_CTX_get_verify_mode = 'SSL_CTX_get_verify_mode'; }  {Do not localize}
   fn_SSL_CTX_get_verify_depth = 'SSL_CTX_get_verify_depth';  {Do not localize}
@@ -22151,6 +22237,17 @@ them in case we use them later.}
   fn_DTLSv1_method = 'DTLSv1_method'; {Do not localize}
   fn_DTLSv1_server_method = 'DTLSv1_server_method'; {Do not localize}
   fn_DTLSv1_client_method = 'DTLSv1_client_method'; {Do not localize}
+  fn_SSL_CTX_set_info_callback = 'SSL_CTX_set_info_callback'; {Do not localize}
+  fn_OpenSSL_version_num = 'OpenSSL_version_num'; {Do not localize}
+  fn_OpenSSL_version = 'OpenSSL_version'; {Do not localize}
+
+  fn_TLS_method = 'TLS_method'; {Do not localize}
+
+  fn_SSL_get_version = 'SSL_get_version'; {Do not localize}
+  fn_SSL_CTX_get_cert_store = 'SSL_CTX_get_cert_store'; {Do not localize}
+
+  fn_SSL_get_ex_data_X509_STORE_CTX_idx = 'SSL_get_ex_data_X509_STORE_CTX_idx'; {Do not localize}
+
   {CH fn_SSL_get_ciphers = 'SSL_get_ciphers'; }  {Do not localize}
   {CH fn_SSL_do_handshake = 'SSL_do_handshake'; }  {Do not localize}
   {CH fn_SSL_renegotiate = 'SSL_renegotiate'; }  {Do not localize}
@@ -22266,7 +22363,9 @@ them in case we use them later.}
   {$ENDIF}
   {CH fn_ERR_load_RAND_strings = 'ERR_load_RAND_strings'; } {Do not localize}
   //experimental
-  fn_ERR_put_error = 'ERR_put_error';  {Do not localize}
+  fn_ERR_new = 'ERR_new';  {Do not localize}
+  fn_ERR_set_error= 'ERR_set_error';  {Do not localize}
+  fn_ERR_set_debug= 'ERR_set_debug';  {Do not localize}
   fn_ERR_get_error = 'ERR_get_error';  {Do not localize}
 {CH fn_ERR_get_error_line = 'ERR_get_error_line'; }  {Do not localize}
 {CH fn_ERR_get_error_line_data = 'ERR_get_error_line_data'; }  {Do not localize}
@@ -22777,12 +22876,7 @@ begin
     Exit;
   end;
   // TODO: exit here if the error is anything other than the file not being found...
-  //This is a workaround for mingw32-compiled SSL .DLL which
-  //might be named 'libssl32.dll'.
-  Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
-  if Result <> IdNilHandle then begin
-    Exit;
-  end;
+
   {$ELSE}
     {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
@@ -22907,7 +23001,7 @@ begin
 
   // RLebeau 6/8/2021: verify the type of library is supported...
 
-  @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy 
+  @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy
   @SSLeay := LoadOldCLib(fn_SSLeay, 'OpenSSL_version_num'); {Do not localize} //Used by Indy 
 
   if Assigned(_SSLeay_version) then begin
@@ -22939,15 +23033,15 @@ begin
       LMinor := (LVersion and $0FF00000) shr 20;
       if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
         LMajor := (LVersion and $F000) shr 12;
-        LMinor := (LVersion and $0F00) shr 8;
+        //LMinor := (LVersion and $0F00) shr 8;
       end;
-      if (LMajor > 1) or ((LMajor = 1) and (LMinor > 0)) then // OpenSSL 1.1.0 or higher
+      if (LMajor < 3) then // OpenSSL 1.1.1 or lower
       begin
         FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedVersion, [LVersion]));
         Exit;
       end;
     end;
-  end else 
+  end else
   begin
     FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedLibrary, [LVersionStr]));
     Exit;
@@ -22966,7 +23060,7 @@ begin
   @SSL_CTX_use_certificate := LoadFunction(fn_SSL_CTX_use_certificate); //Used by Indy
   @SSL_CTX_use_certificate_file := LoadFunction(fn_SSL_CTX_use_certificate_file);   //Used by Indy
   @SSL_CTX_use_certificate_chain_file := LoadFunction(fn_SSL_CTX_use_certificate_chain_file,False); //Used by Indy
-  @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings); //Used by Indy
+  @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings,False); //Used by Indy
   @SSL_state_string_long := LoadFunction(fn_SSL_state_string_long); //Used by Indy
   @SSL_alert_desc_string_long := LoadFunction(fn_SSL_alert_desc_string_long);  //Used by Indy
   @SSL_alert_type_string_long := LoadFunction(fn_SSL_alert_type_string_long);  //Used by Indy
@@ -23038,7 +23132,7 @@ begin
   @SSL_set_shutdown := LoadFunction(fn_SSL_set_shutdown);  //Used by Indy
   @SSL_CTX_load_verify_locations := LoadFunction(fn_SSL_CTX_load_verify_locations);  //Used by Indy
   @SSL_get_session := LoadFunction(fn_SSL_get_session); //Used by Indy
-  @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);  //Used by Indy
+  @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms, False);  //Used by Indy
   @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id); //Used by Indy
   @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id{$IFDEF ANDROID}, False{$ENDIF});  //Used by Indy
   {$IFDEF ANDROID}
@@ -23047,11 +23141,13 @@ begin
   end;
   {$ENDIF}
    // CRYPTO LIB
+  @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version, False); //Used by Indy
+  @SSLeay := LoadFunctionCLib(fn_SSLeay, False);    //Used by Indy
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
   @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
   @X509_NAME_cmp := LoadFunctionCLib(fn_X509_NAME_cmp); //Used by Indy
-  @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash);  //Used by Indy
+  @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash + '_ex');  //Used by Indy
   @X509_set_issuer_name := LoadFunctionCLib(fn_X509_set_issuer_name,False);
   @X509_get_issuer_name := LoadFunctionCLib(fn_X509_get_issuer_name);  //Used by Indy
   @X509_set_subject_name := LoadFunctionCLib(fn_X509_set_subject_name,False);
@@ -23110,15 +23206,23 @@ begin
   @SSL_CIPHER_get_name := LoadFunction(fn_SSL_CIPHER_get_name);  //Used by Indy
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
   @SSL_CIPHER_get_bits  := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
+
+  @SSL_CTX_set_info_callback := LoadFunction(fn_SSL_CTX_set_info_callback);
+  @OpenSSL_version_num := LoadFunctionCLib(fn_OpenSSL_version_num, True);
+  @OpenSSL_version := LoadFunctionCLib(fn_OpenSSL_version, True);
+  @TLS_method := LoadFunction(fn_TLS_method, True);
+  @SSL_get_version := LoadFunction(fn_SSL_get_version, True);
+  @SSL_CTX_get_cert_store := LoadFunction(fn_SSL_CTX_get_cert_store);
+  @SSL_get_ex_data_X509_STORE_CTX_idx := LoadFunction(fn_SSL_get_ex_data_X509_STORE_CTX_idx, True);
   // Thread safe
-  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock{$IFDEF ANDROID}, False{$ENDIF});  //Used by Indy
+  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock,False);  //Used by Indy
   {$IFDEF ANDROID}
   if not Assigned(_CRYPTO_lock) then begin
     @_CRYPTO_lock := @Indy_CRYPTO_lock;
   end;
   {$ENDIF}
-  @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks); //Used by Indy
-  @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback); //Used by Indy
+  @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks,False); //Used by Indy
+  @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback,False); //Used by Indy
   {$IFNDEF WIN32_OR_WIN64}
 {
 In OpenSSL 1.0.0, you should use these callback functions instead of the
@@ -23129,12 +23233,14 @@ we have to handle both cases.
   @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric,False); //Used by Indy
   @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer,False);
   if not Assigned(CRYPTO_THREADID_set_callback) then begin  //Used by Indy
-    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback);  //Used by Indy
+    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback,False);  //Used by Indy
   end else begin
     @CRYPTO_set_id_callback := nil;
   end;
   {$ENDIF}
-  @ERR_put_error := LoadFunctionCLib(fn_ERR_put_error,False);
+  @ERR_new := LoadFunctionCLib(fn_ERR_new,False); 
+  @ERR_set_debug := LoadFunctionCLib(fn_ERR_set_debug,False); 
+  @ERR_set_error := LoadFunctionCLib(fn_ERR_set_error,False); 
   @ERR_get_error := LoadFunctionCLib(fn_ERR_get_error,False);
   @ERR_peek_error := LoadFunctionCLib(fn_ERR_peek_error,False);
   @ERR_peek_last_error := LoadFunctionCLib(fn_ERR_peek_last_error);  //Used by Indy
@@ -23146,7 +23252,7 @@ we have to handle both cases.
   @ERR_reason_error_string := LoadFunctionCLib( fn_ERR_reason_error_string, False );
   @ERR_load_ERR_strings := LoadFunctionCLib( fn_ERR_load_ERR_strings,False);
   @ERR_load_crypto_strings := LoadFunctionCLib(fn_ERR_load_crypto_strings,False);
-  @ERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings);  //Used by Indy
+  @ERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings,False);  //Used by Indy
   @ERR_remove_thread_state := LoadFunctionCLib(fn_ERR_remove_thread_state,False); //Used by Indy
   if not Assigned(ERR_remove_thread_state) then begin
     @ERR_remove_state := LoadFunctionCLib(fn_ERR_remove_state); //Used by Indy
@@ -23251,6 +23357,7 @@ we have to handle both cases.
   @X509_REQ_set_pubkey := LoadFunctionCLib(fn_X509_REQ_set_pubkey,False);
   @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get,False);
   @X509_verify := LoadFunctionCLib(fn_X509_verify,False);
+  @X509_verify_cert_error_string := LoadFunctionCLib(fn_X509_verify_cert_error_string,False);
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := LoadFunctionCLib(fn_PEM_read_bio_X509, False);
@@ -23465,10 +23572,12 @@ we have to handle both cases.
   @EVP_seed_ofb := LoadFunctionCLib(fn_EVP_seed_ofb,False);
   {$endif}
 
-  @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
-  @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
+  @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init, False);
+  @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup, False);
   @EVP_MD_CTX_create := LoadFunctionCLib(fn_EVP_MD_CTX_create, False);
   @EVP_MD_CTX_destroy := LoadFunctionCLib(fn_EVP_MD_CTX_destroy, False);
+  @EVP_MD_CTX_new := LoadFunctionCLib(fn_EVP_MD_CTX_new, False);
+  @EVP_MD_CTX_free := LoadFunctionCLib(fn_EVP_MD_CTX_free, False);
   @EVP_MD_CTX_copy := LoadFunctionCLib(fn_EVP_MD_CTX_copy, False);
   @EVP_MD_CTX_copy_ex := LoadFunctionCLib(fn_EVP_MD_CTX_copy_ex, False);
   //@EVP_MD_CTX_set_flags := LoadFunctionCLib(fn_EVP_MD_CTX_set_flags, False);
@@ -23533,22 +23642,23 @@ we have to handle both cases.
   @BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher,False);
 {$endif}
 
+  @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
   @EVP_PKEY_new := LoadFunctionCLib(fn_EVP_PKEY_new);
   @EVP_PKEY_free := LoadFunctionCLib(fn_EVP_PKEY_free);  //USED in Indy
   @EVP_PKEY_assign := LoadFunctionCLib(fn_EVP_PKEY_assign);
   @EVP_get_cipherbyname := LoadFunctionCLib(fn_EVP_get_cipherbyname);
   @EVP_get_digestbyname := LoadFunctionCLib(fn_EVP_get_digestbyname);
-  @EVP_MD_type := LoadFunctionCLib(fn_EVP_MD_type);
-  @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_size);
-  @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size);
+  @EVP_MD_type := LoadFunctionCLib(fn_EVP_MD_get_type);
+  @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_get_size);
+  @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_get_block_size);
   @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags,False);
   @EVP_MD_CTX_md := LoadFunctionCLib(fn_EVP_MD_CTX_md);
   @EVP_CIPHER_nid := LoadFunctionCLib(fn_EVP_CIPHER_nid,False);
   @EVP_CIPHER_block_size := LoadFunctionCLib(fn_EVP_CIPHER_block_size,False);
   @EVP_CIPHER_key_length := LoadFunctionCLib(fn_EVP_CIPHER_key_length,False);
   @EVP_CIPHER_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_iv_length,False);
-  @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags);
-  @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type);
+  @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags,False);
+  @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type,False);
   @EVP_CIPHER_CTX_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_cipher);
   @EVP_CIPHER_CTX_nid  := LoadFunctionCLib(fn_EVP_CIPHER_CTX_nid,False);
   @EVP_CIPHER_CTX_block_size := LoadFunctionCLib(fn_EVP_CIPHER_CTX_block_size, False );
@@ -23557,7 +23667,7 @@ we have to handle both cases.
   @EVP_CIPHER_CTX_copy := LoadFunctionCLib(fn_EVP_CIPHER_CTX_copy,False );
   @EVP_CIPHER_CTX_get_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get_app_data );
   @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
-  @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags);
+  @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags,False);
 
   @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher,False);
   @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest,False);
@@ -23692,7 +23802,7 @@ we have to handle both cases.
   @EVP_PKEY_meth_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_meth_set_ctrl,False);
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
-  @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init);
+  @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init,False);
   if IsOpenSSL_1x then begin
     @_HMAC_Init_ex := nil;
     @_HMAC_Update := nil;
@@ -23708,7 +23818,7 @@ we have to handle both cases.
     @_1_0_HMAC_Update  := nil;
     @_1_0_HMAC_Final := nil;
   end;
-  @HMAC_CTX_cleanup := LoadFunctionCLib(fn_HMAC_CTX_cleanup);
+  @HMAC_CTX_cleanup := LoadFunctionCLib(fn_HMAC_CTX_cleanup,False);
   {$ENDIF}
   //OBJ
   @OBJ_obj2nid := LoadFunctionCLib(fn_OBJ_obj2nid);
@@ -23725,9 +23835,9 @@ we have to handle both cases.
   @CRYPTO_set_mem_functions := LoadFunctionCLib(fn_CRYPTO_set_mem_functions);
   @CRYPTO_malloc := LoadFunctionCLib(fn_CRYPTO_malloc);
   @CRYPTO_free := LoadFunctionCLib(fn_CRYPTO_free);
-  @CRYPTO_mem_leaks := LoadFunctionCLib(fn_CRYPTO_mem_leaks);
-  @CRYPTO_mem_ctrl := LoadFunctionCLib(fn_CRYPTO_mem_ctrl);
-  @CRYPTO_set_mem_debug_functions := LoadFunctionCLib(fn_CRYPTO_set_mem_debug_functions);
+  @CRYPTO_mem_leaks := LoadFunctionCLib(fn_CRYPTO_mem_leaks,False);
+  @CRYPTO_mem_ctrl := LoadFunctionCLib(fn_CRYPTO_mem_ctrl,False);
+  @CRYPTO_set_mem_debug_functions := LoadFunctionCLib(fn_CRYPTO_set_mem_debug_functions,False);
   //@CRYPTO_dbg_malloc := LoadFunctionCLib(fn_CRYPTO_dbg_malloc);
   //@CRYPTO_dbg_realloc := LoadFunctionCLib(fn_CRYPTO_dbg_realloc);
   //@CRYPTO_dbg_free := LoadFunctionCLib(fn_CRYPTO_dbg_free);
@@ -23737,10 +23847,10 @@ we have to handle both cases.
   @i2d_PKCS12_bio := LoadFunctionCLib(fn_i2d_PKCS12_bio);
   @PKCS12_free := LoadFunctionCLib(fn_PKCS12_free);
   @OpenSSL_add_all_algorithms := LoadOldCLib(fn_OpenSSL_add_all_algorithms,
-    fn_OPENSSL_add_all_algorithms_noconf);
-  @OpenSSL_add_all_ciphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers);
-  @OpenSSL_add_all_digests := LoadFunctionCLib(fn_OpenSSL_add_all_digests);
-  @EVP_cleanup := LoadFunctionCLib(fn_EVP_cleanup);
+    fn_OPENSSL_add_all_algorithms_noconf,False);
+  @OpenSSL_add_all_ciphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers,False);
+  @OpenSSL_add_all_digests := LoadFunctionCLib(fn_OpenSSL_add_all_digests,False);
+  @EVP_cleanup := LoadFunctionCLib(fn_EVP_cleanup,False);
 
   @sk_num := LoadFunctionCLib(fn_sk_num);
   @sk_new := LoadFunctionCLib(fn_sk_new);
@@ -23898,6 +24008,15 @@ begin
   @SSL_CIPHER_get_name := nil;
   @SSL_CIPHER_get_version := nil;
   @SSL_CIPHER_get_bits  := nil;
+  @SSL_CTX_set_info_callback := nil;
+  @OpenSSL_version_num := nil;
+  @OpenSSL_version := nil;
+
+  @TLS_method := nil;
+  @SSL_get_version := nil;
+  @SSL_CTX_get_cert_store := nil;
+
+  @SSL_get_ex_data_X509_STORE_CTX_idx := nil;
   // Thread safe
   @_CRYPTO_num_locks := nil;
   @CRYPTO_set_locking_callback := nil;
@@ -23907,7 +24026,9 @@ begin
   @CRYPTO_THREADID_set_pointer := nil;
   @CRYPTO_set_id_callback := nil;
   {$ENDIF}
-  @ERR_put_error := nil;
+  @ERR_new := nil;
+  @ERR_set_debug := nil;
+  @ERR_set_error := nil;
   @ERR_get_error := nil;
   @ERR_peek_error := nil;
   @ERR_peek_last_error := nil;
@@ -24010,6 +24131,8 @@ begin
   @X509_set_notAfter := nil;
   @X509_set_pubkey := nil;
   @X509_REQ_set_pubkey := nil;
+  @X509_verify := nil;
+  @X509_verify_cert_error_string := nil;
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := nil;
@@ -24229,6 +24352,8 @@ begin
   @EVP_MD_CTX_cleanup := nil;
   @EVP_MD_CTX_create := nil;
   @EVP_MD_CTX_destroy := nil;
+  @EVP_MD_CTX_new := nil;
+  @EVP_MD_CTX_free := nil;
   @EVP_MD_CTX_copy := nil;
   @EVP_MD_CTX_copy_ex := nil;
   //@EVP_MD_CTX_set_flags := nil;
@@ -24739,7 +24864,7 @@ end;
 function X509_get_version(x : PX509): TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := ASN1_INTEGER_get(x^.cert_info^.version);
+  Result := ASN1_INTEGER_get(x^.cert_info.version);
 end;
 
 function X509_get_signature_type(x : PX509) : TIdC_INT;
@@ -24842,12 +24967,12 @@ begin
   Result := x^.crl^.revoked;
 end;
 
-procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Assert(ctx<>nil);
-  ctx.info_callback := cb;
-end;
+//procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: PSSL_CTX_info_callback);
+//{$IFDEF USE_INLINE} inline; {$ENDIF}
+//begin
+//  Assert(ctx<>nil);
+//  ctx.info_callback := cb;
+//end;
 
 //* Note: SSL[_CTX]_set_{options,mode} use |= op on the previous value,
 // * they cannot be used to clear bits. */
@@ -24856,6 +24981,18 @@ function SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_OPTIONS, op, nil);
+end;
+
+function SSL_CTX_set_min_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MIN_PROTO_VERSION, op, nil);
+end;
+
+function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MAX_PROTO_VERSION, op, nil);
 end;
 
 function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
