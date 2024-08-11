@@ -1165,7 +1165,9 @@ begin
         try
           Result := SSL_CTX_use_PrivateKey(ctx, LKey);
         finally
-          sk_pop_free(CertChain, @X509_free);
+          if Assigned(CertChain) then begin
+            sk_pop_free(CertChain, @X509_free);
+          end;
           X509_free(LCert);
           EVP_PKEY_free(LKey);
         end;
@@ -1247,7 +1249,9 @@ begin
         try
           Result := SSL_CTX_use_certificate(ctx, LCert);
         finally
-          sk_pop_free(CertChain, @X509_free);
+          if Assigned(CertChain) then begin
+            sk_pop_free(CertChain, @X509_free);
+          end;
           X509_free(LCert);
           EVP_PKEY_free(PKey);
         end;

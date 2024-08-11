@@ -23915,7 +23915,7 @@ we have to handle both cases.
   end;
   @sk_free := LoadFunctionCLib(fn_sk_free, false);
   if @sk_free = nil then begin
-    @sk_push :=  LoadFunctionCLib('OPENSSL_sk_free');  {Do not localize}
+    @sk_free :=  LoadFunctionCLib('OPENSSL_sk_free');  {Do not localize}
   end;
   @sk_push := LoadFunctionCLib(fn_sk_push, false);
   if @sk_push = nil then begin
