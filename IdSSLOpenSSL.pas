@@ -3425,6 +3425,7 @@ begin
   try
     LIO.SSLOptions.Assign(SSLOptions);
     LIO.OnStatusInfo := DoStatusInfo;
+    LIO.OnStatusInfoEx := Self.OnStatusInfoEx;
     LIO.OnGetPassword := DoGetPassword;
     LIO.OnGetPasswordEx := OnGetPasswordEx;
     LIO.OnVerifyPeer := DoVerifyPeer;
