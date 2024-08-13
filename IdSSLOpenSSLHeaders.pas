@@ -17151,6 +17151,10 @@ function SSL_CTX_set_max_proto_version(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
 function SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_get_options}
 function SSL_CTX_get_options(ctx: PSSL_CTX) : TIdC_LONG;
+ {$EXTERNALSYM SSL_set_min_proto_version}
+function SSL_set_min_proto_version(s : PSSL; version : TIdC_LONG) : TIdC_INT;
+ {$EXTERNALSYM SSL_set_max_proto_version}
+function SSL_set_max_proto_version(s : PSSL; version : TIdC_LONG) : TIdC_INT;
  {$EXTERNALSYM SSL_set_options}
 function SSL_set_options(ssl: PSSL; op : TIdC_LONG): TIdC_LONG;
  {$EXTERNALSYM SSL_clear_mode}
@@ -23948,6 +23952,18 @@ function SSL_CTX_get_options(ctx: PSSL_CTX) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_OPTIONS,0,nil);
+end;
+
+function SSL_set_min_proto_version(s : PSSL; version : TIdC_LONG) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_ctrl(s, SSL_CTRL_SET_MIN_PROTO_VERSION, version, nil);
+end;
+
+function SSL_set_max_proto_version(s : PSSL; version : TIdC_LONG) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_ctrl(s, SSL_CTRL_SET_MAX_PROTO_VERSION, version, nil);
 end;
 
 function SSL_set_options(ssl: PSSL; op : TIdC_LONG): TIdC_LONG;
