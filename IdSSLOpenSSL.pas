@@ -1415,7 +1415,7 @@ begin
                   Exit;
                 end;
               end;
-              i := X509_STORE_add_cert(ctx^.store_ctx, LX);
+              i := X509_STORE_add_cert(X509_LOOKUP_get_store(ctx),LX);
               if i = 0 then
               begin
                 Exit;
@@ -1433,7 +1433,7 @@ begin
               X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
               Exit;
             end;
-            i := X509_STORE_add_cert(ctx^.store_ctx, LX);
+            i := X509_STORE_add_cert(X509_LOOKUP_get_store(ctx),LX);
             if i = 0 then
             begin
               Exit;
@@ -1508,12 +1508,12 @@ begin
       Litmp := sk_X509_INFO_value(Linf, i);
       if Assigned(Litmp^.x509) then
       begin
-        X509_STORE_add_cert(ctx^.store_ctx, Litmp^.x509);
+        X509_STORE_add_cert(X509_LOOKUP_get_store(ctx),Litmp^.x509);
         Inc(count);
       end;
       if Assigned(Litmp^.crl) then
       begin
-        X509_STORE_add_crl(ctx^.store_ctx, Litmp^.crl);
+        X509_STORE_add_cert(X509_LOOKUP_get_store(ctx),Litmp^.x509);
         Inc(count);
       end;
     end;
