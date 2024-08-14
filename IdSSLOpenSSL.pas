@@ -3764,7 +3764,6 @@ end;
 function SelectTLS1Method(const AMode: TIdSSLMode): PSSL_METHOD;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := nil;
   case AMode of
     sslmServer:
       begin

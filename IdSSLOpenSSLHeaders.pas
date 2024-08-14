@@ -16911,57 +16911,20 @@ any IFDEF's and cases where the FIPS functions aren't in the .DLL}
   _FIPS_mode : function () : TIdC_INT cdecl = nil;
 {$ENDIF}
 
-{$IFNDEF OPENSSL_NO_HMAC}
-{
-NOTE:
-
-There is breakage between OpenSSL 0.9.x and OpenSSL 1.0x.  Some HMAC functions
-were changed to return a result code.  MOst of this is ugly but necessary to
-work around the issues involved.  Basically, the result of the C functions is
-changed from "void" to "int" so that they can return failure.
-}
 //void HMAC_CTX_init(HMAC_CTX *ctx);
   {$EXTERNALSYM HMAC_CTX_new}
   HMAC_CTX_new : function : PHMAC_CTX;
   {$EXTERNALSYM HMAC_CTX_reset}
   HMAC_CTX_reset : function(ctx : PHMAC_CTX) : TIdC_INT cdecl = nil;
-//void HMAC_Init_ex(HMAC_CTX *ctx, const void *key, int len,
-//		  const EVP_MD *md, ENGINE *impl);
- {$EXTERNALSYM _HMAC_Init_ex}
-  _HMAC_Init_ex : procedure(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
-    md : PEVP_MD; impl : PENGINE) cdecl = nil;
-//OpenSSL 1.0
-//int HMAC_Init_ex(HMAC_CTX *ctx, const void *key, int len,
-//		  const EVP_MD *md, ENGINE *impl);
- {$EXTERNALSYM _1_0_HMAC_Init_ex}
-  _1_0_HMAC_Init_ex : function(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
+ {$EXTERNALSYM HMAC_Init_ex}
+  HMAC_Init_ex : function(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
     md : PEVP_MD; impl : PENGINE) : TIdC_INT cdecl = nil;
-//void HMAC_Update(HMAC_CTX *ctx, const unsigned char *data, size_t len);
- {$EXTERNALSYM _HMAC_Update}
-  _HMAC_Update : procedure(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t) cdecl = nil;
-  //OpenSSL 1.0
- {$EXTERNALSYM _1_0_HMAC_Update}
-//int HMAC_Update(HMAC_CTX *ctx, const unsigned char *data, size_t len);
-  _1_0_HMAC_Update : function(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t) : TIdC_INT cdecl = nil;
-  //void HMAC_Final(HMAC_CTX *ctx, unsigned char *md, unsigned int *len);
- {$EXTERNALSYM _HMAC_Final}
-  _HMAC_Final : procedure(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT) cdecl = nil;
-//OpenSSL 1.0
- {$EXTERNALSYM _1_0_HMAC_Final}
-//   int HMAC_Final(HMAC_CTX *ctx, unsigned char *md, unsigned int *len);
-  _1_0_HMAC_Final : function(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT) : TIdC_INT cdecl = nil;
-//void HMAC_CTX_cleanup(HMAC_CTX *ctx);
+ {$EXTERNALSYM HMAC_Update}
+  HMAC_Update : function(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM HMAC_Final}
+  HMAC_Final : function(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT) : TIdC_INT cdecl = nil;
  {$EXTERNALSYM HMAC_CTX_cleanup}
   HMAC_CTX_cleanup : procedure (ctx : PHMAC_CTX) cdecl = nil;
-
- {$EXTERNALSYM HMAC_Init_ex}
-procedure HMAC_Init_ex(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
-    md : PEVP_MD; impl : PENGINE);
- {$EXTERNALSYM HMAC_Update}
-procedure HMAC_Update(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t);
- {$EXTERNALSYM HMAC_Final}
-procedure HMAC_Final(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT);
-{$ENDIF}
 
 var
   {$EXTERNALSYM TLS_method}
@@ -17756,8 +17719,6 @@ type
   EIdDigestInitEx = class(EIdDigestError);
   EIdDigestUpdate = class(EIdDigestError);
 
-function IsOpenSSL_1x : Boolean;
-
 // RLebeau: should these be declared as EXTERNALSYM?
 procedure RAND_cleanup;
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
@@ -17794,55 +17755,6 @@ begin
     Err_new();
     ERR_set_debug(_file, line, nil);
     ERR_set_error(lib, reason, nil);
-  end;
-end;
-
-{$IFNDEF OPENSSL_NO_HMAC}
-procedure HMAC_Init_ex(ctx : PHMAC_CTX; key : Pointer; len : TIdC_INT;
-    md : PEVP_MD; impl : PENGINE);
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  if Assigned(_HMAC_Init_ex) then begin
-    _HMAC_Init_ex(ctx, key, len, md, impl );
-  end else begin
-    if Assigned(_1_0_HMAC_Init_ex) then begin
-      _1_0_HMAC_Init_ex(ctx, key, len, md, impl );
-    end;
-  end;
-end;
-
-procedure HMAC_Update(ctx : PHMAC_CTX; data : PIdAnsiChar; len : size_t);
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  if Assigned(_HMAC_Update) then begin
-    _HMAC_Update(ctx, data, len );
-  end else begin
-    if Assigned(_1_0_HMAC_Update) then begin
-      _1_0_HMAC_Update(ctx, data, len );
-    end;
-  end;
-end;
-
-procedure HMAC_Final(ctx : PHMAC_CTX; md : PIdAnsiChar; len : PIdC_UINT);
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  if Assigned(_HMAC_Final) then begin
-    _HMAC_Final(ctx, md, len );
-  end else begin
-    if Assigned(_1_0_HMAC_Update) then begin
-      _1_0_HMAC_Final(ctx, md, len );
-    end;
-  end;
-end;
-{$ENDIF}
-
-function IsOpenSSL_1x : Boolean;
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  if Assigned( SSLeay ) then begin
-    Result := (SSLeay and $F0000000) = $10000000;
-  end else begin
-    Result := False;
   end;
 end;
 
@@ -18076,9 +17988,9 @@ begin
   Result := False;
   {$ELSE}
   Result := Assigned(HMAC_CTX_reset) and
-            ( Assigned(_HMAC_Init_ex) or Assigned(_1_0_HMAC_Init_ex) ) and
-            ( Assigned(_HMAC_Update) or Assigned(_1_0_HMAC_Update) ) and
-            ( Assigned(_HMAC_Final) or Assigned(_1_0_HMAC_Final) ) and
+           Assigned(HMAC_Init_ex) and
+           Assigned(HMAC_Update)  and
+           Assigned(HMAC_Final)  and
             Assigned(HMAC_CTX_cleanup);
   {$ENDIF}
 end;
@@ -22602,21 +22514,9 @@ we have to handle both cases.
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_reset := LoadFunctionCLib(fn_HMAC_CTX_reset, false);
-  if IsOpenSSL_1x then begin
-    @_HMAC_Init_ex := nil;
-    @_HMAC_Update := nil;
-    @_HMAC_Final := nil;
-    @_1_0_HMAC_Init_ex :=  LoadFunctionCLib(fn_HMAC_Init_ex);
-    @_1_0_HMAC_Update  := LoadFunctionCLib(fn_HMAC_Update);
-    @_1_0_HMAC_Final := LoadFunctionCLib(fn_HMAC_Final);
-  end else begin
-    @_HMAC_Init_ex := LoadFunctionCLib(fn_HMAC_Init_ex);
-    @_HMAC_Update := LoadFunctionCLib(fn_HMAC_Update);
-    @_HMAC_Final := LoadFunctionCLib(fn_HMAC_Final);
-    @_1_0_HMAC_Init_ex :=  nil;
-    @_1_0_HMAC_Update  := nil;
-    @_1_0_HMAC_Final := nil;
-  end;
+  @HMAC_Init_ex :=  LoadFunctionCLib(fn_HMAC_Init_ex);
+  @HMAC_Update  := LoadFunctionCLib(fn_HMAC_Update);
+  @HMAC_Final := LoadFunctionCLib(fn_HMAC_Final);
   @HMAC_CTX_cleanup := LoadFunctionCLib(fn_HMAC_CTX_cleanup, false);
   {$ENDIF}
   //OBJ
@@ -23398,12 +23298,9 @@ begin
   //HMAC
 {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_reset := nil;
-  @_HMAC_Init_ex := nil;
-  @_HMAC_Update := nil;
-  @_HMAC_Final := nil;
-  @_1_0_HMAC_Init_ex :=  nil;
-  @_1_0_HMAC_Update  := nil;
-  @_1_0_HMAC_Final := nil;
+  @HMAC_Init_ex :=  nil;
+  @HMAC_Update  := nil;
+  @HMAC_Final := nil;
   @HMAC_CTX_cleanup := nil;
 {$ENDIF}
   //OBJ
