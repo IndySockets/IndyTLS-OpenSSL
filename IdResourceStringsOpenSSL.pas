@@ -15,6 +15,8 @@ resourcestring
   RSOSSLConnectionDropped = 'SSL connection has dropped.';
   RSOSSLCertificateLookup = 'SSL certificate request error.';
   RSOSSLInternal = 'SSL library internal error.';
+  RSOSSLCouldNotSetMinProtocolVersion = 'Could not set min protocol version';
+  RSOSSLCouldNotSetMaxProtocolVersion = 'Could not set max protocol version';
   //callback where strings
   RSOSSLAlert =  '%s Alert';
   RSOSSLReadAlert =  '%s Read Alert';

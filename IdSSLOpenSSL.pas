@@ -697,6 +697,9 @@ type
 {$IFNDEF OPENSSL_NO_TLSEXT}
   EIdOSSLSettingTLSHostNameError = class(EIdOpenSSLAPISSLError);
 {$ENDIF}
+  EIdOSSLCouldNotSetMinProtocolVersion = class(EIdOpenSSLAPISSLError);
+  EIdOSSLCouldNotSetMaxProtocolVersion = class(EIdOpenSSLAPISSLError);
+
 function LoadOpenSSLLibrary: Boolean;
 procedure UnLoadOpenSSLLibrary;
 
@@ -3650,15 +3653,26 @@ begin
     end;
   end;
 
-  if sslvTLSv1 in SSLVersions then
-    SSL_CTX_set_min_proto_version(fContext, TLS1_VERSION)
-  else if sslvTLSv1_1 in SSLVersions then
-    SSL_CTX_set_min_proto_version(fContext, TLS1_1_VERSION)
-  else  if sslvTLSv1_2 in SSLVersions then
-    SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION)
-  else if sslvTLSv1_3 in SSLVersions then
-    SSL_CTX_set_min_proto_version(fContext, TLS1_3_VERSION);
-  SSL_CTX_set_max_proto_version(fContext, TLS1_3_VERSION);
+  if sslvTLSv1 in SSLVersions then begin
+    if  SSL_CTX_set_min_proto_version(fContext, TLS1_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end else if sslvTLSv1_1 in SSLVersions then begin
+    if SSL_CTX_set_min_proto_version(fContext, TLS1_1_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end else if sslvTLSv1_2 in SSLVersions then begin
+    if SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end else if sslvTLSv1_3 in SSLVersions then begin
+    if SSL_CTX_set_min_proto_version(fContext, TLS1_3_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end;
+  if SSL_CTX_set_max_proto_version(fContext, TLS1_3_VERSION) <> 1 then begin
+    raise EIdOSSLCouldNotSetMaxProtocolVersion.Create(RSOSSLCouldNotSetMaxProtocolVersion);
+  end;
   SSL_CTX_set_mode(fContext, SSL_MODE_AUTO_RETRY);
   // assign a password lookup routine
   // if PasswordRoutineOn then begin
@@ -4194,6 +4208,26 @@ begin
   Assert(fSSL = nil);
   Assert(fSSLContext <> nil);
   fSSL := SSL_new(fSSLContext.fContext);
+  if sslvTLSv1 in fSSLContext.SSLVersions then begin
+     if SSL_set_min_proto_version(fSSL, TLS1_VERSION)  <> 1 then begin
+       raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+     end;
+  end else if sslvTLSv1_1 in fSSLContext.SSLVersions then begin
+    if SSL_set_min_proto_version(fSSL, TLS1_1_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end else  if sslvTLSv1_2 in fSSLContext.SSLVersions then begin
+    if SSL_set_min_proto_version(fSSL, TLS1_2_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end else if sslvTLSv1_3 in fSSLContext.SSLVersions then begin
+    if SSL_set_min_proto_version(fSSL, TLS1_3_VERSION) <> 1 then begin
+      raise EIdOSSLCouldNotSetMinProtocolVersion.Create(RSOSSLCouldNotSetMinProtocolVersion);
+    end;
+  end;
+  if SSL_set_max_proto_version(fSSL, TLS1_3_VERSION) <> 1 then begin
+    raise EIdOSSLCouldNotSetMaxProtocolVersion.Create(RSOSSLCouldNotSetMaxProtocolVersion);
+  end;
   if fSSL = nil then
   begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
@@ -4657,8 +4691,10 @@ end;
 { TIdX509SigInfo }
 
 function TIdX509SigInfo.GetSignature: String;
+var LASN1String : ASN1_BIT_STRING;
 begin
-  Result := BytesToHexString(FX509^.Signature^.Data, FX509^.Signature^.Length);
+   X509_get0_signature(@LASN1String, nil, FX509);
+   Result := BytesToHexString(LASN1String.data, LASN1String.length);
 end;
 
 function TIdX509SigInfo.GetSigType: TIdC_INT;
