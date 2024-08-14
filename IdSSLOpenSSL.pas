@@ -1,148 +1,10 @@
 {
-  $Project$
-  $Workfile$
-  $Revision$
-  $DateUTC$
-  $Id$
-
   This file is part of the Indy (Internet Direct) project, and is offered
   under the dual-licensing agreement described on the Indy website.
   (http://www.indyproject.org/)
 
   Copyright:
-   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
-  $Log$
-}
-{
-  Rev 1.40    03/11/2009 09:04:00  AWinkelsdorf
-  Implemented fix for Vista+ SSL_Read and SSL_Write to allow connection
-  timeout.
-
-  Rev 1.39    16/02/2005 23:26:08  CCostelloe
-  Changed OnVerifyPeer.  Breaks existing implementation of OnVerifyPeer.  See
-  long comment near top of file.
-
-  Rev 1.38    1/31/05 6:02:28 PM  RLebeau
-  Updated _GetThreadId() callback to reflect changes in IdGlobal unit
-
-  Rev 1.37    7/27/2004 1:54:26 AM  JPMugaas
-  Now should use the Intercept property for sends.
-
-  Rev 1.36    2004-05-18 21:38:36  Mattias
-  Fixed unload bug
-
-  Rev 1.35    2004-05-07 16:34:26  Mattias
-  Implemented  OpenSSL locking callbacks
-
-  Rev 1.34    27/04/2004 9:38:48  HHariri
-  Added compiler directive so it works in BCB
-
-  Rev 1.33    4/26/2004 12:41:10 AM  BGooijen
-  Fixed WriteDirect
-
-  Rev 1.32    2004.04.08 10:55:30 PM  czhower
-  IOHandler changes.
-
-  Rev 1.31    3/7/2004 9:02:58 PM  JPMugaas
-  Fixed compiler warning about visibility.
-
-  Rev 1.30    2004.03.07 11:46:40 AM  czhower
-  Flushbuffer fix + other minor ones found
-
-  Rev 1.29    2/7/2004 5:50:50 AM  JPMugaas
-  Fixed Copyright.
-
-  Rev 1.28    2/6/2004 3:45:56 PM  JPMugaas
-  Only a start on NET porting.  This is not finished and will not compile on
-  DotNET>
-
-  Rev 1.27    2004.02.03 5:44:24 PM  czhower
-  Name changes
-
-  Rev 1.26    1/21/2004 4:03:48 PM  JPMugaas
-  InitComponent
-
-  Rev 1.25    1/14/2004 11:39:10 AM  JPMugaas
-  Server IOHandler now works.  Accept was commented out.
-
-  Rev 1.24    2003.11.29 10:19:28 AM  czhower
-  Updated for core change to InputBuffer.
-
-  Rev 1.23    10/21/2003 10:09:14 AM  JPMugaas
-  Intercept enabled.
-
-  Rev 1.22    10/21/2003 09:41:38 AM  JPMugaas
-  Updated for new API.  Verified with TIdFTP with active and passive transfers
-  as well as clear and protected data channels.
-
-  Rev 1.21    10/21/2003 07:32:38 AM  JPMugaas
-  Checked in what I have.  Porting still continues.
-
-  Rev 1.20    10/17/2003 1:08:08 AM  DSiders
-  Added localization comments.
-
-  Rev 1.19    2003.10.12 6:36:44 PM  czhower
-  Now compiles.
-
-  Rev 1.18    9/19/2003 11:24:58 AM  JPMugaas
-  Should compile.
-
-  Rev 1.17    9/18/2003 10:20:32 AM  JPMugaas
-  Updated for new API.
-
-  Rev 1.16    2003.07.16 3:26:52 PM  czhower
-  Fixed for a core change.
-
-  Rev 1.15    6/30/2003 1:52:22 PM  BGooijen
-  Changed for new buffer interface
-
-  Rev 1.14    6/29/2003 5:42:02 PM  BGooijen
-  fixed problem in TIdSSLIOHandlerSocketOpenSSL.SetPassThrough that Henrick
-  Hellstrom reported
-
-  Rev 1.13    5/7/2003 7:13:00 PM  BGooijen
-  changed Connected to BindingAllocated in ReadFromSource
-
-  Rev 1.12    3/30/2003 12:16:40 AM  BGooijen
-  bugfixed+ added MakeFTPSvrPort/MakeFTPSvrPasv
-
-  Rev 1.11    3/14/2003 06:56:08 PM  JPMugaas
-  Added a clone method to the SSLContext.
-
-  Rev 1.10    3/14/2003 05:29:10 PM  JPMugaas
-  Change to prevent an AV when shutting down the FTP Server.
-
-  Rev 1.9    3/14/2003 10:00:38 PM  BGooijen
-  Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now enabled in
-  the server-protocol-files
-
-  Rev 1.8    3/13/2003 11:55:38 AM  JPMugaas
-  Updated registration framework to give more information.
-
-  Rev 1.7    3/13/2003 11:07:14 AM  JPMugaas
-  OpenSSL classes renamed.
-
-  Rev 1.6    3/13/2003 10:28:16 AM  JPMugaas
-  Forgot the reegistration - OOPS!!!
-
-  Rev 1.5    3/13/2003 09:49:42 AM  JPMugaas
-  Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
-  can plug-in their products.
-
-  Rev 1.4    3/13/2003 10:20:08 AM  BGooijen
-  Server side fibers
-
-  Rev 1.3    2003.02.25 3:56:22 AM  czhower
-
-  Rev 1.2    2/5/2003 10:27:46 PM  BGooijen
-  Fixed bug in OpenEncodedConnection
-
-  Rev 1.1    2/4/2003 6:31:22 PM  BGooijen
-  Fixed for Indy 10
-
-  Rev 1.0    11/13/2002 08:01:24 AM  JPMugaas
+   (c) 1993-2024, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
 }
 unit IdSSLOpenSSL;
 {
@@ -200,10 +62,6 @@ This helps user code distinquish between Self-signed and invalid certificates.
 interface
 
 {$I IdCompilerDefines.inc}
-
-{$IFNDEF USE_OPENSSL}
-  {$message error Should not compile if USE_OPENSSL is not defined!!!}
-{$ENDIF}
 
 {$TYPEDADDRESS OFF}
 
@@ -4274,13 +4132,10 @@ begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
 
-{$I IdSymbolDeprecatedOff.inc}
-
 initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
 
-  {$I IdSymbolDeprecatedOff.inc}
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
     'Copyright '+Char(169)+' 1993 - 2023'#10#13 +                         {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
@@ -4289,7 +4144,6 @@ initialization
     'Original Author - Gregor Ibic',                                      {do not localize}
     TIdSSLIOHandlerSocketOpenSSL,
     TIdServerIOHandlerSSLOpenSSL);
-  {$I IdSymbolDeprecatedOn.inc}
 
   TIdSSLIOHandlerSocketOpenSSL.RegisterIOHandler;
 finalization

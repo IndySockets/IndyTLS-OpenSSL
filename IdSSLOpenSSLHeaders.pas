@@ -155,9 +155,6 @@ interface
 
 {$I IdCompilerDefines.inc}
 
-{$IFNDEF USE_OPENSSL}
-  {$message error Should not compile if USE_OPENSSL is not defined!!!}
-{$ENDIF}
 {$WRITEABLECONST OFF}
 
 {$IFNDEF FPC}
@@ -19392,6 +19389,11 @@ begin
   FreeMem(ACtx,SizeOf(HMAC_CTX));
 end;
 
+function LoadOpenSSL: Boolean;
+begin
+  Result := Load;
+end;
+
 //****************************************************
 function FIPS_mode_set(onoff : TIdC_INT) : TIdC_INT;  {$IFDEF INLINE}inline;{$ENDIF}
 begin
@@ -26965,6 +26967,7 @@ initialization
   GetHMACSHA512HashInst:= OpenSSLGetHMACSHA512Inst;
   UpdateHMACInst := OpenSSLUpdateHMACInst;
   FinalHMACInst := OpenSSLFinalHMACInst;
+  LoadHashLibrary := LoadOpenSSL;
 {$IFNDEF STATICLOAD_OPENSSL}
 finalization
   FreeAndNil(FFailedLoadList);
