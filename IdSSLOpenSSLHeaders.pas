@@ -16070,43 +16070,6 @@ var
   SSL_CTX_callback_ctrl : function(ssl : PSSL_CTX; cmd : TIdC_INT; fp : SSL_callback_ctrl_fp) : TIdC_LONG cdecl = nil;
   {$EXTERNALSYM SSL_get_error}
   SSL_get_error : function(s: PSSL; ret_code: TIdC_INT): TIdC_INT cdecl = nil;
-  {$EXTERNALSYM SSLv2_method}
-  SSLv2_method : function: PSSL_METHOD cdecl = nil; // SSLv2
-  {$EXTERNALSYM SSLv2_server_method}
-  SSLv2_server_method : function: PSSL_METHOD cdecl = nil; // SSLv2
-  {$EXTERNALSYM SSLv2_client_method}
-  SSLv2_client_method : function: PSSL_METHOD cdecl = nil; // SSLv2
-  {$EXTERNALSYM SSLv3_method}
-  SSLv3_method : function: PSSL_METHOD cdecl = nil; // SSLv3
-  {$EXTERNALSYM SSLv3_server_method}
-  SSLv3_server_method : function: PSSL_METHOD cdecl = nil; // SSLv3
-  {$EXTERNALSYM SSLv3_client_method}
-  SSLv3_client_method : function: PSSL_METHOD cdecl = nil; // SSLv3
-  {$EXTERNALSYM SSLv23_method}
-  SSLv23_method : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
-  {$EXTERNALSYM SSLv23_server_method}
-  SSLv23_server_method : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
-  {$EXTERNALSYM SSLv23_client_method}
-  SSLv23_client_method : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
-  {$EXTERNALSYM TLSv1_method}
-  TLSv1_method : function: PSSL_METHOD cdecl = nil; // TLSv1.0
-  {$EXTERNALSYM TLSv1_server_method}
-  TLSv1_server_method : function: PSSL_METHOD cdecl = nil; // TLSv1.0
-  {$EXTERNALSYM TLSv1_client_method}
-  TLSv1_client_method : function: PSSL_METHOD cdecl = nil; // TLSv1.0
-  {$EXTERNALSYM TLSv1_1_method}
-  TLSv1_1_method : function : PSSL_METHOD cdecl = nil; //TLS1.1
-  {$EXTERNALSYM TLSv1_1_server_method}
-  TLSv1_1_server_method : function : PSSL_METHOD cdecl = nil; //TLS1.1
-  {$EXTERNALSYM TLSv1_1_client_method}
-  TLSv1_1_client_method : function : PSSL_METHOD cdecl = nil; //TLS1.1
-  {$EXTERNALSYM TLSv1_2_method}
-  TLSv1_2_method : function : PSSL_METHOD cdecl = nil;		//* TLSv1.2 */
-  {$EXTERNALSYM TLSv1_2_server_method}
-  TLSv1_2_server_method : function : PSSL_METHOD cdecl = nil;	//* TLSv1.2 */
-  {$EXTERNALSYM TLSv1_2_client_method}
-  TLSv1_2_client_method : function : PSSL_METHOD cdecl = nil;	//* TLSv1.2 */
-
   {$EXTERNALSYM DTLSv1_method}
   DTLSv1_method : function: PSSL_METHOD cdecl = nil; // DTLSv1.0
   {$EXTERNALSYM DTLSv1_server_method}
@@ -17794,14 +17757,6 @@ type
   EIdDigestUpdate = class(EIdDigestError);
 
 function IsOpenSSL_1x : Boolean;
-function IsOpenSSL_SSLv2_Available : Boolean;
-function IsOpenSSL_SSLv3_Available : Boolean;
-function IsOpenSSL_SSLv23_Available : Boolean;
-function IsOpenSSL_TLSv1_0_Available : Boolean;
-function IsOpenSSL_TLSv1_1_Available : Boolean;
-function IsOpenSSL_TLSv1_2_Available : Boolean;
-function IsOpenSSL_DTLSv1_Available : Boolean;
-function IsOpenSSL_TLSv1_3_Available : Boolean;
 
 // RLebeau: should these be declared as EXTERNALSYM?
 procedure RAND_cleanup;
@@ -17889,72 +17844,6 @@ begin
   end else begin
     Result := False;
   end;
-end;
-
-//    Result := (SSLeay and $FFFF0000) < $10100000;
-
-function IsOpenSSL_SSLv2_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(SSLv2_method) and
-    Assigned(SSLv2_server_method) and
-    Assigned(SSLv2_client_method);
-end;
-
-function IsOpenSSL_SSLv3_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(SSLv3_method) and
-    Assigned(SSLv3_server_method) and
-    Assigned(SSLv3_client_method);
-end;
-
-function IsOpenSSL_SSLv23_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(SSLv23_method) and
-    Assigned(SSLv23_server_method) and
-    Assigned(SSLv23_client_method);
-end;
-
-function IsOpenSSL_TLSv1_0_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(TLSv1_method) and
-    Assigned(TLSv1_server_method) and
-    Assigned(TLSv1_client_method);
-end;
-
-function IsOpenSSL_TLSv1_1_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(TLSv1_1_method) and
-    Assigned(TLSv1_1_server_method) and
-    Assigned(TLSv1_1_client_method);
-end;
-
-function IsOpenSSL_TLSv1_2_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(TLSv1_2_method) and
-    Assigned(TLSv1_2_server_method) and
-    Assigned(TLSv1_2_client_method);
-end;
-
-function IsOpenSSL_DTLSv1_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(DTLSv1_method) and
-    Assigned(DTLSv1_server_method) and
-    Assigned(DTLSv1_client_method);
-end;
-
-function IsOpenSSL_TLSv1_3_Available : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := Assigned(TLS_method) and
-    Assigned(TLS_client_method) and
-    Assigned(TLS_server_method);
 end;
 
 //**************** FIPS Support backend *******************
@@ -21994,31 +21883,6 @@ SSLeay
   {$ENDIF}
   @SSL_get_error := LoadFunction(fn_SSL_get_error);           //Used by Indy
 
-  // RLebeau 9/7/2015 - making all of the "..._method()" functions optional.  If
-  // a user wants to disable a given SSL/TLS version at runtime, there is no need
-  // for it to be marked as "critical" at load time, in case it is not available
-  // in their version of OpenSSL.  For instance, some vendors disable SSLv2 so
-  // it is not even exported.  If a user wants to use a given version and it is
-  // not available in their version of OpenSSL, TIdSSLContext.SetSSLMethod() will
-  // now raise a runtime error...
-  @SSLv2_method := LoadFunction(fn_SSLv2_method,False);                   //Used by Indy
-  @SSLv2_server_method := LoadFunction(fn_SSLv2_server_method,False);             //Used by Indy
-  @SSLv2_client_method := LoadFunction(fn_SSLv2_client_method,False);            //Used by Indy
-  @SSLv3_method := LoadFunction(fn_SSLv3_method,False);                        //Used by Indy
-  @SSLv3_server_method := LoadFunction(fn_SSLv3_server_method,False);           //Used by Indy
-  @SSLv3_client_method := LoadFunction(fn_SSLv3_client_method,False);          //Used by Indy
-  @SSLv23_method := LoadFunction(fn_SSLv23_method,False);                      //Used by Indy
-  @SSLv23_server_method := LoadFunction(fn_SSLv23_server_method,False);        //Used by Indy
-  @SSLv23_client_method := LoadFunction(fn_SSLv23_client_method,False);       //Used by Indy
-  @TLSv1_method := LoadFunction(fn_TLSv1_method,False);                         //Used by Indy
-  @TLSv1_server_method := LoadFunction(fn_TLSv1_server_method,False);         //Used by Indy
-  @TLSv1_client_method := LoadFunction(fn_TLSv1_client_method,False);          //Used by Indy
-  @TLSv1_1_method := LoadFunction(fn_TLSv1_1_method,False);              //Used by Indy
-  @TLSv1_1_server_method := LoadFunction(fn_TLSv1_1_server_method,False);    //Used by Indy
-  @TLSv1_1_client_method := LoadFunction(fn_TLSv1_1_client_method,False);   //Used by Indy
-  @TLSv1_2_method := LoadFunction(fn_TLSv1_2_method,False);                //Used by Indy
-  @TLSv1_2_server_method := LoadFunction(fn_TLSv1_2_server_method,False);  //Used by Indy
-  @TLSv1_2_client_method := LoadFunction(fn_TLSv1_2_client_method,False);    //Used by Indy
   @DTLSv1_method := LoadFunction(fn_DTLSv1_method, False);
   @DTLSv1_server_method := LoadFunction(fn_DTLSv1_server_method, False);
   @DTLSv1_client_method := LoadFunction(fn_DTLSv1_client_method, False);
@@ -22879,24 +22743,6 @@ begin
   @SSL_CTX_ctrl := nil;
   @SSL_CTX_callback_ctrl := nil;
   @SSL_get_error := nil;
-  @SSLv2_method := nil;
-  @SSLv2_server_method := nil;
-  @SSLv2_client_method := nil;
-  @SSLv3_method := nil;
-  @SSLv3_server_method := nil;
-  @SSLv3_client_method := nil;
-  @SSLv23_method := nil;
-  @SSLv23_server_method := nil;
-  @SSLv23_client_method := nil;
-  @TLSv1_method := nil;
-  @TLSv1_server_method := nil;
-  @TLSv1_client_method := nil;
-  @TLSv1_1_method := nil;
-  @TLSv1_1_server_method := nil;
-  @TLSv1_1_client_method := nil;
-  @TLSv1_2_method := nil;
-  @TLSv1_2_server_method := nil;
-  @TLSv1_2_client_method := nil;
   @DTLSv1_method := nil;
   @DTLSv1_server_method := nil;
   @DTLSv1_client_method := nil;
