@@ -22,10 +22,10 @@ package dclIndyTLSOpenSSL80;
 
 requires
   designide,
+  IndyTLSOpenSSL80,
   dclIndyCore80;
 
 contains
-  IdDsnRegisterOpenSSL in 'IdDsnRegisterOpenSSL.pas',
   IdRegisterOpenSSL in 'IdRegisterOpenSSL.pas';
 
 end.
