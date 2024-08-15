@@ -18357,23 +18357,23 @@ end;
 const
 {most of these are commented out because we aren't using them now.  I am keeping
 them in case we use them later.}
-  fn_sk_num = 'sk_num';   {Do not localize}
-  fn_sk_value = 'sk_value';   {Do not localize}
+  fn_sk_num = 'OPENSSL_sk_num';   {Do not localize}
+  fn_sk_value = 'OPENSSL_sk_value';   {Do not localize}
   {CH fn_sk_set = 'sk_set'; }  {Do not localize}
-  fn_sk_new = 'sk_new';   {Do not localize}
-  fn_sk_new_null = 'sk_new_null'; {Do not localize}
-  fn_sk_free = 'sk_free';   {Do not localize}
-  fn_sk_pop_free = 'sk_pop_free';  {Do not localize}
+  fn_sk_new = 'OPENSSL_sk_new';   {Do not localize}
+  fn_sk_new_null = 'OPENSSL_sk_new_null'; {Do not localize}
+  fn_sk_free = 'OPENSSL_sk_free';   {Do not localize}
+  fn_sk_pop_free = 'OPENSSL_sk_pop_free';  {Do not localize}
   {CH fn_sk_insert = 'sk_insert'; }  {Do not localize}
   {CH fn_sk_delete = 'sk_delete'; }  {Do not localize}
   {CH fn_sk_delete_ptr = 'sk_delete_ptr'; }  {Do not localize}
-  fn_sk_find = 'sk_find';  {Do not localize}
-  fn_sk_push = 'sk_push';  {Do not localize}
+  fn_sk_find = 'OPENSSL_sk_find';  {Do not localize}
+  fn_sk_push = 'OPENSSL_sk_push';  {Do not localize}
   {CH fn_sk_unshift = 'sk_unshift'; }  {Do not localize}
   {CH fn_sk_shift = 'sk_shift'; }  {Do not localize}
   {CH fn_sk_pop = 'sk_pop'; }  {Do not localize}
   {CH fn_sk_zero = 'sk_zero'; }  {Do not localize}
-  fn_sk_dup = 'sk_dup';  {Do not localize}
+  fn_sk_dup = 'OPENSSL_sk_dup';  {Do not localize}
   {CH fn_sk_sort = 'sk_sort'; }  {Do not localize}
   fn_SSLeay_version = 'SSLeay_version';  {Do not localize}
   fn_SSLeay = 'SSLeay';   {Do not localize}
@@ -21833,6 +21833,7 @@ SSLeay
   @X509_get_subject_name := LoadFunctionCLib(fn_X509_get_subject_name); //Used by Indy
   @X509_digest := LoadFunctionCLib(fn_X509_digest);//Used by Indy
   @X509_LOOKUP_ctrl := LoadFunctionCLib( fn_X509_LOOKUP_ctrl, False );
+  @X509_LOOKUP_get_store := LoadFunctionCLib(fn_X509_LOOKUP_get_store); //Used by Indy
   @X509_STORE_add_cert := LoadFunctionCLib(fn_X509_STORE_add_cert); //Used by Indy
   @X509_STORE_add_crl := LoadFunctionCLib(fn_X509_STORE_add_crl);  //Used by Indy
   @X509_STORE_CTX_get_ex_data := LoadFunctionCLib(fn_X509_STORE_CTX_get_ex_data,False);
@@ -21950,7 +21951,7 @@ we have to handle both cases.
   @CRYPTO_cleanup_all_ex_data := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data,False); //Used by Indy
   @SSL_COMP_get_compression_methods := LoadFunction(fn_SSL_COMP_get_compression_methods,False);
   @SSL_COMP_free_compression_methods := LoadFunction(fn_SSL_COMP_free_compression_methods,False);
-  @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free,False);
+  @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free);
   //RSA
   @RSA_free := LoadFunctionCLib(fn_RSA_free,False);
   @RSA_generate_key_ex := LoadFunctionCLib(fn_RSA_generate_key_ex, False);
@@ -22670,6 +22671,7 @@ begin
   @X509_get_subject_name := nil;
   @X509_digest := nil;
   @X509_LOOKUP_ctrl := nil;
+  @X509_LOOKUP_get_store := nil;
   @X509_STORE_add_cert := nil;
   @X509_STORE_add_crl := nil;
   @X509_STORE_CTX_get_ex_data := nil;

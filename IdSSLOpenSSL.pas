@@ -1369,12 +1369,12 @@ begin
     for i := 0 to sk_X509_INFO_num(Linf) - 1 do
     begin
       Litmp := sk_X509_INFO_value(Linf, i);
-      if Assigned(Litmp^.x509) then
+      if Assigned(Litmp^.x509) and assigned(ctx) then
       begin
         X509_STORE_add_cert(X509_LOOKUP_get_store(ctx),Litmp^.x509);
         Inc(count);
       end;
-      if Assigned(Litmp^.crl) then
+      if Assigned(Litmp^.crl) and assigned(ctx) then
       begin
         X509_STORE_add_cert(X509_LOOKUP_get_store(ctx),Litmp^.x509);
         Inc(count);
