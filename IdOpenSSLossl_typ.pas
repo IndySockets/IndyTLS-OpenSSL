@@ -41,6 +41,19 @@ type
 {$ENDIF}
   { C++ end of extern C conditionnal removed }
 
+  // * This is the base type that holds just about everything :-) */
+  asn1_string_st = record
+    length: TIdC_INT;
+    _type: TIdC_INT;
+    data: PAnsiChar;
+    { *
+      * The value of the following field depends on the type being held.  It
+      * is mostly being used for BIT_STRING so if the input data has a
+      * non-zero 'unused bits' value, it will be handled correctly
+      * }
+    flags: TIdC_LONG;
+  end;
+
 {$IFDEF NO_ASN1_TYPEDEFS}
 
 type
@@ -59,13 +72,50 @@ type
   ASN1_BMPSTRING = ASN1_STRING;
   ASN1_VISIBLESTRING = ASN1_STRING;
   ASN1_UTF8STRING = ASN1_STRING;
-  ASN1_BOOLEAN = cint;
-  ASN1_NULL = cint;
+  ASN1_BOOLEAN = TIdC_int;
+  ASN1_NULL = TIdC_int;
 {$ELSE}
 
 type
+  ASN1_INTEGER = asn1_string_st;
+  PASN1_INTEGER = ^ASN1_INTEGER;
+  PPASN1_INTEGER = ^PASN1_INTEGER;
+  ASN1_ENUMERATED = asn1_string_st;
+  PASN1_ENUMERATED = ^ASN1_ENUMERATED;
+  ASN1_BIT_STRING = asn1_string_st;
+  PASN1_BIT_STRING = ^ASN1_BIT_STRING;
+  ASN1_OCTET_STRING = asn1_string_st;
+  PASN1_OCTET_STRING = ^ASN1_OCTET_STRING;
+  PPASN1_OCTET_STRING = ^PASN1_OCTET_STRING;
+  ASN1_PRINTABLESTRING = asn1_string_st;
+  PASN1_PRINTABLESTRING = ^ASN1_PRINTABLESTRING;
+  ASN1_T61STRING = asn1_string_st;
+  PASN1_T61STRING = ^ASN1_T61STRING;
+  ASN1_IA5STRING = asn1_string_st;
+  PASN1_IA5STRING = ^ASN1_IA5STRING;
+  ASN1_GENERALSTRING = asn1_string_st;
+  PASN1_GENERALSTRING = ^ASN1_GENERALSTRING;
+  ASN1_UNIVERSALSTRING = asn1_string_st;
+  PASN1_UNIVERSALSTRING = ^ASN1_UNIVERSALSTRING;
+  ASN1_BMPSTRING = asn1_string_st;
+  PASN1_BMPSTRING = ^ASN1_BMPSTRING;
+  ASN1_UTCTIME = asn1_string_st;
+  PASN1_UTCTIME = ^ASN1_UTCTIME;
+  ASN1_TIME = asn1_string_st;
+  PASN1_TIME = ^ASN1_TIME;
+  ASN1_GENERALIZEDTIME = asn1_string_st;
+  PASN1_GENERALIZEDTIME = ^ASN1_GENERALIZEDTIME;
+  PPASN1_GENERALIZEDTIME = ^PASN1_GENERALIZEDTIME;
+  ASN1_VISIBLESTRING = asn1_string_st;
+  PASN1_VISIBLESTRING = ^ASN1_VISIBLESTRING;
+  ASN1_UTF8STRING = asn1_string_st;
+  PASN1_UTF8STRING = ^ASN1_UTF8STRING;
+  ASN1_STRING = asn1_string_st;
+  PASN1_STRING = ^ASN1_STRING;
+  PPASN1_STRING = ^PASN1_STRING;
+  ASN1_BOOLEAN = TIdC_INT;
   PASN1_BOOLEAN = ^TASN1_BOOLEAN;
-  TASN1_BOOLEAN = TIdC_INT;
+  TASN1_BOOLEAN = ASN1_BOOLEAN;
 
   PASN1_NULL = ^TASN1_NULL;
   TASN1_NULL = TIdC_INT;
@@ -74,6 +124,8 @@ type
 Type
   Pdane_st = Pointer;
   PBIO = Pointer;
+  PPBIO = ^PBIO;
+  PBIO_METHOD = Pointer;
   PBIGNUM = Pointer;
   PBN_CTX = Pointer;
   PBN_BLINDING = Pointer;
@@ -168,18 +220,17 @@ Type
 {$IFDEF FPC}
 {$PACKRECORDS C}
 {$ENDIF}
-{
-  * Copyright 2001-2016 The OpenSSL Project Authors. All Rights Reserved.
-  *
-  * Licensed under the OpenSSL license (the "License").  You may not use
-  * this file except in compliance with the License.  You can obtain a copy
-  * in the file LICENSE in the source distribution or at
-  * https://www.openssl.org/source/license.html
-}
+  {
+    * Copyright 2001-2016 The OpenSSL Project Authors. All Rights Reserved.
+    *
+    * Licensed under the OpenSSL license (the "License").  You may not use
+    * this file except in compliance with the License.  You can obtain a copy
+    * in the file LICENSE in the source distribution or at
+    * https://www.openssl.org/source/license.html
+  }
 {$IFNDEF HEADER_OPENSSL_TYPES_H}
-{$DEFINE HEADER_OPENSSL_TYP
-}
-{ C++ extern C conditionnal removed }
+{$DEFINE HEADER_OPENSSL_TYP}
+  { C++ extern C conditionnal removed }
 
 {$IFDEF _WIN32}
 {$UNDEF X509_NAME}
@@ -192,8 +243,11 @@ Type
 {$IFDEF BIGNUM}
 {$UNDEF BIGNUM}
 {$ENDIF}
-{$ENDIF{
-  { def HEADER_OPENSSL_TYPES_H }
+{$ENDIF}
+  PASN1_OBJECT = Pointer;
+  PPASN1_OBJECT = ^PASN1_OBJECT;
+  PASN1_PCTX = Pointer;
+  PASN1_SCTX = Pointer;
 
 implementation
 
