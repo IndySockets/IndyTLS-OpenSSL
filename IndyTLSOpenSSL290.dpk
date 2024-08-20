@@ -120,6 +120,9 @@ contains
   IdSSLOpenSSL110 in 'IdSSLOpenSSL110.pas',
   IdSSLOpenSSL110Consts in 'IdSSLOpenSSL110Consts.pas',
   IdSSLOpenSSLExceptionHandlers in 'IdSSLOpenSSLExceptionHandlers.pas',
-  IdSSLOpenSSLLoader in 'IdSSLOpenSSLLoader.pas';
+  IdSSLOpenSSLLoader in 'IdSSLOpenSSLLoader.pas',
+  IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas';
 
 end.
