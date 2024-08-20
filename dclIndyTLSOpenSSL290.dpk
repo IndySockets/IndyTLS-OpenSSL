@@ -13,8 +13,8 @@ package dclIndyTLSOpenSSL290;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
@@ -24,7 +24,6 @@ package dclIndyTLSOpenSSL290;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
-{$DEFINE VER360}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 TLS Design Time - OpenSSL'}
 {$DESIGNONLY}
@@ -33,9 +32,11 @@ package dclIndyTLSOpenSSL290;
 requires
   designide,
   IndyTLSOpenSSL290,
-  dclIndyCore290;
+  dclIndyCore290,
+  IndyProtocols290;
 
 contains
+  IdRegisterOpenSSL110 in 'IdRegisterOpenSSL110.pas',
   IdRegisterOpenSSL in 'IdRegisterOpenSSL.pas';
 
 end.

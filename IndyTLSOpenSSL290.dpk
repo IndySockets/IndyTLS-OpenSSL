@@ -13,8 +13,8 @@ package IndyTLSOpenSSL290;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
@@ -24,34 +24,105 @@ package IndyTLSOpenSSL290;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
-{$DEFINE VER360}
+{$DEFINE HAS_PKG_RTL}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 TLS - OpenSSL'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
-
-// RLebeau: cannot use IdCompilerDefines.inc here!
-
-{$DEFINE HAS_PKG_RTL}
-{$IFDEF NEXTGEN}
-  {$IFDEF IOS}
-    // there is no RTL package available for iOS
-    {$UNDEF HAS_PKG_RTL}
-  {$ENDIF}
-{$ENDIF}
+{$IMPLICITBUILD OFF}
 
 requires
-  {$IFDEF HAS_PKG_RTL}
   rtl,
-  {$ENDIF}
   IndySystem290,
   IndyCore290,
   IndyProtocols290;
 
 contains
-  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
-  IdNTLMOpenSSL in 'IdNTLMOpenSSL.pas',
+  IdAllOpenSSLHeaders in 'IdAllOpenSSLHeaders.pas',
+  IdOpenSSLHeaders_aes in 'IdOpenSSLHeaders_aes.pas',
+  IdOpenSSLHeaders_asn1 in 'IdOpenSSLHeaders_asn1.pas',
+  IdOpenSSLHeaders_asn1_mac in 'IdOpenSSLHeaders_asn1_mac.pas',
+  IdOpenSSLHeaders_asn1err in 'IdOpenSSLHeaders_asn1err.pas',
+  IdOpenSSLHeaders_asn1t in 'IdOpenSSLHeaders_asn1t.pas',
+  IdOpenSSLHeaders_async in 'IdOpenSSLHeaders_async.pas',
+  IdOpenSSLHeaders_asyncerr in 'IdOpenSSLHeaders_asyncerr.pas',
+  IdOpenSSLHeaders_bio in 'IdOpenSSLHeaders_bio.pas',
+  IdOpenSSLHeaders_bioerr in 'IdOpenSSLHeaders_bioerr.pas',
+  IdOpenSSLHeaders_blowfish in 'IdOpenSSLHeaders_blowfish.pas',
+  IdOpenSSLHeaders_bn in 'IdOpenSSLHeaders_bn.pas',
+  IdOpenSSLHeaders_bnerr in 'IdOpenSSLHeaders_bnerr.pas',
+  IdOpenSSLHeaders_buffer in 'IdOpenSSLHeaders_buffer.pas',
+  IdOpenSSLHeaders_buffererr in 'IdOpenSSLHeaders_buffererr.pas',
+  IdOpenSSLHeaders_camellia in 'IdOpenSSLHeaders_camellia.pas',
+  IdOpenSSLHeaders_cast in 'IdOpenSSLHeaders_cast.pas',
+  IdOpenSSLHeaders_cmac in 'IdOpenSSLHeaders_cmac.pas',
+  IdOpenSSLHeaders_cms in 'IdOpenSSLHeaders_cms.pas',
+  IdOpenSSLHeaders_cmserr in 'IdOpenSSLHeaders_cmserr.pas',
+  IdOpenSSLHeaders_comp in 'IdOpenSSLHeaders_comp.pas',
+  IdOpenSSLHeaders_comperr in 'IdOpenSSLHeaders_comperr.pas',
+  IdOpenSSLHeaders_conf in 'IdOpenSSLHeaders_conf.pas',
+  IdOpenSSLHeaders_conf_api in 'IdOpenSSLHeaders_conf_api.pas',
+  IdOpenSSLHeaders_conferr in 'IdOpenSSLHeaders_conferr.pas',
+  IdOpenSSLHeaders_core in 'IdOpenSSLHeaders_core.pas',
+  IdOpenSSLHeaders_crypto in 'IdOpenSSLHeaders_crypto.pas',
+  IdOpenSSLHeaders_cryptoerr in 'IdOpenSSLHeaders_cryptoerr.pas',
+  IdOpenSSLHeaders_cterr in 'IdOpenSSLHeaders_cterr.pas',
+  IdOpenSSLHeaders_des in 'IdOpenSSLHeaders_des.pas',
+  IdOpenSSLHeaders_dh in 'IdOpenSSLHeaders_dh.pas',
+  IdOpenSSLHeaders_dherr in 'IdOpenSSLHeaders_dherr.pas',
+  IdOpenSSLHeaders_dsa in 'IdOpenSSLHeaders_dsa.pas',
+  IdOpenSSLHeaders_dsaerr in 'IdOpenSSLHeaders_dsaerr.pas',
+  IdOpenSSLHeaders_ebcdic in 'IdOpenSSLHeaders_ebcdic.pas',
+  IdOpenSSLHeaders_ec in 'IdOpenSSLHeaders_ec.pas',
+  IdOpenSSLHeaders_ecerr in 'IdOpenSSLHeaders_ecerr.pas',
+  IdOpenSSLHeaders_engine in 'IdOpenSSLHeaders_engine.pas',
+  IdOpenSSLHeaders_engineerr in 'IdOpenSSLHeaders_engineerr.pas',
+  IdOpenSSLHeaders_err in 'IdOpenSSLHeaders_err.pas',
+  IdOpenSSLHeaders_evp in 'IdOpenSSLHeaders_evp.pas',
+  IdOpenSSLHeaders_evperr in 'IdOpenSSLHeaders_evperr.pas',
+  IdOpenSSLHeaders_hmac in 'IdOpenSSLHeaders_hmac.pas',
+  IdOpenSSLHeaders_idea in 'IdOpenSSLHeaders_idea.pas',
+  IdOpenSSLHeaders_kdferr in 'IdOpenSSLHeaders_kdferr.pas',
+  IdOpenSSLHeaders_obj_mac in 'IdOpenSSLHeaders_obj_mac.pas',
+  IdOpenSSLHeaders_objects in 'IdOpenSSLHeaders_objects.pas',
+  IdOpenSSLHeaders_objectserr in 'IdOpenSSLHeaders_objectserr.pas',
+  IdOpenSSLHeaders_ocsperr in 'IdOpenSSLHeaders_ocsperr.pas',
+  IdOpenSSLHeaders_ossl_typ in 'IdOpenSSLHeaders_ossl_typ.pas',
+  IdOpenSSLHeaders_pem in 'IdOpenSSLHeaders_pem.pas',
+  IdOpenSSLHeaders_pemerr in 'IdOpenSSLHeaders_pemerr.pas',
+  IdOpenSSLHeaders_pkcs7 in 'IdOpenSSLHeaders_pkcs7.pas',
+  IdOpenSSLHeaders_pkcs7err in 'IdOpenSSLHeaders_pkcs7err.pas',
+  IdOpenSSLHeaders_pkcs12 in 'IdOpenSSLHeaders_pkcs12.pas',
+  IdOpenSSLHeaders_provider in 'IdOpenSSLHeaders_provider.pas',
+  IdOpenSSLHeaders_rand in 'IdOpenSSLHeaders_rand.pas',
+  IdOpenSSLHeaders_randerr in 'IdOpenSSLHeaders_randerr.pas',
+  IdOpenSSLHeaders_rc4 in 'IdOpenSSLHeaders_rc4.pas',
+  IdOpenSSLHeaders_rsa in 'IdOpenSSLHeaders_rsa.pas',
+  IdOpenSSLHeaders_rsaerr in 'IdOpenSSLHeaders_rsaerr.pas',
+  IdOpenSSLHeaders_sha in 'IdOpenSSLHeaders_sha.pas',
+  IdOpenSSLHeaders_srtp in 'IdOpenSSLHeaders_srtp.pas',
+  IdOpenSSLHeaders_ssl in 'IdOpenSSLHeaders_ssl.pas',
+  IdOpenSSLHeaders_ssl3 in 'IdOpenSSLHeaders_ssl3.pas',
+  IdOpenSSLHeaders_sslerr in 'IdOpenSSLHeaders_sslerr.pas',
+  IdOpenSSLHeaders_stack in 'IdOpenSSLHeaders_stack.pas',
+  IdOpenSSLHeaders_storeerr in 'IdOpenSSLHeaders_storeerr.pas',
+  IdOpenSSLHeaders_tls1 in 'IdOpenSSLHeaders_tls1.pas',
+  IdOpenSSLHeaders_ts in 'IdOpenSSLHeaders_ts.pas',
+  IdOpenSSLHeaders_tserr in 'IdOpenSSLHeaders_tserr.pas',
+  IdOpenSSLHeaders_txt_db in 'IdOpenSSLHeaders_txt_db.pas',
+  IdOpenSSLHeaders_ui in 'IdOpenSSLHeaders_ui.pas',
+  IdOpenSSLHeaders_uierr in 'IdOpenSSLHeaders_uierr.pas',
+  IdOpenSSLHeaders_whrlpool in 'IdOpenSSLHeaders_whrlpool.pas',
+  IdOpenSSLHeaders_x509 in 'IdOpenSSLHeaders_x509.pas',
+  IdOpenSSLHeaders_x509_vfy in 'IdOpenSSLHeaders_x509_vfy.pas',
+  IdOpenSSLHeaders_x509err in 'IdOpenSSLHeaders_x509err.pas',
+  IdOpenSSLHeaders_x509v3 in 'IdOpenSSLHeaders_x509v3.pas',
+  IdResourceStringsOpenSSL110 in 'IdResourceStringsOpenSSL110.pas',
+  IdSSLOpenSSL110 in 'IdSSLOpenSSL110.pas',
+  IdSSLOpenSSL110Consts in 'IdSSLOpenSSL110Consts.pas',
+  IdSSLOpenSSLExceptionHandlers in 'IdSSLOpenSSLExceptionHandlers.pas',
+  IdSSLOpenSSLLoader in 'IdSSLOpenSSLLoader.pas',
   IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
-  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas';
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas';
 
 end.
