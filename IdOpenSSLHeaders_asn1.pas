@@ -269,6 +269,8 @@ type
 //    flags: TIdC_long;
 //  end;
 
+  pxnew = function: Pointer; cdecl;
+  pd2i_of_void = function(val_out: PPointer; const der_in: PPByte; length: TIdC_LONG): Pointer; cdecl;
   (*
    * ASN1_ENCODING structure: this is used to save the received encoding of an
    * ASN1 type. This is useful to get round problems with invalid encodings
@@ -877,6 +879,7 @@ var
   //                          in, \
   //                          CHECKED_PPTR_OF(type, x)))
 
+  ASN1_d2i_bio: function(xnew: pxnew; d2i: pd2i_of_void; in_: PBIO; x: PPointer): Pointer; cdecl;
   ASN1_item_d2i_bio: function (const it: PASN1_ITEM; in_: PBIO; x: Pointer): Pointer; cdecl = nil;
   ASN1_i2d_bio: function (i2d: Pi2d_of_void; out_: PBIO; x: PByte): TIdC_INT; cdecl = nil;
 
@@ -1583,7 +1586,7 @@ const
   //    (ASN1_i2d_bio(CHECKED_I2D_OF(const type, i2d), \
   //                  out, \
   //                  CHECKED_PTR_OF(const type, x)))
-
+  ASN1_d2i_bio_procname = 'ASN1_d2i_bio';
   ASN1_item_i2d_bio_procname = 'ASN1_item_i2d_bio';
   ASN1_UTCTIME_print_procname = 'ASN1_UTCTIME_print';
   ASN1_GENERALIZEDTIME_print_procname = 'ASN1_GENERALIZEDTIME_print';
@@ -2429,7 +2432,10 @@ begin
   EIdAPIFunctionNotPresent.RaiseException(ASN1_STRING_to_UTF8_procname);
 end;
 
-
+function ERR_ASN1_d2i_bio(xnew: pxnew; d2i: pd2i_of_void; in_: PBIO; x: PPointer): Pointer; cdecl;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(ASN1_d2i_bio_procname);
+end;
 
   //void *ASN1_d2i_bio(void *(*xnew) (void), d2i_of_void *d2i, BIO *in, void **x);
 
@@ -6339,7 +6345,36 @@ begin
     {$ifend}
   end;
 
-
+  ASN1_d2i_bio  := LoadLibFunction(ADllHandle, ASN1_d2i_bio_procname);
+  FuncLoadError := not assigned(ASN1_d2i_bio);
+  if FuncLoadError then
+  begin
+    {$if not defined(ASN1_item_d2i_bio_allownil)}
+    ASN1_item_d2i_bio := @ERR_ASN1_d2i_bio;
+    {$ifend}
+    {$if declared(ASN1_d2i_bio_introduced)}
+    if LibVersion < ASN1_d2i_bio_introduced then
+    begin
+      {$if declared(FC_ASN1_d2i_bio)}
+      ASN1_item_d2i_bio := @FC_ASN1_d2i_bio;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(ASN1_item_d2i_bio_removed)}
+    if ASN1_item_d2i_bio_removed <= LibVersion then
+    begin
+      {$if declared(_ASN1_item_d2i_bio)}
+      ASN1_item_d2i_bio := @_ASN1_item_d2i_bio;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(ASN1_item_d2i_bio_allownil)}
+    if FuncLoadError then
+      AFailed.Add('ASN1_d2i_bio');
+    {$ifend}
+  end;
   ASN1_item_d2i_bio := LoadLibFunction(ADllHandle, ASN1_item_d2i_bio_procname);
   FuncLoadError := not assigned(ASN1_item_d2i_bio);
   if FuncLoadError then
