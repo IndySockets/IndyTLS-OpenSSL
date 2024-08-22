@@ -18,7 +18,7 @@ package dclIndyTLSOpenSSL40;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 TLS Design Time - OpenSSL'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   Vcl40,

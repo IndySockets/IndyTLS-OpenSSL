@@ -18,7 +18,7 @@ package IndyTLSOpenSSL70;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 TLS - OpenSSL'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,

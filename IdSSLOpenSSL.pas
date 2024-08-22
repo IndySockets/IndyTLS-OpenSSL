@@ -4137,7 +4137,7 @@ initialization
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
 
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright '+Char(169)+' 1993 - 2023'#10#13 +                         {do not localize}
+    'Copyright '+Char(169)+' 1993 - 2024'#10#13 +                         {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
