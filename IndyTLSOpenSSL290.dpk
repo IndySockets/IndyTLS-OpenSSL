@@ -116,13 +116,11 @@ contains
   IdOpenSSLHeaders_x509_vfy in 'IdOpenSSLHeaders_x509_vfy.pas',
   IdOpenSSLHeaders_x509err in 'IdOpenSSLHeaders_x509err.pas',
   IdOpenSSLHeaders_x509v3 in 'IdOpenSSLHeaders_x509v3.pas',
-  IdResourceStringsOpenSSL110 in 'IdResourceStringsOpenSSL110.pas',
-  IdSSLOpenSSL110 in 'IdSSLOpenSSL110.pas',
-  IdSSLOpenSSL110Consts in 'IdSSLOpenSSL110Consts.pas',
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
+  IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
+  IdSSLOpenSSLConsts in 'IdSSLOpenSSLConsts.pas',
   IdSSLOpenSSLExceptionHandlers in 'IdSSLOpenSSLExceptionHandlers.pas',
   IdSSLOpenSSLLoader in 'IdSSLOpenSSLLoader.pas',
-  IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
-  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
-  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas';
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas';
 
 end.

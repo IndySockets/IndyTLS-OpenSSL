@@ -36,7 +36,6 @@ requires
   IndyProtocols290;
 
 contains
-  IdRegisterOpenSSL110 in 'IdRegisterOpenSSL110.pas',
   IdRegisterOpenSSL in 'IdRegisterOpenSSL.pas';
 
 end.
