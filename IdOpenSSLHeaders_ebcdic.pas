@@ -39,7 +39,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts;
+  IdSSLOpenSSLConsts;
 
 
   //extern const unsigned char os_toascii[256];

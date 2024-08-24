@@ -39,7 +39,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts;
+  IdSSLOpenSSLConsts;
 
 const
   WHIRLPOOL_DIGEST_LENGTH = 512 div 8;

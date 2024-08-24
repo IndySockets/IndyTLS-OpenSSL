@@ -39,7 +39,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts;
+  IdSSLOpenSSLConsts;
 
 const
 // Added '_CONST' to avoid name clashes

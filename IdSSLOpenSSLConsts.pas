@@ -20,7 +20,7 @@
 {                               Here could be your name                        }
 {                                                                              }
 {******************************************************************************}
-unit IdSSLOpenSSL110Consts;
+unit IdSSLOpenSSLConsts;
 
 interface
 

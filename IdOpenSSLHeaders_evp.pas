@@ -41,7 +41,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts,
+  IdSSLOpenSSLConsts,
   IdOpenSSLHeaders_bio,
   IdOpenSSLHeaders_obj_mac,
   IdOpenSSLHeaders_ossl_typ;
@@ -2547,7 +2547,7 @@ uses
   IdSSLOpenSSLLoader,
   {$ENDIF}
   IdSSLOpenSSLExceptionHandlers,
-  IdResourceStringsOpenSSL110,
+  IdResourceStringsOpenSSL,
  IdOpenSSLHeaders_crypto;
   
 const

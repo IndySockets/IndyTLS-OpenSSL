@@ -37,7 +37,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts;
+  IdSSLOpenSSLConsts;
 
 {
   Automatically converted by H2Pas 1.0.0 from des.h

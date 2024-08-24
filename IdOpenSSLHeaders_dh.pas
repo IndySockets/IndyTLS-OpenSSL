@@ -39,7 +39,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts,
+  IdSSLOpenSSLConsts,
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_evp;
@@ -572,6 +572,7 @@ function d2i_DHparams_bio(bp: PBIO; x: PPDH): PDH;
 begin
     Result := PDH(ASN1_d2i_bio(pxnew(@DH_new), pd2i_of_void(@d2i_DHparams), bp, PPointer(x)));
 end;
+
 const
   DH_bits_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
   DH_security_bits_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);

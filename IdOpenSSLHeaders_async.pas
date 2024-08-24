@@ -39,7 +39,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts;
+  IdSSLOpenSSLConsts;
 
 const
   ASYNC_ERR = 0;

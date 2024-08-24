@@ -39,7 +39,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts,
+  IdSSLOpenSSLConsts,
   IdOpenSSLHeaders_asn1t,
   IdOpenSSLHeaders_bio,
   IdOpenSSlHeaders_ossl_typ;

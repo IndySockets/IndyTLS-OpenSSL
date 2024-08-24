@@ -41,7 +41,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
-  IdSSLOpenSSL110Consts,
+  IdSSLOpenSSLConsts,
   IdOpenSSLHeaders_ssl,
   IdOpenSSLHeaders_ossl_typ;
 

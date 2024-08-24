@@ -75,7 +75,7 @@ implementation
 
 uses IdOpenSSLHeaders_err, IdGlobal, IdOpenSSLHeaders_ssl,
   IdOpenSSLHeaders_ossl_typ, IdResourceStringsProtocols,
-  IdStack, IdResourceStringsOpenSSL110;
+  IdStack, IdResourceStringsOpenSSL;
 
 function GetErrorMessage(const AErr : TIdC_ULONG) : String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}

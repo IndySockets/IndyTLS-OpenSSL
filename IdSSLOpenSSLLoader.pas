@@ -68,13 +68,13 @@ implementation
 
 uses
   IdSSLOpenSSLExceptionHandlers,
-  IdResourceStringsOpenSSL110
+  IdResourceStringsOpenSSL
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
   {$IFDEF WINDOWS},Windows{$ENDIF}
   {$IFDEF FPC},dynlibs{$ENDIF}
 
-  ,IdSSLOpenSSL110Consts,
+  ,IdSSLOpenSSLConsts,
   IdThreadSafe,
   SysUtils
 {$ENDIF}

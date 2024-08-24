@@ -67,7 +67,7 @@ begin
   inherited RequiresUnits(Proc);
   //for new callback event
   Proc('IdCTypes'); {Do not localize}
-  Proc('IdSSLOpenSSLHeaders'); {Do not localize}
+  Proc('IdOpenSSLHeaders_ossl_typ'); {Do not localize}
 end;
 
 {$ENDIF}

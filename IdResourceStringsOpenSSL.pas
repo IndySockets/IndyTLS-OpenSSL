@@ -15,6 +15,8 @@ resourcestring
   RSOSSLConnectionDropped = 'SSL connection has dropped.';
   RSOSSLCertificateLookup = 'SSL certificate request error.';
   RSOSSLInternal = 'SSL library internal error.';
+  RSOSSLCouldNotSetMinProtocolVersion = 'Could not set min protocol version';
+  RSOSSLCouldNotSetMaxProtocolVersion = 'Could not set max protocol version';
   //callback where strings
   RSOSSLAlert =  '%s Alert';
   RSOSSLReadAlert =  '%s Read Alert';
@@ -29,6 +31,15 @@ resourcestring
   RSOSSLConnectExit =  'Connect Exit';
   RSOSSLHandshakeStart = 'Handshake Start';
   RSOSSLHandshakeDone =  'Handshake Done';
+
+  ROSSLCantGetSSLVersionNo = 'Unable to determine SSL Library Version number';
+  ROSSLAPIFunctionNotPresent = 'OpenSSL API Function/Procedure %s not found in SSL Library';
+  ROSUnrecognisedLibName = 'Unrecognised SSL Library name (%s)';
+  ROSCertificateNotAddedToStore = 'Unable to add X.509 Certificate to cert store';
+  ROSUnsupported = 'Not Supported';
+  {IdSSLOpenSSLFIPS}
+  RSOSSLEVPDigestExError = 'EVP_DigestInit_ex error';
+  RSOSSLEVPDigestUpdateError = 'EVP_DigestUpdate error';
 
 implementation
 
