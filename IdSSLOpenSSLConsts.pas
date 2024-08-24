@@ -60,12 +60,12 @@ const
   {$IFDEF CPU64}
   CLibCrypto = 'libcrypto-3-x64.dll';
   CLibSSL = 'libssl-3-x64.dll';
-  DefaultLibVersions = '-3-x64;-1-x64;';
+  DefaultLibVersions = '-3-x64;-1_1-x64;-1-x64;';
   {$ENDIF}
   {$IFDEF CPU32}
   CLibCrypto = 'libcrypto-3.dll';
   CLibSSL = 'libssl-3.dll';
-  DefaultLibVersions = '-3;-1;';
+  DefaultLibVersions = '-3;-1_1;-1;';
   {$ENDIF}
   {$ENDIF}
 
