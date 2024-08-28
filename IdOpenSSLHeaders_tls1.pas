@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -1110,7 +1112,7 @@ type
   {$EXTERNALSYM SSL_get_sigalgs}
   {$EXTERNALSYM SSL_get_shared_sigalgs}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   {$EXTERNALSYM SSL_set_tlsext_host_name} {removed 1.0.0}
   SSL_set_tlsext_host_name: function (s: PSSL; const name: PIdAnsiChar): TIdC_LONG; cdecl = nil; {removed 1.0.0}
@@ -1211,11 +1213,11 @@ var
 
 {$ELSE}
 
-  function SSL_CTX_set_tlsext_max_fragment_length(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_tlsext_max_fragment_length(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_tlsext_max_fragment_length(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT cdecl; external CLibSSL; {introduced 1.1.0}
+  function SSL_set_tlsext_max_fragment_length(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT cdecl; external CLibSSL; {introduced 1.1.0}
 
-  function SSL_get_servername(const s: PSSL; const type_: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
-  function SSL_get_servername_type(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_servername(const s: PSSL; const type_: TIdC_INT): PIdAnsiChar cdecl; external CLibSSL;
+  function SSL_get_servername_type(const s: PSSL): TIdC_INT cdecl; external CLibSSL;
   (*
    * SSL_export_keying_material exports a value derived from the master secret,
    * as specified in RFC 5705. It writes |olen| bytes to |out| given a label and
@@ -1223,7 +1225,7 @@ var
    * flag controls whether a context is included.) It returns 1 on success and
    * 0 or -1 otherwise.
    *)
-  function SSL_export_keying_material(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_export_keying_material(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT cdecl; external CLibSSL;
 
   (*
    * SSL_export_keying_material_early exports a value derived from the
@@ -1232,12 +1234,12 @@ var
    * |olen| bytes to |out| given a label and optional context. It
    * returns 1 on success and 0 otherwise.
    *)
-  function SSL_export_keying_material_early(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_export_keying_material_early(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT cdecl; external CLibSSL; {introduced 1.1.0}
 
-  function SSL_get_peer_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_sigalgs(s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
-  function SSL_get_shared_sigalgs(s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_peer_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl; external CLibSSL; {introduced 1.1.0}
+  function SSL_get_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl; external CLibSSL; {introduced 1.1.0}
+  function SSL_get_sigalgs(s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT cdecl; external CLibSSL;
+  function SSL_get_shared_sigalgs(s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT cdecl; external CLibSSL;
 
   //__owur TIdC_INT SSL_check_chain(s: PSSL, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain);
 
@@ -1311,7 +1313,7 @@ function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG; 
 implementation
 
 uses 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
   classes,
   IdSSLOpenSSLLoader,
   {$ENDIF}
@@ -1330,7 +1332,7 @@ const
 
 
 //# define SSL_set_tlsext_host_name(s,name)         SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name, (void *)name)
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   SSL_set_tlsext_host_name_procname = 'SSL_set_tlsext_host_name'; {removed 1.0.0}
 
@@ -1971,7 +1973,7 @@ end;
 
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibSSL');
   Register_SSLUnloader(@Unload);

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -122,7 +124,7 @@ var
   {$EXTERNALSYM DES_cfb64_encrypt}
   {$EXTERNALSYM DES_ofb64_encrypt}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   {$EXTERNALSYM DES_ecb2_encrypt}  {removed 1.0.0}
   {$EXTERNALSYM DES_ede2_cbc_encrypt}  {removed 1.0.0}
@@ -251,27 +253,27 @@ var
 
 
 (* Const before type ignored *)
-  function DES_options: PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_options: PIdAnsiChar cdecl; external CLibCrypto;
 
-  procedure DES_ecb3_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ecb3_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  function DES_cbc_cksum(input:Pbyte; output:PDES_cblock; length:longint; schedule:PDES_key_schedule; ivec:Pconst_DES_cblock):DES_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_cbc_cksum(input:Pbyte; output:PDES_cblock; length:longint; schedule:PDES_key_schedule; ivec:Pconst_DES_cblock):DES_LONG cdecl; external CLibCrypto;
 
     { DES_cbc_encrypt does not update the IV!  Use DES_ncbc_encrypt instead.  }
 (* Const before type ignored *)
-  procedure DES_cbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_cbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_ncbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ncbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_xcbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; inw:Pconst_DES_cblock; outw:Pconst_DES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_xcbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; inw:Pconst_DES_cblock; outw:Pconst_DES_cblock; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_cfb_encrypt(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_cfb_encrypt(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external CLibCrypto;
 
-  procedure DES_ecb_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks:PDES_key_schedule; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; 
+  procedure DES_ecb_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks:PDES_key_schedule; enc:longint) cdecl; external CLibCrypto; 
    {
      * This is the DES encryption function that gets called by just about every
      * other DES routine in the library.  You should not use this function except
@@ -282,7 +284,7 @@ var
      * long's and ks is the DES_key_schedule to use.  enc, is non zero specifies
      * encryption, zero if decryption.
       }
-  procedure DES_encrypt1(data:PDES_LONG; ks:PDES_key_schedule; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_encrypt1(data:PDES_LONG; ks:PDES_key_schedule; enc:longint) cdecl; external CLibCrypto;
 
     {
      * This functions is the same as DES_encrypt1() except that the DES initial
@@ -292,73 +294,73 @@ var
      * DES_encrypt2() DES_encrypt2() FP() is the same as DES_encrypt1()
      * DES_encrypt1() DES_encrypt1() except faster :-).
       }
-  procedure DES_encrypt2(data:PDES_LONG; ks:PDES_key_schedule; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_encrypt2(data:PDES_LONG; ks:PDES_key_schedule; enc:longint) cdecl; external CLibCrypto;
 
-  procedure DES_encrypt3(data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_encrypt3(data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule) cdecl; external CLibCrypto;
 
-  procedure DES_decrypt3(data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-
-(* Const before type ignored *)
-  procedure DES_ede3_cbc_encrypt(input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_decrypt3(data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_ede3_cfb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ede3_cbc_encrypt(input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_ede3_cfb_encrypt(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ede3_cfb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_ede3_ofb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ede3_cfb_encrypt(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-(* Const before type ignored *)
-  function DES_fcrypt(buf:PIdAnsiChar; salt:PIdAnsiChar; ret:PIdAnsiChar): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ede3_ofb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
 (* Const before type ignored *)
-  function DES_crypt(buf:PIdAnsiChar; salt:PIdAnsiChar): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_fcrypt(buf:PIdAnsiChar; salt:PIdAnsiChar; ret:PIdAnsiChar): PIdAnsiChar cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_ofb_encrypt(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+(* Const before type ignored *)
+  function DES_crypt(buf:PIdAnsiChar; salt:PIdAnsiChar): PIdAnsiChar cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_pcbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_ofb_encrypt(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  function DES_quad_cksum(input:Pbyte; output:PDES_cblock; length:longint; out_count:longint; seed:PDES_cblock):DES_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_pcbc_encrypt(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint) cdecl; external CLibCrypto;
 
-  function DES_random_key(ret:PDES_cblock):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+(* Const before type ignored *)
+  function DES_quad_cksum(input:Pbyte; output:PDES_cblock; length:longint; out_count:longint; seed:PDES_cblock):DES_LONG cdecl; external CLibCrypto;
 
-  procedure DES_set_odd_parity(key:PDES_cblock) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_random_key(ret:PDES_cblock):longint cdecl; external CLibCrypto;
 
-  function DES_check_key_parity(key:Pconst_DES_cblock):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_set_odd_parity(key:PDES_cblock) cdecl; external CLibCrypto;
 
-  function DES_is_weak_key(key:Pconst_DES_cblock):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_check_key_parity(key:Pconst_DES_cblock):longint cdecl; external CLibCrypto;
+
+  function DES_is_weak_key(key:Pconst_DES_cblock):longint cdecl; external CLibCrypto;
 
     {
      * DES_set_key (= set_key = DES_key_sched = key_sched) calls
      * DES_set_key_checked if global variable DES_check_key is set,
      * DES_set_key_unchecked otherwise.
       }
-  function DES_set_key(key:Pconst_DES_cblock; var schedule: DES_key_schedule):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_set_key(key:Pconst_DES_cblock; var schedule: DES_key_schedule):longint cdecl; external CLibCrypto;
 
-  function DES_key_sched(key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_key_sched(key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint cdecl; external CLibCrypto;
 
-  function DES_set_key_checked(key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function DES_set_key_checked(key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint cdecl; external CLibCrypto;
 
-  procedure DES_set_key_unchecked(key:Pconst_DES_cblock; schedule:PDES_key_schedule) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-
-(* Const before type ignored *)
-  procedure DES_string_to_key(str:PIdAnsiChar; key:PDES_cblock) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_set_key_unchecked(key:Pconst_DES_cblock; schedule:PDES_key_schedule) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_string_to_2keys(str:PIdAnsiChar; key1:PDES_cblock; key2:PDES_cblock) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_string_to_key(str:PIdAnsiChar; key:PDES_cblock) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_cfb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_string_to_2keys(str:PIdAnsiChar; key1:PDES_cblock; key2:PDES_cblock) cdecl; external CLibCrypto;
 
 (* Const before type ignored *)
-  procedure DES_ofb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure DES_cfb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint) cdecl; external CLibCrypto;
+
+(* Const before type ignored *)
+  procedure DES_ofb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint) cdecl; external CLibCrypto;
 
 
     procedure DES_ecb2_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; enc:longint);  {removed 1.0.0}
@@ -374,7 +376,7 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
@@ -385,7 +387,7 @@ const
   DES_ede2_ofb64_encrypt_removed = (byte(1) shl 8 or byte(0)) shl 8 or byte(0);
   DES_fixup_key_parity_removed = (byte(1) shl 8 or byte(0)) shl 8 or byte(0);
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   DES_ecb2_encrypt_procname = 'DES_ecb2_encrypt';  {removed 1.0.0}
   DES_ede2_cbc_encrypt_procname = 'DES_ede2_cbc_encrypt';  {removed 1.0.0}
@@ -2136,7 +2138,7 @@ end;
 
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

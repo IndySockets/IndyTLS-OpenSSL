@@ -14,21 +14,33 @@ interface
 implementation
 
 uses
-  IdGlobal, IdFIPS, IdSSLOpenSSLHeaders, IdHashMessageDigest,
+  IdGlobal, IdFIPS, IdSSLOpenSSLLoader, IdHashMessageDigest, IdOpenSSLHeaders_des,
   SysUtils;
 
 {$I IdCompilerDefines.inc}
+{$i IdSSLOpenSSLDefines.inc}
+{$IFNDEF USE_OPENSSL}
+  {$message error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 
 function LoadOpenSSL: Boolean;
 begin
-  Result := IdSSLOpenSSLHeaders.Load;
+  {$IFDEF OPENSSL_STATIC_LINK_MODEL}
+  Result := true;
+  {$ELSE}
+  Result := GetOpenSSLLoader.Load;
+  {$ENDIF}
 end;
 
 function IsNTLMFuncsAvail: Boolean;
 begin
+  {$IFDEF OPENSSL_STATIC_LINK_MODEL}
+  Result := true;
+  {$ELSE}
   Result := Assigned(DES_set_odd_parity) and
     Assigned(DES_set_key) and
     Assigned(DES_ecb_encrypt);
+  {$ENDIF}
 end;
 
 type
@@ -68,13 +80,13 @@ Var
 begin
   setup_des_key(keys^, ks);
   Move(ANonce[0], nonce, 8);
-  des_ecb_encrypt(@nonce, Pconst_DES_cblock(results), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, PDES_cblock(results), @ks, DES_ENCRYPT);
 
   setup_des_key(PDES_cblock(PtrUInt(keys) + 7)^, ks);
-  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 8), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, PDES_cblock(PtrUInt(results) + 8), @ks, DES_ENCRYPT);
 
   setup_des_key(PDES_cblock(PtrUInt(keys) + 14)^, ks);
-  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 16), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, PDES_cblock(PtrUInt(results) + 16), @ks, DES_ENCRYPT);
 end;
 
 Const
@@ -109,10 +121,10 @@ begin
   //* create LanManager hashed password */
 
   setup_des_key(pdes_cblock(@lm_pw[0])^, ks);
-  des_ecb_encrypt(@magic, Pconst_DES_cblock(@lm_hpw[0]), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@magic, PDES_cblock(@lm_hpw[0]), @ks, DES_ENCRYPT);
 
   setup_des_key(pdes_cblock(PtrUInt(@lm_pw[0]) + 7)^, ks);
-  des_ecb_encrypt(@magic, Pconst_DES_cblock(PtrUInt(@lm_hpw[0]) + 8), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@magic, PDES_cblock(PtrUInt(@lm_hpw[0]) + 8), @ks, DES_ENCRYPT);
 
   FillChar(lm_hpw[16], 5, 0);
 
@@ -133,10 +145,10 @@ begin
   CheckMD4Permitted;
   LMD4 := TIdHashMessageDigest4.Create;
   try
-    {$IFDEF STRING_IS_UNICODE}
+    {$IFNDEF STRING_IS_UNICODE}
     nt_hpw128 := LMD4.HashString(APassword, IndyTextEncoding_UTF16LE);
     {$ELSE}
-    nt_hpw128 := LMD4.HashBytes(BuildUnicode(APassword));
+//    nt_hpw128 := LMD4.HashBytes(BuildUnicode(APassword));
     {$ENDIF}
   finally
     LMD4.Free;
@@ -152,9 +164,9 @@ begin
 end;
 
 initialization
-  IdFIPS.LoadNTLMLibrary := LoadOpenSSL;
-  IdFIPS.IsNTLMFuncsAvail := IsNTLMFuncsAvail;
-  IdFIPS.NTLMGetLmChallengeResponse := SetupLanManagerPassword;
-  IdFIPS.NTLMGetNtChallengeResponse := CreateNTPassword;
+  IdFIPS.LoadNTLMLibrary := @LoadOpenSSL;
+  IdFIPS.IsNTLMFuncsAvail := @IsNTLMFuncsAvail;
+  IdFIPS.NTLMGetLmChallengeResponse := @SetupLanManagerPassword;
+  IdFIPS.NTLMGetNtChallengeResponse := @CreateNTPassword;
 
 end.

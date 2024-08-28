@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -91,7 +93,7 @@ uses
   {$EXTERNALSYM OPENSSL_sk_sort} {introduced 1.1.0}
   {$EXTERNALSYM OPENSSL_sk_is_sorted} {introduced 1.1.0}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   {$EXTERNALSYM sk_num} {removed 1.1.0}
   {$EXTERNALSYM sk_value} {removed 1.1.0}
@@ -168,30 +170,30 @@ var
   sk_is_sorted: function (st:POPENSSL_STACK):longint; cdecl = nil; {removed 1.1.0}
 
 {$ELSE}
-  function OPENSSL_sk_num(_para1:POPENSSL_STACK):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_new_null:POPENSSL_STACK cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_reserve(st:POPENSSL_STACK; n:longint):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  procedure OPENSSL_sk_free(_para1:POPENSSL_STACK) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  procedure OPENSSL_sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_delete(st:POPENSSL_STACK; loc:longint):pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_find(st:POPENSSL_STACK; data:pointer):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_find_ex(st:POPENSSL_STACK; data:pointer):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_push(st:POPENSSL_STACK; data:pointer):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_unshift(st:POPENSSL_STACK; data:pointer):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_shift(st:POPENSSL_STACK):pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_pop(st:POPENSSL_STACK):pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  procedure OPENSSL_sk_zero(st:POPENSSL_STACK) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_dup(st:POPENSSL_STACK):POPENSSL_STACK cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  procedure OPENSSL_sk_sort(st:POPENSSL_STACK) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_sk_is_sorted(st:POPENSSL_STACK):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
+  function OPENSSL_sk_num(_para1:POPENSSL_STACK):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_new_null:POPENSSL_STACK cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_reserve(st:POPENSSL_STACK; n:longint):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  procedure OPENSSL_sk_free(_para1:POPENSSL_STACK) cdecl; external CLibCrypto; {introduced 1.1.0}
+  procedure OPENSSL_sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc) cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_delete(st:POPENSSL_STACK; loc:longint):pointer cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_find(st:POPENSSL_STACK; data:pointer):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_find_ex(st:POPENSSL_STACK; data:pointer):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_push(st:POPENSSL_STACK; data:pointer):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_unshift(st:POPENSSL_STACK; data:pointer):longint cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_shift(st:POPENSSL_STACK):pointer cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_pop(st:POPENSSL_STACK):pointer cdecl; external CLibCrypto; {introduced 1.1.0}
+  procedure OPENSSL_sk_zero(st:POPENSSL_STACK) cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_dup(st:POPENSSL_STACK):POPENSSL_STACK cdecl; external CLibCrypto; {introduced 1.1.0}
+  procedure OPENSSL_sk_sort(st:POPENSSL_STACK) cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OPENSSL_sk_is_sorted(st:POPENSSL_STACK):longint cdecl; external CLibCrypto; {introduced 1.1.0}
 
 
   function sk_num(_para1:POPENSSL_STACK):longint; {removed 1.1.0}
@@ -226,7 +228,7 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
@@ -280,7 +282,7 @@ const
   sk_sort_removed = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
   sk_is_sorted_removed = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   OPENSSL_sk_num_procname = 'OPENSSL_sk_num'; {introduced 1.1.0}
   OPENSSL_sk_value_procname = 'OPENSSL_sk_value'; {introduced 1.1.0}
@@ -2467,7 +2469,7 @@ end;
 
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

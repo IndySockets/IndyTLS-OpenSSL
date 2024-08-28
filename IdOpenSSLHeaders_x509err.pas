@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -156,12 +158,12 @@ const
 	  
   {$EXTERNALSYM ERR_load_X509_strings}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   ERR_load_X509_strings: function : TIdC_INT; cdecl = nil;
 
 {$ELSE}
-  function ERR_load_X509_strings: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ERR_load_X509_strings: TIdC_INT cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -171,12 +173,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   ERR_load_X509_strings_procname = 'ERR_load_X509_strings';
 
@@ -237,7 +239,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -124,7 +126,7 @@ uses
   {$EXTERNALSYM private_RC4_set_key} {allow_nil}
   {$EXTERNALSYM RC4} {allow_nil}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   RC4_options: function : PIdAnsiChar; cdecl = nil; {allow_nil}
   RC4_set_key: procedure (key:PRC4_KEY; len: TIdC_LONG; const data:Pbyte); cdecl = nil; {allow_nil}
@@ -134,10 +136,10 @@ var
 {$ELSE}
 {interface_body}
 {$IFNDEF OPENSSL_NO_RC4}
-  function RC4_options: PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; 
-  procedure RC4_set_key(key:PRC4_KEY; len: TIdC_LONG; const data:Pbyte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; 
-  procedure private_RC4_set_key(key:PRC4_KEY; len: TIdC_LONG; const data:Pbyte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; 
-  procedure RC4(key:PRC4_KEY; len: TIdC_SIZET; const indata: Pbyte; outdata: Pbyte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; 
+  function RC4_options: PIdAnsiChar cdecl; external CLibCrypto; 
+  procedure RC4_set_key(key:PRC4_KEY; len: TIdC_LONG; const data:Pbyte) cdecl; external CLibCrypto; 
+  procedure private_RC4_set_key(key:PRC4_KEY; len: TIdC_LONG; const data:Pbyte) cdecl; external CLibCrypto; 
+  procedure RC4(key:PRC4_KEY; len: TIdC_SIZET; const indata: Pbyte; outdata: Pbyte) cdecl; external CLibCrypto; 
 {$ENDIF}
 
 {$ENDIF}
@@ -148,12 +150,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   RC4_options_procname = 'RC4_options'; {allow_nil}
   RC4_set_key_procname = 'RC4_set_key'; {allow_nil}
@@ -338,7 +340,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

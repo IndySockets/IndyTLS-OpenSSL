@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -60,7 +62,7 @@ uses
   {$EXTERNALSYM HMAC_CTX_set_flags}
   {$EXTERNALSYM HMAC_CTX_get_md} {introduced 1.1.0}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   {$EXTERNALSYM HMAC_CTX_init} {removed 1.1.0}
   {$EXTERNALSYM HMAC_CTX_cleanup} {removed 1.1.0}
@@ -81,19 +83,19 @@ var
   HMAC_CTX_get_md: function (const ctx: PHMAC_CTX): PEVP_MD; cdecl = nil; {introduced 1.1.0}
 
 {$ELSE}
-  function HMAC_size(const e: PHMAC_CTX): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function HMAC_CTX_new: PHMAC_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function HMAC_CTX_reset(ctx: PHMAC_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  procedure HMAC_CTX_free(ctx: PHMAC_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
+  function HMAC_size(const e: PHMAC_CTX): TIdC_SIZET cdecl; external CLibCrypto; {introduced 1.1.0}
+  function HMAC_CTX_new: PHMAC_CTX cdecl; external CLibCrypto; {introduced 1.1.0}
+  function HMAC_CTX_reset(ctx: PHMAC_CTX): TIdC_INT cdecl; external CLibCrypto; {introduced 1.1.0}
+  procedure HMAC_CTX_free(ctx: PHMAC_CTX) cdecl; external CLibCrypto; {introduced 1.1.0}
 
-  function HMAC_Init_ex(ctx: PHMAC_CTX; const key: Pointer; len: TIdC_INT; const md: PEVP_MD; impl: PENGINE): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function HMAC_Update(ctx: PHMAC_CTX; const data: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function HMAC_Final(ctx: PHMAC_CTX; md: PByte; len: PByte): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function HMAC(const evp_md: PEVP_MD; const key: Pointer; key_len: TIdC_INT; const d: PByte; n: TIdC_SIZET; md: PByte; md_len: PIdC_INT): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function HMAC_CTX_copy(dctx: PHMAC_CTX; sctx: PHMAC_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function HMAC_Init_ex(ctx: PHMAC_CTX; const key: Pointer; len: TIdC_INT; const md: PEVP_MD; impl: PENGINE): TIdC_INT cdecl; external CLibCrypto;
+  function HMAC_Update(ctx: PHMAC_CTX; const data: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function HMAC_Final(ctx: PHMAC_CTX; md: PByte; len: PByte): TIdC_INT cdecl; external CLibCrypto;
+  function HMAC(const evp_md: PEVP_MD; const key: Pointer; key_len: TIdC_INT; const d: PByte; n: TIdC_SIZET; md: PByte; md_len: PIdC_INT): PByte cdecl; external CLibCrypto;
+  function HMAC_CTX_copy(dctx: PHMAC_CTX; sctx: PHMAC_CTX): TIdC_INT cdecl; external CLibCrypto;
 
-  procedure HMAC_CTX_set_flags(ctx: PHMAC_CTX; flags: TIdC_ULONG) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function HMAC_CTX_get_md(const ctx: PHMAC_CTX): PEVP_MD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
+  procedure HMAC_CTX_set_flags(ctx: PHMAC_CTX; flags: TIdC_ULONG) cdecl; external CLibCrypto;
+  function HMAC_CTX_get_md(const ctx: PHMAC_CTX): PEVP_MD cdecl; external CLibCrypto; {introduced 1.1.0}
 
 {$ENDIF}
 
@@ -103,7 +105,7 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
@@ -118,7 +120,7 @@ const
 
 
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   HMAC_CTX_init_procname = 'HMAC_CTX_init'; {removed 1.1.0}
   HMAC_size_procname = 'HMAC_size'; {introduced 1.1.0}
@@ -710,7 +712,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

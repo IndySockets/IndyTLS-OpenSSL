@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -81,7 +83,7 @@ type
   {$EXTERNALSYM RAND_egd_bytes}
   {$EXTERNALSYM RAND_poll}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   RAND_set_rand_method: function (const meth: PRAND_METHOD): TIdC_INT; cdecl = nil;
   RAND_get_rand_method: function : PRAND_METHOD; cdecl = nil;
@@ -107,28 +109,28 @@ var
   RAND_poll: function : TIdC_INT; cdecl = nil;
 
 {$ELSE}
-  function RAND_set_rand_method(const meth: PRAND_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_get_rand_method: PRAND_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_set_rand_engine(engine: PENGINE): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function RAND_set_rand_method(const meth: PRAND_METHOD): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_get_rand_method: PRAND_METHOD cdecl; external CLibCrypto;
+  function RAND_set_rand_engine(engine: PENGINE): TIdC_INT cdecl; external CLibCrypto;
 
-  function RAND_OpenSSL: PRAND_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function RAND_OpenSSL: PRAND_METHOD cdecl; external CLibCrypto;
 
-  function RAND_bytes(buf: PByte; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_priv_bytes(buf: PByte; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function RAND_bytes(buf: PByte; num: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_priv_bytes(buf: PByte; num: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
-  procedure RAND_seed(const buf: Pointer; num: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure RAND_keep_random_devices_open(keep: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure RAND_seed(const buf: Pointer; num: TIdC_INT) cdecl; external CLibCrypto;
+  procedure RAND_keep_random_devices_open(keep: TIdC_INT) cdecl; external CLibCrypto;
 
-  procedure RAND_add(const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_load_file(const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_write_file(const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_status: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure RAND_add(const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE) cdecl; external CLibCrypto;
+  function RAND_load_file(const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_write_file(const file_: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_status: TIdC_INT cdecl; external CLibCrypto;
 
-  function RAND_query_egd_bytes(const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_egd(const path: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function RAND_egd_bytes(const path: PIdAnsiChar; bytes: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function RAND_query_egd_bytes(const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_egd(const path: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_egd_bytes(const path: PIdAnsiChar; bytes: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
-  function RAND_poll: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function RAND_poll: TIdC_INT cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -138,12 +140,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   RAND_set_rand_method_procname = 'RAND_set_rand_method';
   RAND_get_rand_method_procname = 'RAND_get_rand_method';
@@ -816,7 +818,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -86,7 +88,7 @@ type
   {$EXTERNALSYM OBJ_add_sigid}
   {$EXTERNALSYM OBJ_sigid_free}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   OBJ_NAME_init: function : TIdC_INT; cdecl = nil;
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
@@ -213,31 +215,31 @@ var
   OBJ_sigid_free: procedure ; cdecl = nil;
 
 {$ELSE}
-  function OBJ_NAME_init: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function OBJ_NAME_init: TIdC_INT cdecl; external CLibCrypto;
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
   //                       TIdC_INT (*cmp_func) (const PIdAnsiChar *; const PIdAnsiChar *);
   //                       void (*free_func) (const PIdAnsiChar *; TIdC_INT; const PIdAnsiChar *));
-  function OBJ_NAME_get(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_NAME_add(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_NAME_remove(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure OBJ_NAME_cleanup(type_: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function OBJ_NAME_get(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
+  function OBJ_NAME_add(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_NAME_remove(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  procedure OBJ_NAME_cleanup(type_: TIdC_INT) cdecl; external CLibCrypto;
 //  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
 //  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
 //                              void (*fn) (const OBJ_NAME *; void *arg);
 //                              void *arg);
 
-  function OBJ_dup(const o: PASN1_OBJECT): PASN1_OBJECT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_nid2obj(n: TIdC_INT): PASN1_OBJECT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_nid2ln(n: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_nid2sn(n: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_obj2nid(const o: PASN1_OBJECT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_txt2obj(const s: PIdAnsiChar; no_name: TIdC_INT): PASN1_OBJECT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_obj2txt(buf: PIdAnsiChar; buf_len: TIdC_INT; const a: PASN1_OBJECT; no_name: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_txt2nid(const s: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_ln2nid(const s: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_sn2nid(const s: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_cmp(const a: PASN1_OBJECT; const b: PASN1_OBJECT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function OBJ_dup(const o: PASN1_OBJECT): PASN1_OBJECT cdecl; external CLibCrypto;
+  function OBJ_nid2obj(n: TIdC_INT): PASN1_OBJECT cdecl; external CLibCrypto;
+  function OBJ_nid2ln(n: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
+  function OBJ_nid2sn(n: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
+  function OBJ_obj2nid(const o: PASN1_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_txt2obj(const s: PIdAnsiChar; no_name: TIdC_INT): PASN1_OBJECT cdecl; external CLibCrypto;
+  function OBJ_obj2txt(buf: PIdAnsiChar; buf_len: TIdC_INT; const a: PASN1_OBJECT; no_name: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_txt2nid(const s: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_ln2nid(const s: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_sn2nid(const s: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_cmp(const a: PASN1_OBJECT; const b: PASN1_OBJECT): TIdC_INT cdecl; external CLibCrypto;
 //  const void *OBJ_bsearch_(const void *key; const void *base; TIdC_INT num; TIdC_INT size;
 //                           TIdC_INT (*cmp) (const void *; const void *));
 //  const void *OBJ_bsearch_ex_(const void *key; const void *base; TIdC_INT num;
@@ -324,18 +326,18 @@ var
   //                          (void)type_2=CHECKED_PTR_OF(type2;cmp##_type_2); \
   //                          cmp##_BSEARCH_CMP_FN));flags)
 
-  function OBJ_new_nid(num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_add_object(const obj: PASN1_OBJECT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_create(const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_create_objects(in_: PBIO): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function OBJ_new_nid(num: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_add_object(const obj: PASN1_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_create(const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_create_objects(in_: PBIO): TIdC_INT cdecl; external CLibCrypto;
 
-  function OBJ_length(const obj: PASN1_OBJECT): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function OBJ_get0_data(const obj: PASN1_OBJECT): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
+  function OBJ_length(const obj: PASN1_OBJECT): TIdC_SIZET cdecl; external CLibCrypto; {introduced 1.1.0}
+  function OBJ_get0_data(const obj: PASN1_OBJECT): PByte cdecl; external CLibCrypto; {introduced 1.1.0}
 
-  function OBJ_find_sigid_algs(signid: TIdC_INT; pdig_nid: PIdC_INT; ppkey_nid: PIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_find_sigid_by_algs(psignid: PIdC_INT; dig_nid: TIdC_INT; pkey_nid: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function OBJ_add_sigid(signid: TIdC_INT; dig_id: TIdC_INT; pkey_id: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure OBJ_sigid_free cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function OBJ_find_sigid_algs(signid: TIdC_INT; pdig_nid: PIdC_INT; ppkey_nid: PIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_find_sigid_by_algs(psignid: PIdC_INT; dig_nid: TIdC_INT; pkey_nid: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_add_sigid(signid: TIdC_INT; dig_id: TIdC_INT; pkey_id: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  procedure OBJ_sigid_free cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -345,7 +347,7 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
@@ -353,7 +355,7 @@ const
   OBJ_length_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
   OBJ_get0_data_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   OBJ_NAME_init_procname = 'OBJ_NAME_init';
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
@@ -1608,7 +1610,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

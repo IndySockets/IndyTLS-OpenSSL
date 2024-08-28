@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -203,7 +205,7 @@ type
   {$EXTERNALSYM UI_UTIL_read_pw}
   {$EXTERNALSYM UI_UTIL_wrap_read_pem_callback}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   UI_new: function : PUI; cdecl = nil;
   UI_new_method: function (const method: PUI_Method): PUI; cdecl = nil;
@@ -446,9 +448,9 @@ var
   UI_UTIL_wrap_read_pem_callback: function (cb: pem_password_cb; rwflag: TIdC_INT): PUI_Method; cdecl = nil;
 
 {$ELSE}
-  function UI_new: PUI cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_new_method(const method: PUI_Method): PUI cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure UI_free(ui: PUI) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_new: PUI cdecl; external CLibCrypto;
+  function UI_new_method(const method: PUI_Method): PUI cdecl; external CLibCrypto;
+  procedure UI_free(ui: PUI) cdecl; external CLibCrypto;
 
   (*
    * The following functions are used to add strings to be printed and prompt
@@ -494,16 +496,16 @@ var
    * On success, the all return an index of the added information.  That index
    * is useful when retrieving results with UI_get0_result(). *)
 
-  function UI_add_input_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_dup_input_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_add_verify_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT; const test_buf: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_dup_verify_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT; const test_buf: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_add_input_boolean(ui: PUI; const prompt: PIdAnsiChar; const action_desc: PIdAnsiChar; const ok_chars: PIdAnsiChar; const cancel_chars: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_dup_input_boolean(ui: PUI; const prompt: PIdAnsiChar; const action_desc: PIdAnsiChar; const ok_chars: PIdAnsiChar; const cancel_chars: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_add_info_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_dup_info_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_add_error_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_dup_error_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_add_input_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function UI_dup_input_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function UI_add_verify_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT; const test_buf: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_dup_verify_string(ui: PUI; const prompt: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar; minsize: TIdC_INT; maxsize: TIdC_INT; const test_buf: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_add_input_boolean(ui: PUI; const prompt: PIdAnsiChar; const action_desc: PIdAnsiChar; const ok_chars: PIdAnsiChar; const cancel_chars: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_dup_input_boolean(ui: PUI; const prompt: PIdAnsiChar; const action_desc: PIdAnsiChar; const ok_chars: PIdAnsiChar; const cancel_chars: PIdAnsiChar; flags: TIdC_INT; result_buf: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_add_info_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_dup_info_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_add_error_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_dup_error_string(ui: PUI; const text: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
 
   (*
    * The following function helps construct a prompt.  object_desc is a
@@ -523,7 +525,7 @@ var
    *
    *       "Enter pass phrase for foo.key:"
    *)
-  function UI_construct_prompt(ui_method: PUI; const object_desc: PIdAnsiChar; const object_name: PIdAnsiChar): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_construct_prompt(ui_method: PUI; const object_desc: PIdAnsiChar; const object_name: PIdAnsiChar): PIdAnsiChar cdecl; external CLibCrypto;
 
   (*
    * The following function is used to store a pointer to user-specific data.
@@ -536,29 +538,29 @@ var
    * Note that the UI_OpenSSL() method completely ignores the user data. Other
    * methods may not, however.
    *)
-  function UI_add_user_data(ui: PUI; user_data: Pointer): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_add_user_data(ui: PUI; user_data: Pointer): Pointer cdecl; external CLibCrypto;
   (*
    * Alternatively, this function is used to duplicate the user data.
    * This uses the duplicator method function.  The destroy function will
    * be used to free the user data in this case.
    *)
-  function UI_dup_user_data(ui: PUI; user_data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_dup_user_data(ui: PUI; user_data: Pointer): TIdC_INT cdecl; external CLibCrypto;
   (* We need a user data retrieving function as well.  *)
-  function UI_get0_user_data(ui: PUI): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get0_user_data(ui: PUI): Pointer cdecl; external CLibCrypto;
 
   (* Return the result associated with a prompt given with the index i. *)
-  function UI_get0_result(ui: PUI; i: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_get_result_length(ui: PUI; i: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get0_result(ui: PUI; i: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
+  function UI_get_result_length(ui: PUI; i: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   (* When all strings have been added, process the whole thing. *)
-  function UI_process(ui: PUI): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_process(ui: PUI): TIdC_INT cdecl; external CLibCrypto;
 
   (*
    * Give a user interface parameterised control commands.  This can be used to
    * send down an integer, a data pointer or a function pointer, as well as be
    * used to get information from a UI.
    *)
-  function UI_ctrl(ui: PUI; cmd: TIdC_INT; i: TIdC_LONG; p: Pointer; f: UI_ctrl_f): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_ctrl(ui: PUI; cmd: TIdC_INT; i: TIdC_LONG; p: Pointer; f: UI_ctrl_f): TIdC_INT cdecl; external CLibCrypto;
 
 
   (* Some methods may use extra data *)
@@ -567,23 +569,23 @@ var
 
   //# define UI_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_UI, l, p, newf, dupf, freef)
-  function UI_set_ex_data(r: PUI; idx: TIdC_INT; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_get_ex_data(r: PUI; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_set_ex_data(r: PUI; idx: TIdC_INT; arg: Pointer): TIdC_INT cdecl; external CLibCrypto;
+  function UI_get_ex_data(r: PUI; idx: TIdC_INT): Pointer cdecl; external CLibCrypto;
 
   (* Use specific methods instead of the built-in one *)
-  procedure UI_set_default_method(const meth: PUI_Method) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_get_default_method: PUI_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_get_method(ui: PUI): PUI_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_set_method(ui: PUI; const meth: PUI_METHOD): PUI_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure UI_set_default_method(const meth: PUI_Method) cdecl; external CLibCrypto;
+  function UI_get_default_method: PUI_METHOD cdecl; external CLibCrypto;
+  function UI_get_method(ui: PUI): PUI_METHOD cdecl; external CLibCrypto;
+  function UI_set_method(ui: PUI; const meth: PUI_METHOD): PUI_METHOD cdecl; external CLibCrypto;
 
   (* The method with all the built-in thingies *)
-  function UI_OpenSSL: PUI_Method cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_OpenSSL: PUI_Method cdecl; external CLibCrypto;
 
   (*
    * NULL method.  Literally does nothing, but may serve as a placeholder
    * to avoid internal default.
    *)
-  function UI_null: PUI_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_null: PUI_METHOD cdecl; external CLibCrypto;
 
   (* ---------- For method writers ---------- *)
   (*
@@ -628,27 +630,27 @@ var
      the reader take a UI_STRING.
   *)
 
-  function UI_create_method(const name: PIdAnsiChar): PUI_Method cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure UI_destroy_method(ui_method: PUI_Method) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_create_method(const name: PIdAnsiChar): PUI_Method cdecl; external CLibCrypto;
+  procedure UI_destroy_method(ui_method: PUI_Method) cdecl; external CLibCrypto;
 
-  function UI_method_set_opener(method: PUI_Method; opener: UI_method_opener_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_writer(method: PUI_Method; writer: UI_method_writer_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_flusher(method: PUI_Method; flusher: UI_method_flusher_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_reader(method: PUI_Method; reader: UI_method_reader_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_closer(method: PUI_Method; closer: UI_method_closer_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_data_duplicator(method: PUI_Method; duplicator: UI_method_data_duplicator_cb; destructor_: UI_method_data_destructor_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_prompt_constructor(method: PUI_Method; prompt_constructor: UI_method_prompt_constructor_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_set_ex_data(method: PUI_Method; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_method_set_opener(method: PUI_Method; opener: UI_method_opener_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_writer(method: PUI_Method; writer: UI_method_writer_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_flusher(method: PUI_Method; flusher: UI_method_flusher_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_reader(method: PUI_Method; reader: UI_method_reader_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_closer(method: PUI_Method; closer: UI_method_closer_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_data_duplicator(method: PUI_Method; duplicator: UI_method_data_duplicator_cb; destructor_: UI_method_data_destructor_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_prompt_constructor(method: PUI_Method; prompt_constructor: UI_method_prompt_constructor_cb): TIdC_INT cdecl; external CLibCrypto;
+  function UI_method_set_ex_data(method: PUI_Method; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external CLibCrypto;
 
-  function UI_method_get_opener(const method: PUI_METHOD): UI_method_opener_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_writer(const method: PUI_METHOD): UI_method_writer_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_flusher(const method: PUI_METHOD): UI_method_flusher_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_reader(const method: PUI_METHOD): UI_method_reader_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_closer(const method: PUI_METHOD): UI_method_closer_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_prompt_constructor(const method: PUI_METHOD): UI_method_prompt_constructor_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_data_duplicator(const method: PUI_METHOD): UI_method_data_duplicator_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_data_destructor(const method: PUI_METHOD): UI_method_data_destructor_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_method_get_ex_data(const method: PUI_METHOD; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_method_get_opener(const method: PUI_METHOD): UI_method_opener_cb cdecl; external CLibCrypto;
+  function UI_method_get_writer(const method: PUI_METHOD): UI_method_writer_cb cdecl; external CLibCrypto;
+  function UI_method_get_flusher(const method: PUI_METHOD): UI_method_flusher_cb cdecl; external CLibCrypto;
+  function UI_method_get_reader(const method: PUI_METHOD): UI_method_reader_cb cdecl; external CLibCrypto;
+  function UI_method_get_closer(const method: PUI_METHOD): UI_method_closer_cb cdecl; external CLibCrypto;
+  function UI_method_get_prompt_constructor(const method: PUI_METHOD): UI_method_prompt_constructor_cb cdecl; external CLibCrypto;
+  function UI_method_get_data_duplicator(const method: PUI_METHOD): UI_method_data_duplicator_cb cdecl; external CLibCrypto;
+  function UI_method_get_data_destructor(const method: PUI_METHOD): UI_method_data_destructor_cb cdecl; external CLibCrypto;
+  function UI_method_get_ex_data(const method: PUI_METHOD; idx: TIdC_INT): Pointer cdecl; external CLibCrypto;
 
   (*
    * The following functions are helpers for method writers to access relevant
@@ -656,35 +658,35 @@ var
    *)
 
   (* Return type of the UI_STRING *)
-  function UI_get_string_type(uis: PUI_String): UI_string_types cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get_string_type(uis: PUI_String): UI_string_types cdecl; external CLibCrypto;
   (* Return input flags of the UI_STRING *)
-  function UI_get_input_flags(uis: PUI_String): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get_input_flags(uis: PUI_String): TIdC_INT cdecl; external CLibCrypto;
   (* Return the actual string to output (the prompt, info or error) *)
-  function UI_get0_output_string(uis: PUI_String): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get0_output_string(uis: PUI_String): PIdAnsiChar cdecl; external CLibCrypto;
   (*
    * Return the optional action string to output (the boolean prompt
    * instruction)
    *)
-  function UI_get0_action_string(uis: PUI_String): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get0_action_string(uis: PUI_String): PIdAnsiChar cdecl; external CLibCrypto;
   (* Return the result of a prompt *)
-  function UI_get0_result_string(uis: PUI_String): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_get_result_string_length(uis: PUI_String): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get0_result_string(uis: PUI_String): PIdAnsiChar cdecl; external CLibCrypto;
+  function UI_get_result_string_length(uis: PUI_String): TIdC_INT cdecl; external CLibCrypto;
   (*
    * Return the string to test the result against.  Only useful with verifies.
    *)
-  function UI_get0_test_string(uis: PUI_String): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get0_test_string(uis: PUI_String): PIdAnsiChar cdecl; external CLibCrypto;
   (* Return the required minimum size of the result *)
-  function UI_get_result_minsize(uis: PUI_String): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get_result_minsize(uis: PUI_String): TIdC_INT cdecl; external CLibCrypto;
   (* Return the required maximum size of the result *)
-  function UI_get_result_maxsize(uis: PUI_String): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_get_result_maxsize(uis: PUI_String): TIdC_INT cdecl; external CLibCrypto;
   (* Set the result of a UI_STRING. *)
-  function UI_set_result(ui: PUI; uis: PUI_String; const result: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_set_result_ex(ui: PUI; uis: PUI_String; const result: PIdAnsiChar; len: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_set_result(ui: PUI; uis: PUI_String; const result: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function UI_set_result_ex(ui: PUI; uis: PUI_String; const result: PIdAnsiChar; len: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   (* A couple of popular utility functions *)
-  function UI_UTIL_read_pw_string(buf: PIdAnsiChar; length: TIdC_INT; const prompt: PIdAnsiChar; verify: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_UTIL_read_pw(buf: PIdAnsiChar; buff: PIdAnsiChar; size: TIdC_INT; const prompt: PIdAnsiChar; verify: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function UI_UTIL_wrap_read_pem_callback(cb: pem_password_cb; rwflag: TIdC_INT): PUI_Method cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function UI_UTIL_read_pw_string(buf: PIdAnsiChar; length: TIdC_INT; const prompt: PIdAnsiChar; verify: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function UI_UTIL_read_pw(buf: PIdAnsiChar; buff: PIdAnsiChar; size: TIdC_INT; const prompt: PIdAnsiChar; verify: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function UI_UTIL_wrap_read_pem_callback(cb: pem_password_cb; rwflag: TIdC_INT): PUI_Method cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -694,12 +696,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   UI_new_procname = 'UI_new';
   UI_new_method_procname = 'UI_new_method';
@@ -1460,19 +1462,16 @@ end;
 
 
   (* Set the result of a UI_STRING. *)
-// Got [dcc32 Error] IdOpenSSLHeaders_ui.pas(1466): E2004 Identifier redeclared: 'Result'
-// Don't know why.
-//function  ERR_UI_set_result(ui: PUI; uis: PUI_String; const result: PIdAnsiChar): TIdC_INT;
-//begin
-//  EIdAPIFunctionNotPresent.RaiseException(UI_set_result_procname);
-//end;
+function  ERR_UI_set_result(ui: PUI; uis: PUI_String; const result: PIdAnsiChar): TIdC_INT; 
+begin
+  EIdAPIFunctionNotPresent.RaiseException(UI_set_result_procname);
+end;
 
-//Go [dcc32 Error] IdOpenSSLHeaders_ui.pas(1474): E2004 Identifier redeclared: 'Result'
-// Don't know why.
-//function  ERR_UI_set_result_ex(ui: PUI; uis: PUI_String; const result: PIdAnsiChar; len: TIdC_INT): TIdC_INT;
-//begin
-//  EIdAPIFunctionNotPresent.RaiseException(UI_set_result_ex_procname);
-//end;
+
+function  ERR_UI_set_result_ex(ui: PUI; uis: PUI_String; const result: PIdAnsiChar; len: TIdC_INT): TIdC_INT; 
+begin
+  EIdAPIFunctionNotPresent.RaiseException(UI_set_result_ex_procname);
+end;
 
 
 
@@ -3332,7 +3331,7 @@ begin
   if FuncLoadError then
   begin
     {$if not defined(UI_set_result_allownil)}
-//    UI_set_result := @ERR_UI_set_result;
+    UI_set_result := @ERR_UI_set_result;
     {$ifend}
     {$if declared(UI_set_result_introduced)}
     if LibVersion < UI_set_result_introduced then
@@ -3364,7 +3363,7 @@ begin
   if FuncLoadError then
   begin
     {$if not defined(UI_set_result_ex_allownil)}
-//    UI_set_result_ex := @ERR_UI_set_result_ex;
+    UI_set_result_ex := @ERR_UI_set_result_ex;
     {$ifend}
     {$if declared(UI_set_result_ex_introduced)}
     if LibVersion < UI_set_result_ex_introduced then
@@ -3557,10 +3556,9 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);
 {$ENDIF}
 end.
-

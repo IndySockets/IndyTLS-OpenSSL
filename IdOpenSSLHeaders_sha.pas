@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -124,7 +126,7 @@ type
   {$EXTERNALSYM SHA512}
   {$EXTERNALSYM SHA512_Transform}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   SHA1_Init: function (c: PSHA_CTX): TIdC_INT; cdecl = nil;
   SHA1_Update: function (c: PSHA_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
@@ -155,33 +157,33 @@ var
   SHA512_Transform: procedure (c: PSHA512_CTX; const data: PByte); cdecl = nil;
 
 {$ELSE}
-  function SHA1_Init(c: PSHA_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA1_Update(c: PSHA_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA1_Final(md: PByte; c: PSHA_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA1(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure SHA1_Transform(c: PSHA_CTX; const data: PByte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function SHA1_Init(c: PSHA_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA1_Update(c: PSHA_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function SHA1_Final(md: PByte; c: PSHA_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA1(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external CLibCrypto;
+  procedure SHA1_Transform(c: PSHA_CTX; const data: PByte) cdecl; external CLibCrypto;
 
-  function SHA224_Init(c: PSHA256_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA224_Update(c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA224_Final(md: PByte; c: PSHA256_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA224(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function SHA224_Init(c: PSHA256_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA224_Update(c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function SHA224_Final(md: PByte; c: PSHA256_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA224(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external CLibCrypto;
 
-  function SHA256_Init(c: PSHA256_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA256_Update(c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA256_Final(md: PByte; c: PSHA256_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA256(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure SHA256_Transform(c: PSHA256_CTX; const data: PByte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function SHA256_Init(c: PSHA256_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA256_Update(c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function SHA256_Final(md: PByte; c: PSHA256_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA256(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external CLibCrypto;
+  procedure SHA256_Transform(c: PSHA256_CTX; const data: PByte) cdecl; external CLibCrypto;
 
-  function SHA384_Init(c: PSHA512_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA384_Update(c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA384_Final(md: PByte; c: PSHA512_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA384(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function SHA384_Init(c: PSHA512_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA384_Update(c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function SHA384_Final(md: PByte; c: PSHA512_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA384(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external CLibCrypto;
 
-  function SHA512_Init(c: PSHA512_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA512_Update(c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA512_Final(md: PByte; c: PSHA512_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function SHA512(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure SHA512_Transform(c: PSHA512_CTX; const data: PByte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function SHA512_Init(c: PSHA512_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA512_Update(c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function SHA512_Final(md: PByte; c: PSHA512_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function SHA512(const d: PByte; n: TIdC_SIZET; md: PByte): PByte cdecl; external CLibCrypto;
+  procedure SHA512_Transform(c: PSHA512_CTX; const data: PByte) cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -191,12 +193,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   SHA1_Init_procname = 'SHA1_Init';
   SHA1_Update_procname = 'SHA1_Update';
@@ -1145,7 +1147,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

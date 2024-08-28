@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -83,7 +85,7 @@ type
   {$EXTERNALSYM TXT_DB_get_by_index}
   {$EXTERNALSYM TXT_DB_insert}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   TXT_DB_read: function (in_: PBIO; num: TIdC_INT): PTXT_DB; cdecl = nil;
   TXT_DB_write: function (out_: PBIO; db: PTXT_DB): TIdC_LONG; cdecl = nil;
@@ -93,12 +95,12 @@ var
   TXT_DB_insert: function (db: PTXT_DB; value: POPENSSL_STRING): TIdC_INT; cdecl = nil;
 
 {$ELSE}
-  function TXT_DB_read(in_: PBIO; num: TIdC_INT): PTXT_DB cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function TXT_DB_write(out_: PBIO; db: PTXT_DB): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function TXT_DB_read(in_: PBIO; num: TIdC_INT): PTXT_DB cdecl; external CLibCrypto;
+  function TXT_DB_write(out_: PBIO; db: PTXT_DB): TIdC_LONG cdecl; external CLibCrypto;
   //function TXT_DB_create_index(db: PTXT_DB; field: TIdC_INT; qual: TXT_DB_create_index_qual; hash: OPENSSL_LH_HashFunc; cmp: OPENSSL_LH_COMPFUNC): TIdC_INT;
-  procedure TXT_DB_free(db: PTXT_DB) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function TXT_DB_get_by_index(db: PTXT_DB; idx: TIdC_INT; value: POPENSSL_STRING): POPENSSL_STRING cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function TXT_DB_insert(db: PTXT_DB; value: POPENSSL_STRING): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure TXT_DB_free(db: PTXT_DB) cdecl; external CLibCrypto;
+  function TXT_DB_get_by_index(db: PTXT_DB; idx: TIdC_INT; value: POPENSSL_STRING): POPENSSL_STRING cdecl; external CLibCrypto;
+  function TXT_DB_insert(db: PTXT_DB; value: POPENSSL_STRING): TIdC_INT cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -108,12 +110,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   TXT_DB_read_procname = 'TXT_DB_read';
   TXT_DB_write_procname = 'TXT_DB_write';
@@ -336,7 +338,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

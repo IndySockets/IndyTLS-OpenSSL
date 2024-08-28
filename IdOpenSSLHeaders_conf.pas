@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -132,7 +134,7 @@ const
   {$EXTERNALSYM CONF_parse_list}
   {$EXTERNALSYM OPENSSL_load_builtin_modules}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   CONF_set_default_method: function (meth: PCONF_METHOD): TIdC_INT; cdecl = nil;
 //  (*
@@ -216,7 +218,7 @@ var
   OPENSSL_load_builtin_modules: procedure ; cdecl = nil;
 
 {$ELSE}
-  function CONF_set_default_method(meth: PCONF_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function CONF_set_default_method(meth: PCONF_METHOD): TIdC_INT cdecl; external CLibCrypto;
 //  (*
 //  void CONF_set_nconf(CONF *conf, LHASH_OF(CONF_VALUE) *hash);
 //  LHASH_OF(CONF_VALUE) *CONF_load(LHASH_OF(CONF_VALUE) *conf, const char *file, long *eline);
@@ -257,45 +259,45 @@ var
   //    LHASH_OF(CONF_VALUE) *data;
   //  end;
 
-  function NCONF_new(meth: PCONF_METHOD): PCONF cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function NCONF_default: PCONF_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function NCONF_WIN32: PCONF_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure NCONF_free(conf: PCONF) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure NCONF_free_data(conf: PCONF) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function NCONF_new(meth: PCONF_METHOD): PCONF cdecl; external CLibCrypto;
+  function NCONF_default: PCONF_METHOD cdecl; external CLibCrypto;
+  function NCONF_WIN32: PCONF_METHOD cdecl; external CLibCrypto;
+  procedure NCONF_free(conf: PCONF) cdecl; external CLibCrypto;
+  procedure NCONF_free_data(conf: PCONF) cdecl; external CLibCrypto;
 
-  function NCONF_load(conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function NCONF_load_bio(conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function NCONF_load(conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
+  function NCONF_load_bio(conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
   //STACK_OF(CONF_VALUE) *NCONF_get_section(const CONF *conf,
   //                                        const char *section);
-  function NCONF_get_string(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar): PAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function NCONF_get_number_e(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function NCONF_dump_bio(const conf: PCONf; out_: PBIO): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function NCONF_get_string(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar): PAnsiChar cdecl; external CLibCrypto;
+  function NCONF_get_number_e(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
+  function NCONF_dump_bio(const conf: PCONf; out_: PBIO): TIdC_INT cdecl; external CLibCrypto;
 
   //#define NCONF_get_number(c,g,n,r) NCONF_get_number_e(c,g,n,r)
 
   //* Module functions */
 
-  function CONF_modules_load(const cnf: PCONF; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function CONF_modules_load_file(const filename: PAnsiChar; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function CONF_modules_load(const cnf: PCONF; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
+  function CONF_modules_load_file(const filename: PAnsiChar; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
 
-  procedure CONF_modules_unload(all: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure CONF_modules_finish cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function CONF_module_add(const name: PAnsiChar; ifunc: conf_init_func; ffunc: conf_finish_func): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure CONF_modules_unload(all: TIdC_INT) cdecl; external CLibCrypto;
+  procedure CONF_modules_finish cdecl; external CLibCrypto;
+  function CONF_module_add(const name: PAnsiChar; ifunc: conf_init_func; ffunc: conf_finish_func): TIdC_INT cdecl; external CLibCrypto;
 
   //const char *CONF_imodule_get_name(const CONF_IMODULE *md);
   //const char *CONF_imodule_get_value(const CONF_IMODULE *md);
-  function CONF_imodule_get_usr_data(const md: PCONF_IMODULE): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure CONF_imodule_set_usr_data(md: PCONF_IMODULE; usr_data: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function CONF_imodule_get_module(const md: PCONF_IMODULE): PCONF_MODULE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function CONF_imodule_get_flags(const md: PCONF_IMODULE): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure CONF_imodule_set_flags(md: PCONF_IMODULE; flags: TIdC_ULONG) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function CONF_module_get_usr_data(pmod: PCONF_MODULE): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure CONF_module_set_usr_data(pmod: PCONF_MODULE; usr_data: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function CONF_imodule_get_usr_data(const md: PCONF_IMODULE): Pointer cdecl; external CLibCrypto;
+  procedure CONF_imodule_set_usr_data(md: PCONF_IMODULE; usr_data: Pointer) cdecl; external CLibCrypto;
+  function CONF_imodule_get_module(const md: PCONF_IMODULE): PCONF_MODULE cdecl; external CLibCrypto;
+  function CONF_imodule_get_flags(const md: PCONF_IMODULE): TIdC_ULONG cdecl; external CLibCrypto;
+  procedure CONF_imodule_set_flags(md: PCONF_IMODULE; flags: TIdC_ULONG) cdecl; external CLibCrypto;
+  function CONF_module_get_usr_data(pmod: PCONF_MODULE): Pointer cdecl; external CLibCrypto;
+  procedure CONF_module_set_usr_data(pmod: PCONF_MODULE; usr_data: Pointer) cdecl; external CLibCrypto;
 
-  function CONF_get1_default_config_file: PAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function CONF_parse_list(const list: PAnsiChar; sep: TIdC_INT; nospc: TIdC_INT; list_cb: CONF_parse_list_list_cb; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function CONF_get1_default_config_file: PAnsiChar cdecl; external CLibCrypto;
+  function CONF_parse_list(const list: PAnsiChar; sep: TIdC_INT; nospc: TIdC_INT; list_cb: CONF_parse_list_list_cb; arg: Pointer): TIdC_INT cdecl; external CLibCrypto;
 
-  procedure OPENSSL_load_builtin_modules cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure OPENSSL_load_builtin_modules cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -305,12 +307,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   CONF_set_default_method_procname = 'CONF_set_default_method';
 //  (*
@@ -491,12 +493,11 @@ begin
   EIdAPIFunctionNotPresent.RaiseException(NCONF_get_string_procname);
 end;
 
-//Got [dcc32 Error] IdOpenSSLHeaders_conf.pas(498): E2004 Identifier redeclared: 'Result'
-// Don't know why.
-//function  ERR_NCONF_get_number(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT;
-//begin
-//  EIdAPIFunctionNotPresent.RaiseException(NCONF_get_number_e_procname);
-//end;
+
+function  ERR_NCONF_get_number_e(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT; 
+begin
+  EIdAPIFunctionNotPresent.RaiseException(NCONF_get_number_e_procname);
+end;
 
 
 function  ERR_NCONF_dump_bio(const conf: PCONf; out_: PBIO): TIdC_INT; 
@@ -907,7 +908,7 @@ begin
   if FuncLoadError then
   begin
     {$if not defined(NCONF_get_number_e_allownil)}
-//    NCONF_get_number_e := @ERR_NCONF_get_number_e;
+    NCONF_get_number_e := @ERR_NCONF_get_number_e;
     {$ifend}
     {$if declared(NCONF_get_number_e_introduced)}
     if LibVersion < NCONF_get_number_e_introduced then
@@ -1480,7 +1481,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

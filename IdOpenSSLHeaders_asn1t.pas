@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -991,7 +993,7 @@ const
   {$EXTERNALSYM ASN1_item_ex_d2i}
   {$EXTERNALSYM ASN1_item_ex_i2d}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   ASN1_item_ex_new: function (pval: PPASN1_VALUE; const it: PASN1_ITEM): TIdC_INT; cdecl = nil;
   ASN1_item_ex_free: procedure (pval: PPASN1_VALUE; const it: PASN1_ITEM); cdecl = nil;
@@ -1001,12 +1003,12 @@ var
   ASN1_item_ex_i2d: function (pval: PPASN1_VALUE; AOut: PPByte; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT): TIdC_INT; cdecl = nil;
 
 {$ELSE}
-  function ASN1_item_ex_new(pval: PPASN1_VALUE; const it: PASN1_ITEM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure ASN1_item_ex_free(pval: PPASN1_VALUE; const it: PASN1_ITEM) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ASN1_item_ex_new(pval: PPASN1_VALUE; const it: PASN1_ITEM): TIdC_INT cdecl; external CLibCrypto;
+  procedure ASN1_item_ex_free(pval: PPASN1_VALUE; const it: PASN1_ITEM) cdecl; external CLibCrypto;
 
-  function ASN1_item_ex_d2i(pval: PPASN1_VALUE; const AIn: PPByte; len: TIdC_LONG; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT; opt: AnsiChar; ctx: PASN1_TLC): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ASN1_item_ex_d2i(pval: PPASN1_VALUE; const AIn: PPByte; len: TIdC_LONG; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT; opt: AnsiChar; ctx: PASN1_TLC): TIdC_INT cdecl; external CLibCrypto;
 
-  function ASN1_item_ex_i2d(pval: PPASN1_VALUE; AOut: PPByte; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ASN1_item_ex_i2d(pval: PPASN1_VALUE; AOut: PPByte; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -1016,12 +1018,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   ASN1_item_ex_new_procname = 'ASN1_item_ex_new';
   ASN1_item_ex_free_procname = 'ASN1_item_ex_free';
@@ -1206,7 +1208,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -65,7 +67,7 @@ type
   {$EXTERNALSYM BUF_MEM_grow_clean}
   {$EXTERNALSYM BUF_reverse}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   BUF_MEM_new: function : PBUF_MEM; cdecl = nil;
   BUF_MEM_new_ex: function (flags: TIdC_ULONG): PBUF_MEM; cdecl = nil;
@@ -75,12 +77,12 @@ var
   BUF_reverse: procedure (out_: PByte; const in_: PByte; siz: TIdC_SIZET); cdecl = nil;
 
 {$ELSE}
-  function BUF_MEM_new: PBUF_MEM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function BUF_MEM_new_ex(flags: TIdC_ULONG): PBUF_MEM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure BUF_MEM_free(a: PBUF_MEM) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function BUF_MEM_grow(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function BUF_MEM_grow_clean(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure BUF_reverse(out_: PByte; const in_: PByte; siz: TIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function BUF_MEM_new: PBUF_MEM cdecl; external CLibCrypto;
+  function BUF_MEM_new_ex(flags: TIdC_ULONG): PBUF_MEM cdecl; external CLibCrypto;
+  procedure BUF_MEM_free(a: PBUF_MEM) cdecl; external CLibCrypto;
+  function BUF_MEM_grow(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl; external CLibCrypto;
+  function BUF_MEM_grow_clean(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl; external CLibCrypto;
+  procedure BUF_reverse(out_: PByte; const in_: PByte; siz: TIdC_SIZET) cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -90,12 +92,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   BUF_MEM_new_procname = 'BUF_MEM_new';
   BUF_MEM_new_ex_procname = 'BUF_MEM_new_ex';
@@ -356,7 +358,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

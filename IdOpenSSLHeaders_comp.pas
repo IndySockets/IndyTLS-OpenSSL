@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -59,7 +61,7 @@ uses
   {$EXTERNALSYM COMP_zlib}
   {$EXTERNALSYM BIO_f_zlib}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   COMP_CTX_new: function (meth: PCOMP_METHOD): PCOMP_CTX; cdecl = nil;
   COMP_CTX_get_method: function (const ctx: PCOMP_CTX): PCOMP_METHOD; cdecl = nil;
@@ -76,19 +78,19 @@ var
   BIO_f_zlib: function : PBIO_METHOD; cdecl = nil;
 
 {$ELSE}
-  function COMP_CTX_new(meth: PCOMP_METHOD): PCOMP_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function COMP_CTX_get_method(const ctx: PCOMP_CTX): PCOMP_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function COMP_CTX_get_type(const comp: PCOMP_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function COMP_get_type(const meth: PCOMP_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function COMP_get_name(const meth: PCOMP_METHOD): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure COMP_CTX_free(ctx: PCOMP_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function COMP_CTX_new(meth: PCOMP_METHOD): PCOMP_CTX cdecl; external CLibCrypto;
+  function COMP_CTX_get_method(const ctx: PCOMP_CTX): PCOMP_METHOD cdecl; external CLibCrypto;
+  function COMP_CTX_get_type(const comp: PCOMP_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function COMP_get_type(const meth: PCOMP_METHOD): TIdC_INT cdecl; external CLibCrypto;
+  function COMP_get_name(const meth: PCOMP_METHOD): PIdAnsiChar cdecl; external CLibCrypto;
+  procedure COMP_CTX_free(ctx: PCOMP_CTX) cdecl; external CLibCrypto;
 
-  function COMP_compress_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function COMP_expand_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function COMP_compress_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function COMP_expand_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
-  function COMP_zlib: PCOMP_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function COMP_zlib: PCOMP_METHOD cdecl; external CLibCrypto;
 
-  function BIO_f_zlib: PBIO_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function BIO_f_zlib: PBIO_METHOD cdecl; external CLibCrypto;
 
 {$ENDIF}
 
@@ -98,12 +100,12 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   COMP_CTX_new_procname = 'COMP_CTX_new';
   COMP_CTX_get_method_procname = 'COMP_CTX_get_method';
@@ -530,7 +532,7 @@ end;
 {$ELSE}
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);

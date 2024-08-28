@@ -26,6 +26,9 @@ interface
 
 {$i IdCompilerDefines.inc}
 {$i IdSSLOpenSSLDefines.inc}
+{$IFNDEF USE_OPENSSL}
+  {$message error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 
 
 const
@@ -44,9 +47,31 @@ const
 
   {The following lists are used when trying to locate the libcrypto and libssl libraries.
    Default sufficies can be replaced by setting the IOpenSSLLoader.GetSSLLibVersions property}
+  {$IFDEF OPENSSL_USE_STATIC_LIBRARY}
+  CLibCrypto = '';
+  CLibSSL = '';
+  {$LINKLIB ssl.a}
+  {$LINKLIB crypto.a}
+  {$ENDIF}
+  
+  {$IFDEF OPENSSL_USE_SHARED_LIBRARY}
+    {$IFDEF UNIX}
+    CLibCrypto = 'crypto';
+    CLibSSL = 'ssl';
+    {$ENDIF}
+    {$IFDEF WINDOWS}
+      {$IFDEF CPU64}
+        CLibCrypto = 'libcrypto-3-x64.dll';
+        CLibSSL = 'libssl-3-x64.dll';
+      {$ENDIF}
+      {$IFDEF CPU32}
+        CLibCrypto = 'libcrypto-3.dll';
+        CLibSSL = 'libssl-3.dll';
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+  
   {$IFDEF UNIX}
-  CLibCrypto = 'crypto';
-  CLibSSL = 'ssl';
   DirListDelimiter = ':';
   LibSuffix = '.so';
   DefaultLibVersions = '.3:.1.1:.1.0.2:.1.0.0:.0.9.9:.0.9.8:.0.9.7:.0.9.6';
@@ -57,16 +82,12 @@ const
   LegacyLibCrypto = 'libeay32';
   LegacyLibssl = 'ssleay32';
 
-  {$IFDEF CPU64}
-  CLibCrypto = 'libcrypto-3-x64.dll';
-  CLibSSL = 'libssl-3-x64.dll';
-  DefaultLibVersions = '-3-x64;-1_1-x64;-1-x64;';
-  {$ENDIF}
-  {$IFDEF CPU32}
-  CLibCrypto = 'libcrypto-3.dll';
-  CLibSSL = 'libssl-3.dll';
-  DefaultLibVersions = '-3;-1_1;-1;';
-  {$ENDIF}
+    {$IFDEF CPU64}
+    DefaultLibVersions = '-3-x64;-1_1-x64;-1-x64;';
+    {$ENDIF}
+    {$IFDEF CPU32}
+    DefaultLibVersions = '-3;-1_1;-1;';
+    {$ENDIF}
   {$ENDIF}
 
 implementation

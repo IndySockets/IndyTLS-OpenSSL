@@ -29,6 +29,9 @@ unit IdSSLOpenSSLLoader;
 
 {$i IdCompilerDefines.inc}
 {$i IdSSLOpenSSLDefines.inc}
+{$IFNDEF USE_OPENSSL}
+  {$message error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 
 interface
 
@@ -70,7 +73,7 @@ uses
   IdSSLOpenSSLExceptionHandlers,
   IdResourceStringsOpenSSL
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
   {$IFDEF WINDOWS},Windows{$ENDIF}
   {$IFDEF FPC},dynlibs{$ENDIF}
 
@@ -119,7 +122,7 @@ begin
   GUnLoadList.Add(@UnloadProc);
 end;
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 type
 
   { TOpenSSLLoader }
@@ -180,10 +183,8 @@ function TOpenSSLLoader.FindLibrary(LibName, LibVersions: string): TIdLibHandle;
 var LibVersionsList: TStringList;
   i: integer;
 begin
-  Result := NilHandle;
-  if LibVersions = '' then
-    Result := DoLoadLibrary(OpenSSLPath + LibName)
-  else
+  Result := DoLoadLibrary(OpenSSLPath + LibName);
+  if (Result = NilHandle) and (LibVersions <> '') then
   begin
     LibVersionsList := TStringList.Create;
     try
@@ -318,7 +319,7 @@ end;
 {$ENDIF}
 
 initialization
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
   GOpenSSLLoader := TOpenSSLLoader.Create();
 {$ENDIF}
 

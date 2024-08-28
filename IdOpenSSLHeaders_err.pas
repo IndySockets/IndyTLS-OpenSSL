@@ -5,8 +5,10 @@
    *)
    
 {$i IdCompilerDefines.inc} 
-{$i IdSSLOpenSSLDefines.inc}
-
+{$i IdSSLOpenSSLDefines.inc} 
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -228,7 +230,7 @@ function ERR_GET_LIB(l: TIdC_INT): TIdC_ULONG;
 {\helper_functions}
 
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 var
   {$EXTERNALSYM ERR_put_error} {removed 3.0.0}
   {$EXTERNALSYM SSLErr} {removed 1.0.0}
@@ -295,46 +297,46 @@ var
      ERR_set_debug((file), (line), OPENSSL_FUNC),
      ERR_set_error((lib), (reason), NULL))}
 
-  procedure ERR_new cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
-  procedure ERR_set_debug(const file_: PIdAnsiChar; line: integer; const func: PIdAnsiChar) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};  {introduced 3.0.0}
-  procedure ERR_set_error(lib: integer; reason: integer; fmt: PIdAnsiChar; args: array of const) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
+  procedure ERR_new cdecl; external CLibCrypto; {introduced 3.0.0}
+  procedure ERR_set_debug(const file_: PIdAnsiChar; line: integer; const func: PIdAnsiChar) cdecl; external CLibCrypto;  {introduced 3.0.0}
+  procedure ERR_set_error(lib: integer; reason: integer; fmt: PIdAnsiChar; args: array of const) cdecl; external CLibCrypto; {introduced 3.0.0}
 
 
-  procedure ERR_set_error_data(data: PIdAnsiChar; flags: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure ERR_set_error_data(data: PIdAnsiChar; flags: TIdC_INT) cdecl; external CLibCrypto;
   
-  function ERR_get_error: TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_get_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_get_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ERR_get_error: TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_get_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_get_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
 
-  function ERR_peek_error: TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_peek_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_peek_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ERR_peek_error: TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
 
-  function ERR_peek_last_error: TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_peek_last_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_peek_last_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ERR_peek_last_error: TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_last_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_last_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
 
-  procedure ERR_clear_error cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_error_string(e: TIdC_ULONG; buf: PIdAnsiChar): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure ERR_error_string_n(e: TIdC_ULONG; buf: PIdAnsiChar; len: TIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_lib_error_string(e: TIdC_ULONG): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_func_error_string(e: TIdC_ULONG): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_reason_error_string(e: TIdC_ULONG): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  procedure ERR_print_errors_cb(cb: ERR_print_errors_cb_cb; u: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure ERR_clear_error cdecl; external CLibCrypto;
+  function ERR_error_string(e: TIdC_ULONG; buf: PIdAnsiChar): PIdAnsiChar cdecl; external CLibCrypto;
+  procedure ERR_error_string_n(e: TIdC_ULONG; buf: PIdAnsiChar; len: TIdC_SIZET) cdecl; external CLibCrypto;
+  function ERR_lib_error_string(e: TIdC_ULONG): PIdAnsiChar cdecl; external CLibCrypto;
+  function ERR_func_error_string(e: TIdC_ULONG): PIdAnsiChar cdecl; external CLibCrypto;
+  function ERR_reason_error_string(e: TIdC_ULONG): PIdAnsiChar cdecl; external CLibCrypto;
+  procedure ERR_print_errors_cb(cb: ERR_print_errors_cb_cb; u: Pointer) cdecl; external CLibCrypto;
 
-  procedure ERR_print_errors(bp: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure ERR_print_errors(bp: PBIO) cdecl; external CLibCrypto;
   // void ERR_add_error_data(int num, ...);
   // procedure ERR_add_error_vdata(num: TIdC_INT; args: va_list);
-  function ERR_load_strings(lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_load_strings_const(str: PERR_STRING_DATA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
-  function ERR_unload_strings(lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_load_ERR_strings: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  function ERR_load_strings(lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT cdecl; external CLibCrypto;
+  function ERR_load_strings_const(str: PERR_STRING_DATA): TIdC_INT cdecl; external CLibCrypto; {introduced 1.1.0}
+  function ERR_unload_strings(lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT cdecl; external CLibCrypto;
+  function ERR_load_ERR_strings: TIdC_INT cdecl; external CLibCrypto;
 
-  function ERR_get_state: PERR_STATE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_get_next_error_library: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_set_mark: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_pop_to_mark: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
-  function ERR_clear_last_mark: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
+  function ERR_get_state: PERR_STATE cdecl; external CLibCrypto;
+  function ERR_get_next_error_library: TIdC_INT cdecl; external CLibCrypto;
+  function ERR_set_mark: TIdC_INT cdecl; external CLibCrypto;
+  function ERR_pop_to_mark: TIdC_INT cdecl; external CLibCrypto;
+  function ERR_clear_last_mark: TIdC_INT cdecl; external CLibCrypto; {introduced 1.1.0}
 
 
   procedure ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); {removed 3.0.0}
@@ -349,7 +351,7 @@ implementation
     classes, 
     IdSSLOpenSSLExceptionHandlers, 
     IdResourceStringsOpenSSL
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
     ,IdSSLOpenSSLLoader
   {$ENDIF};
   
@@ -371,7 +373,7 @@ begin
 end;
 {\helper_functions}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 const
   ERR_put_error_procname = 'ERR_put_error'; {removed 3.0.0}
 
@@ -1842,7 +1844,7 @@ end;
 
 {$ENDIF}
 
-{$IFNDEF USE_EXTERNAL_LIBRARY}
+{$IFNDEF OPENSSL_STATIC_LINK_MODEL}
 initialization
   Register_SSLLoader(@Load,'LibCrypto');
   Register_SSLUnloader(@Unload);
