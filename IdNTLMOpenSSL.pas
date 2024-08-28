@@ -129,6 +129,10 @@ var
   nt_hpw128: TIdBytes;
   nt_resp: array [1..24] of Byte;
   LMD4: TIdHashMessageDigest4;
+  {$IFNDEF STRING_IS_UNICODE}
+  i: integer;
+  lPwUnicode: TIdBytes;
+  {$ENDIF}
 begin
   CheckMD4Permitted;
   LMD4 := TIdHashMessageDigest4.Create;
@@ -136,7 +140,14 @@ begin
     {$IFDEF STRING_IS_UNICODE}
     nt_hpw128 := LMD4.HashString(APassword, IndyTextEncoding_UTF16LE);
     {$ELSE}
-    nt_hpw128 := LMD4.HashBytes(BuildUnicode(APassword));
+    // RLebeau: TODO - should this use UTF-16 as well?  This logic will
+    // not produce a valid Unicode string if non-ASCII characters are present!
+    SetLength(lPwUnicode, Length(S) * SizeOf(WideChar));
+    for i := 0 to Length(S)-1 do begin
+      lPwUnicode[i*2] := Byte(S[i+1]);
+      lPwUnicode[(i*2)+1] := Byte(#0);
+    end;
+    nt_hpw128 := LMD4.HashBytes(lPwUnicode);
     {$ENDIF}
   finally
     LMD4.Free;
