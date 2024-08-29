@@ -1973,14 +1973,11 @@ begin
     end;
     try
       case AType of
-        // TODO
-        {
         SSL_FILETYPE_ASN1:
           begin
             j := ERR_R_ASN1_LIB;
             LDH := d2i_DHparams_bio(B, nil);
           end;
-        }
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_DH_LIB;
@@ -2158,14 +2155,11 @@ begin
   if Assigned(B) then begin
     try
       case AType of
-        // TODO
-        {
         SSL_FILETYPE_ASN1:
           begin
             j := ERR_R_ASN1_LIB;
             LDH := d2i_DHparams_bio(B, nil);
           end;
-        }
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_DH_LIB;
@@ -2263,14 +2257,11 @@ begin
   if Assigned(B) then begin
     try
       case AType of
-        // TODO
-        {
         SSL_FILETYPE_ASN1:
           begin
             j := ERR_R_ASN1_LIB;
             LDH := d2i_DHparams_bio(B, nil);
           end;
-        }
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_DH_LIB;
