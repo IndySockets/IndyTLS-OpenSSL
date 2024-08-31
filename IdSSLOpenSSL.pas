@@ -492,6 +492,7 @@ type
     fOnVerifyPeer: TVerifyPeerEvent;
     fSSLLayerClosed: Boolean;
     fOnBeforeConnect: TIOHandlerNotify;
+    FOnSSLNegotiated : TIOHandlerNotify;
     // function GetPeerCert: TIdX509;
     //procedure CreateSSLContext(axMode: TIdSSLMode);
     //
@@ -502,7 +503,7 @@ type
     const AWhere, Aret: TIdC_INT; const AWhereStr, ARetStr : String );
     procedure DoGetPassword(var Password: String); virtual;
     procedure DoGetPasswordEx(var VPassword: String; const AIsWrite : Boolean); virtual;
-
+    procedure DoOnSSLNegotiated; virtual;
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
     function RecvEnc(var VBuffer: TIdBytes): Integer; override;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
@@ -533,6 +534,7 @@ type
     property OnBeforeConnect: TIOHandlerNotify read fOnBeforeConnect write fOnBeforeConnect;
     property SSLContext: TIdSSLContext read fSSLContext write fSSLContext;
   published
+    property OnSSLNegotiated : TIOHandlerNotify read FOnSSLNegotiated write FOnSSLNegotiated;
     property SSLOptions: TIdSSLOptions read fxSSLOptions write fxSSLOptions;
     property OnStatusInfo: TCallbackEvent read fOnStatusInfo write fOnStatusInfo;
     property OnStatusInfoEx: TCallbackExEvent read fOnStatusInfoEx write fOnStatusInfoEx;
@@ -3212,6 +3214,13 @@ begin
   end;
 end;
 
+procedure TIdSSLIOHandlerSocketOpenSSL.DoOnSSLNegotiated;
+begin
+  if Assigned(FOnSSLNegotiated) then begin
+    FOnSSLNegotiated(Self);
+  end;
+end;
+
 function TIdSSLIOHandlerSocketOpenSSL.DoVerifyPeer(Certificate: TIdX509;
   AOk: Boolean; ADepth, AError: Integer): Boolean;
 begin
@@ -3330,6 +3339,7 @@ begin
     fSSLSocket.fHostName := '';
     fSSLSocket.Accept(Binding.Handle);
   end;
+  DoOnSSLNegotiated;
   fPassThrough := False;
 end;
 
@@ -3353,6 +3363,7 @@ begin
     LIO.OnGetPassword := DoGetPassword;
     LIO.OnGetPasswordEx := OnGetPasswordEx;
     LIO.OnVerifyPeer := DoVerifyPeer;
+    LIO.OnSSLNegotiated := OnSSLNegotiated;
     LIO.fSSLSocket := TIdSSLSocket.Create(Self);
   except
     LIO.Free;
@@ -3799,7 +3810,6 @@ begin
   if fMode = sslmUnassigned then begin
     raise EIdOSSLModeNotSet.Create(RSOSSLModeNotSet);
   end;
-    if HasTLS_method then
     {We are running with OpenSSL 1.1.1 or later. OpenSSL will negotiate the best
      available SSL/TLS version and there is not much that we can do to influence this.
      Hence, we ignore fMethod.
@@ -3815,8 +3825,7 @@ begin
     and avoid the version-specific methods described below [e.g. SSLv2_method),
     which are deprecated.
 }
-    begin
-      case fMode of
+  case fMode of
       sslmClient:
           Result := TLS_client_method();
 
@@ -3826,131 +3835,7 @@ begin
       sslmBoth:
         Result := TLS_Method();
 
-      end;
-      Exit;
-    end;
-
-  {$IFNDEF OPENSSL_STATIC_LINK_MODEL}
-  {we are using a legacy OpenSSL Library 1.0.2 or earlier and hence have to select
-   the SSL method the old way :(}
-
-  case fMethod of
-    sslvSSLv2:
-      case fMode of
-        sslmServer : begin
-          if Assigned(SSLv2_server_method) then begin
-            Result := SSLv2_server_method();
-          end;
-        end;
-        sslmClient : begin
-          if Assigned(SSLv2_client_method) then begin
-            Result := SSLv2_client_method();
-          end;
-        end;
-      else
-        if Assigned(SSLv2_method) then begin
-          Result := SSLv2_method();
-        end;
-      end;
-    sslvSSLv23:
-      case fMode of
-        sslmServer : begin
-          if Assigned(SSLv23_server_method) then begin
-            Result := SSLv23_server_method();
-          end;
-        end;
-        sslmClient : begin
-          if Assigned(SSLv23_client_method) then begin
-            Result := SSLv23_client_method();
-          end;
-        end;
-      else
-        if Assigned(SSLv23_method) then begin
-          Result := SSLv23_method();
-        end;
-      end;
-    sslvSSLv3:
-      case fMode of
-        sslmServer : begin
-          if Assigned(SSLv3_server_method) then begin
-            Result := SSLv3_server_method();
-          end;
-        end;
-        sslmClient : begin
-          if Assigned(SSLv3_client_method) then begin
-            Result := SSLv3_client_method();
-          end;
-        end;
-      else
-        if Assigned(SSLv3_method) then begin
-          Result := SSLv3_method();
-        end;
-      end;
-      {IMPORTANT!!!  fallback to TLS 1.0 if TLS 1.1 or 1.2 is not available.
-      This is important because OpenSSL earlier than 1.0.1 does not support this
-      functionality.
-
-      Todo:  Figure out a better fallback.
-      }
-      // TODO: get rid of this fallack!  If the user didn't choose TLS 1.0, then
-      // don't falback to it, just fail instead, like with all of the other SSL/TLS
-      // versions...
-    sslvTLSv1:
-      Result := SelectTLS1Method(fMode);
-    sslvTLSv1_1:
-      case fMode of
-        sslmServer : begin
-          if Assigned(TLSv1_1_server_method) then begin
-            Result := TLSv1_1_server_method();
-          end else begin
-            Result := SelectTLS1Method(fMode);
-          end;
-        end;
-        sslmClient : begin
-          if Assigned(TLSv1_1_client_method) then begin
-            Result := TLSv1_1_client_method();
-          end else begin
-            Result := SelectTLS1Method(fMode);
-          end;
-        end;
-      else
-        if Assigned(TLSv1_1_method) then begin
-          Result := TLSv1_1_method();
-        end else begin
-          Result := SelectTLS1Method(fMode);
-        end;
-      end;
-    sslvTLSv1_2:
-      case fMode of
-        sslmServer : begin
-          if Assigned(TLSv1_2_server_method) then begin
-            Result := TLSv1_2_server_method();
-          end else begin
-            // TODO: fallback to TLSv1.1 if available?
-            Result := SelectTLS1Method(fMode);
-          end;
-        end;
-        sslmClient : begin
-          if Assigned(TLSv1_2_client_method) then begin
-            Result := TLSv1_2_client_method();
-          end else begin
-            // TODO: fallback to TLSv1.1 if available?
-            Result := SelectTLS1Method(fMode);
-          end;
-        end;
-      else
-        if Assigned(TLSv1_2_method) then begin
-          Result := TLSv1_2_method();
-        end else begin
-          // TODO: fallback to TLSv1.1 if available?
-          Result := SelectTLS1Method(fMode);
-        end;
-      end;
   end;
-  if Result = nil then begin
-    raise EIdOSSLGetMethodError.Create(RSSSLGetMethodError);
-  end;
-  {$ENDIF}
 end;
 
 function TIdSSLContext.LoadRootCert: Boolean;
@@ -4736,23 +4621,46 @@ end;
 function TIdSSLCipher.GetDescription;
 var
   Buf: array[0..1024] of TIdAnsiChar;
+  LSSLCipher : PSSL_CIPHER;
 begin
-  Result := String(SSL_CIPHER_description(SSL_get_current_cipher(FSSLSocket.fSSL), @Buf[0], SizeOf(Buf)-1));
+  Result := '';
+  LSSLCipher := SSL_get_current_cipher(FSSLSocket.fSSL);
+  if Assigned(LSSLCipher) then begin
+    Result := String(SSL_CIPHER_description(LSSLCipher, @Buf[0], SizeOf(Buf)-1));
+  end;
 end;
 
 function TIdSSLCipher.GetName:String;
+var
+  LSSLCipher : PSSL_CIPHER;
 begin
-  Result := String(SSL_CIPHER_get_name(SSL_get_current_cipher(FSSLSocket.fSSL)));
+  Result := '';
+  LSSLCipher := SSL_get_current_cipher(FSSLSocket.fSSL);
+  if Assigned( LSSLCipher) then begin
+    Result := String(SSL_CIPHER_get_name(LSSLCipher));
+  end;
 end;
 
 function TIdSSLCipher.GetBits:TIdC_INT;
+var
+  LSSLCipher : PSSL_CIPHER;
 begin
-  SSL_CIPHER_get_bits(SSL_get_current_cipher(FSSLSocket.fSSL), Result);
+  Result := 0;
+  LSSLCipher := SSL_get_current_cipher(FSSLSocket.fSSL);
+  if Assigned(LSSLCipher) then begin
+    SSL_CIPHER_get_bits(LSSLCipher, Result);
+  end;
 end;
 
 function TIdSSLCipher.GetVersion:String;
+var
+  LSSLCipher : PSSL_CIPHER;
 begin
-  Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
+  Result := '';
+  LSSLCipher := SSL_get_current_cipher(FSSLSocket.fSSL);
+  if Assigned(LSSLCipher) then  begin
+    Result := String(SSL_CIPHER_get_version(LSSLCipher));
+  end;
 end;
 
 {$I IdSymbolDeprecatedOff.inc}
