@@ -440,6 +440,16 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 12.0 Athens
+  {$IFDEF VER360}
+    {$DEFINE VCL_11}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_11}
+    {$ELSE}
+      {$DEFINE DELPHI_11}
+    {$ENDIF}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
