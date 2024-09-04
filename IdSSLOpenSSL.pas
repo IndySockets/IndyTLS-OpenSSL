@@ -3502,9 +3502,9 @@ var WinCertStore: HCERTSTORE;
 begin
   cert_context := nil;
   {$IFDEF STRING_IS_ANSI}
-  WinCertStore := CertOpenSystemStoreA(0,RootStore);
+  WinCertStore := CertOpenSystemStoreA(nil,RootStore);
   {$ELSE}
-  WinCertStore := CertOpenSystemStoreW(0,RootStore);
+  WinCertStore := CertOpenSystemStoreW(nil,RootStore);
   {$ENDIF}
   if WinCertStore = 0 then
     Exit;
