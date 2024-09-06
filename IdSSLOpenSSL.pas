@@ -248,10 +248,6 @@ interface
 {$ENDIF}
 {$ENDIF}
 
-{$IFNDEF USE_OPENSSL}
-  {$message error Should not compile if USE_OPENSSL is not defined!!!}
-{$ENDIF}
-
 {$TYPEDADDRESS OFF}
 
 uses
@@ -597,15 +593,32 @@ type
   TIdX509Name = class(TObject)
   protected
     fX509Name: PX509_NAME;
+    function GetStrByNID(const ANid : TIdC_INT) : String;
     function CertInOneLine: String;
     function GetHash: TIdSSLULong;
     function GetHashAsString: String;
+    function GetCommonName: String;
+    function GetOrginization: String;
+    function GetUnit: String;
+    function GetEMail : String;
+    function GetCity: String;
+    function GetCountry: String;
+    function GetProvidence: String;
+    function GetStreetAddress: String;
   public
     constructor Create(aX509Name: PX509_NAME);
     //
     property Hash: TIdSSLULong read GetHash;
     property HashAsString: string read GetHashAsString;
     property OneLine: string read CertInOneLine;
+    property CommonName : String read GetCommonName;
+    property Organization : String read GetOrginization;
+    property _Unit : String read GetUnit;
+    property EMail : String read GetEMail;
+    property StreetAddress : String read GetStreetAddress;
+    property City : String read GetCity;
+    property Providence : String read GetProvidence;
+    property Country : String read GetCountry;
     //
     property CertificateName: PX509_NAME read fX509Name;
   end;
@@ -666,16 +679,26 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     function GetSignature : String;
     function GetSigType : TIdC_INT;
     function GetSigTypeAsString : String;
+    function GetAlgorithm : String;
   public
     property Signature : String read GetSignature;
+    property Algorithm : String read GetAlgorithm;
     property SigType : TIdC_INT read  GetSigType ;
     property SigTypeAsString : String read GetSigTypeAsString;
   end;
-
+  TIdX509PublicKey = class(TIdX509Info)
+  protected
+    function GetAlgorithm: String;
+    function GetBits : TIdC_INT;
+  public
+    property Algorithm : String read GetAlgorithm;
+    property Bits : TIdC_INT read GetBits;
+  end;
   TIdX509 = class(TObject)
   protected
     FFingerprints : TIdX509Fingerprints;
     FSigInfo : TIdX509SigInfo;
+    FPublicKey : TIdX509PublicKey;
     FCanFreeX509 : Boolean;
     FX509    : PX509;
     FSubject : TIdX509Name;
@@ -688,6 +711,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     function RFingerprint:TIdSSLEVP_MD;
     function RFingerprintAsString:String;
     function GetSerialNumber: String;
+     function GetIsSelfSigned: Boolean;
     function GetVersion : TIdC_LONG;
     function GetDisplayInfo : TStrings;
   public
@@ -706,8 +730,10 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property notAfter: TDateTime read RnotAfter;
     property SerialNumber : string read GetSerialNumber;
     property DisplayInfo : TStrings read GetDisplayInfo;
+    property IsSelfSigned : Boolean read GetIsSelfSigned;
     //
     property Certificate: PX509 read FX509;
+    property PublicKey : TIdX509PublicKey read FPublicKey;
   end;
 
   TIdSSLCipher = class(TObject)
@@ -776,6 +802,9 @@ uses
   IdURI,
   SysUtils,
   SyncObjs,
+  IdOpenSSLHeaders_obj_mac,
+  IdOpenSSLHeaders_asn1,
+  IdOpenSSLHeaders_bn,
   IdOpenSSLHeaders_x509,
   IdOpenSSLHeaders_x509_vfy,
   IdOpenSSLHeaders_pkcs12,
@@ -4304,6 +4333,26 @@ begin
   end;
 end;
 
+function TIdX509Name.GetCity: String;
+begin
+  Result := GetStrByNid(NID_localityName);
+end;
+
+function TIdX509Name.GetCommonName: String;
+begin
+  Result := GetStrByNid(NID_commonName);
+end;
+
+function TIdX509Name.GetCountry: String;
+begin
+  Result := GetStrByNid(NID_countryName);
+end;
+
+function TIdX509Name.GetEMail: String;
+begin
+  Result := GetStrByNid(NID_pkcs9_emailAddress);
+end;
+
 function TIdX509Name.GetHash: TIdSSLULong;
 begin
   if FX509Name = nil then begin
@@ -4316,6 +4365,43 @@ end;
 function TIdX509Name.GetHashAsString: String;
 begin
   Result := IndyFormat('%.8x', [Hash.L1]); {do not localize}
+end;
+
+function TIdX509Name.GetOrginization: String;
+begin
+  Result := GetStrByNid( NID_organizationName );
+end;
+
+function TIdX509Name.GetProvidence: String;
+begin
+  Result := GetStrByNid(NID_stateOrProvinceName);
+end;
+
+function TIdX509Name.GetStrByNID(const ANid: TIdC_INT): String;
+var
+  LBuffer: array[0..2048] of TIdAnsiChar;
+  LPtr : PAnsiChar;
+begin
+  if FX509Name = nil then begin
+    Result := '';    {Do not Localize}
+  end else begin
+    LPtr :=  @LBuffer[0];
+     if X509_NAME_get_text_by_NID(FX509Name,ANid,LPtr,256) > -1 then begin
+       Result := String(LPtr);
+     end else begin
+       Result := '';
+     end;
+  end;
+end;
+
+function TIdX509Name.GetStreetAddress: String;
+begin
+  Result := GetStrByNid(  NID_streetAddress );
+end;
+
+function TIdX509Name.GetUnit: String;
+begin
+  Result := GetStrByNid( NID_organizationalUnitName );
 end;
 
 constructor TIdX509Name.Create(aX509Name: PX509_NAME);
@@ -4466,13 +4552,27 @@ end;
 
 { TIdX509SigInfo }
 
+
+function TIdX509SigInfo.GetAlgorithm: String;
+var
+  sig_alg : PX509_ALGOR;
+  signature : PASN1_BIT_STRING;
+  lalgorithm : PASN1_OBJECT;
+  LBuffer: array[0..2048] of TIdAnsiChar;
+begin
+  X509_get0_signature(signature,sig_alg, FX509);
+  X509_ALGOR_get0(@lalgorithm, nil, nil, sig_alg);
+  OBJ_obj2txt(@LBuffer[0], 256, lalgorithm, 0);
+  Result := String(LBuffer);
+end;
+
 function TIdX509SigInfo.GetSignature: String;
 var
   sig_alg : PX509_ALGOR;
   signature : PASN1_BIT_STRING;
 begin
-  X509_get0_signature(signature,sig_alg, FX509);
-  Result := BytesToHexString(signature^.data, signature^.length);
+  X509_get0_signature(signature, sig_alg, FX509);
+  Result := BytesToHexString( signature^.data, signature^.length);
 end;
 
 function TIdX509SigInfo.GetSigType: TIdC_INT;
@@ -4496,6 +4596,7 @@ begin
   FCanFreeX509 := aCanFreeX509;
   FFingerprints := TIdX509Fingerprints.Create(FX509);
   FSigInfo := TIdX509SigInfo.Create(FX509);
+  FPublicKey := TIdX509PublicKey.Create(FX509);
   FSubject := nil;
   FIssuer := nil;
 end;
@@ -4527,13 +4628,21 @@ begin
   Result := FDisplayInfo;
 end;
 
+function TIdX509.GetIsSelfSigned: Boolean;
+begin
+  Result := X509_NAME_cmp( Self.Subject.fX509Name, Self.Issuer.fX509Name ) = 0;
+end;
+
 function TIdX509.GetSerialNumber: String;
 var
   LSN : PASN1_INTEGER;
+  LBN : PBIGNUM;
 begin
   if FX509 <> nil then begin
     LSN := X509_get_serialNumber(FX509);
-    Result := BytesToHexString(LSN.data, LSN.length);
+    LBN := ASN1_INTEGER_to_BN(LSN, nil);
+    Result := String(BN_bn2hex(LBN));
+    bn_free(LBN);
   end else begin
     Result := '';
   end;
@@ -4663,7 +4772,29 @@ begin
   end;
 end;
 
+{ TIdX509PublicKey }
+
+function TIdX509PublicKey.GetAlgorithm: String;
+var LPubKey : PX509_PUBKEY;
+  LAlgorithm : PASN1_OBJECT;
+  LBuffer: array[0..2048] of TIdAnsiChar;
+begin
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  X509_PUBKEY_get0_param(@LAlgorithm, nil, nil, nil,LPubKey);
+  OBJ_obj2txt(@LBuffer[0], 256, lalgorithm, 0);
+  Result := String(LBuffer);
+end;
+
 {$I IdSymbolDeprecatedOff.inc}
+
+function TIdX509PublicKey.GetBits: TIdC_INT;
+var LPubKey : PX509_PUBKEY;
+  LKey : PEVP_PKEY;
+begin
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  LKey := X509_PUBKEY_get0(LPubKey);
+  Result := EVP_PKEY_bits(LKey);
+end;
 
 initialization
   Assert(SSLIsLoaded=nil);
