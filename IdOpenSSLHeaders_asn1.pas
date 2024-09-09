@@ -671,6 +671,8 @@ var
   i2d_ASN1_OBJECT: function (const a: PASN1_OBJECT; pp: PPByte): TIdC_INT; cdecl = nil;
   d2i_ASN1_OBJECT: function (a: PPASN1_OBJECT; const pp: PPByte; length: TIdC_LONG): PASN1_OBJECT; cdecl = nil;
 
+  d2i_ASN1_BIT_STRING : function(val_out : PPASN1_BIT_STRING; const der_in : PPAnsiChar; length : TIdC_LONG) : PASN1_BIT_STRING cdecl = nil;
+  i2d_ASN1_BIT_STRING : function(val_in : PASN1_BIT_STRING; der_out : PPAnsiChar) : TIdC_long cdecl = nil;
   //DECLARE_ASN1_ITEM(ASN1_OBJECT)
   //
   //DEFINE_STACK_OF(ASN1_OBJECT)
@@ -998,6 +1000,8 @@ var
   procedure ASN1_OBJECT_free(a: PASN1_OBJECT) cdecl; external CLibCrypto;
   function i2d_ASN1_OBJECT(const a: PASN1_OBJECT; pp: PPByte): TIdC_INT cdecl; external CLibCrypto;
   function d2i_ASN1_OBJECT(a: PPASN1_OBJECT; const pp: PPByte; length: TIdC_LONG): PASN1_OBJECT cdecl; external CLibCrypto;
+  function d2i_ASN1_BIT_STRING(val_out : PPASN1_BIT_STRING; const der_in : PPAnsiChar; length : TIdC_LONG) : PASN1_BIT_STRING cdecl; external CLibCrypto;
+  function i2d_ASN1_BIT_STRING(val_in : PASN1_BIT_STRING; der_out : PPAnsiChar) : TIdC_long cdecl; external CLibCrypto;
 
   //DECLARE_ASN1_ITEM(ASN1_OBJECT)
   //
@@ -1365,6 +1369,8 @@ const
   ASN1_OBJECT_free_procname = 'ASN1_OBJECT_free';
   i2d_ASN1_OBJECT_procname = 'i2d_ASN1_OBJECT';
   d2i_ASN1_OBJECT_procname = 'd2i_ASN1_OBJECT';
+  d2i_ASN1_BIT_STRING_procname = 'd2i_ASN1_BIT_STRING';
+  i2d_ASN1_BIT_STRING_procname = 'i2d_ASN1_BIT_STRING';
 
   //DECLARE_ASN1_ITEM(ASN1_OBJECT)
   //
@@ -1742,7 +1748,15 @@ begin
   EIdAPIFunctionNotPresent.RaiseException(d2i_ASN1_OBJECT_procname);
 end;
 
+function ERR_i2d_ASN1_BIT_STRING(val_in : PASN1_BIT_STRING; der_out : PPAnsiChar) : TIdC_long;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(i2d_ASN1_BIT_STRING_procname);
+end;
 
+function ERR_d2i_ASN1_BIT_STRING(val_out : PPASN1_BIT_STRING; const der_in : PPAnsiChar; length : TIdC_LONG) : PASN1_BIT_STRING;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(d2i_ASN1_BIT_STRING_procname);
+end;
 
   //DECLARE_ASN1_ITEM(ASN1_OBJECT)
   //
@@ -3211,6 +3225,67 @@ begin
     {$ifend}
   end;
 
+  d2i_ASN1_BIT_STRING := LoadLibFunction(ADllHandle, d2i_ASN1_BIT_STRING_procname);
+  FuncLoadError := not assigned(d2i_ASN1_BIT_STRING);
+  if FuncLoadError then
+  begin
+    {$if not defined(d2i_ASN1_OBJECT_allownil)}
+    d2i_ASN1_BIT_STRING := @ERR_d2i_ASN1_BIT_STRING;
+    {$ifend}
+    {$if declared(d2i_ASN1_OBJECT_introduced)}
+    if LibVersion < d2i_ASN1_BIT_STRING_introduced then
+    begin
+      {$if declared(FC_d2i_ASN1_OBJECT)}
+      d2i_ASN1_OBJECT := @FC_d2i_ASN1_OBJECT;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(d2i_ASN1_BIT_STRING_removed)}
+    if d2i_ASN1_BIT_STRING_removed <= LibVersion then
+    begin
+      {$if declared(_d2i_ASN1_OBJECT)}
+      d2i_ASN1_BIT_STRING := @d2i_ASN1_BIT_STRING;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(d2i_ASN1_OBJECT_allownil)}
+    if FuncLoadError then
+      AFailed.Add('d2i_ASN1_OBJECT');
+    {$ifend}
+  end;
+
+  i2d_ASN1_BIT_STRING := LoadLibFunction(ADllHandle, i2d_ASN1_BIT_STRING_procname);
+  FuncLoadError := not assigned(d2i_ASN1_OBJECT);
+  if FuncLoadError then
+  begin
+    {$if not defined(i2d_ASN1_BIT_STRING_allownil)}
+    i2d_ASN1_BIT_STRING := @ERR_i2d_ASN1_BIT_STRING;
+    {$ifend}
+    {$if declared(i2d_ASN1_BIT_STRING_introduced)}
+    if LibVersion < i2d_ASN1_BIT_STRING_introduced then
+    begin
+      {$if declared(FC_i2d_ASN1_BIT_STRING)}
+      i2d_ASN1_BIT_STRING := @FC_i2d_ASN1_BIT_STRING;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(i2d_ASN1_BIT_STRING_removed)}
+    if i2d_ASN1_BIT_STRING_removed <= LibVersion then
+    begin
+      {$if declared(_i2d_ASN1_BIT_STRING)}
+      d2i_ASN1_OBJECT := @_d2i_ASN1_OBJECT;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(i2d_ASN1_BIT_STRING_allownil)}
+    if FuncLoadError then
+      AFailed.Add('i2d_ASN1_BIT_STRING');
+    {$ifend}
+  end;
 
   ASN1_STRING_new := LoadLibFunction(ADllHandle, ASN1_STRING_new_procname);
   FuncLoadError := not assigned(ASN1_STRING_new);

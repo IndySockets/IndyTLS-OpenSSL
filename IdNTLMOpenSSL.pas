@@ -14,14 +14,10 @@ interface
 implementation
 
 uses
-  IdGlobal, IdFIPS, IdSSLOpenSSLLoader, IdHashMessageDigest, IdOpenSSLHeaders_des,
+  IdGlobal, IdFIPS, IdSSLOpenSSLHeaders, IdHashMessageDigest,
   SysUtils;
 
 {$I IdCompilerDefines.inc}
-{$i IdSSLOpenSSLDefines.inc}
-{$IFNDEF USE_OPENSSL}
-  {$message error Should not compile if USE_OPENSSL is not defined!!!}
-{$ENDIF}
 
 function LoadOpenSSL: Boolean;
 begin
@@ -80,13 +76,13 @@ Var
 begin
   setup_des_key(keys^, ks);
   Move(ANonce[0], nonce, 8);
-  des_ecb_encrypt(@nonce, PDES_cblock(results), @ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, Pconst_DES_cblock(results), ks, DES_ENCRYPT);
 
   setup_des_key(PDES_cblock(PtrUInt(keys) + 7)^, ks);
-  des_ecb_encrypt(@nonce, PDES_cblock(PtrUInt(results) + 8), @ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 8), ks, DES_ENCRYPT);
 
   setup_des_key(PDES_cblock(PtrUInt(keys) + 14)^, ks);
-  des_ecb_encrypt(@nonce, PDES_cblock(PtrUInt(results) + 16), @ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 16), ks, DES_ENCRYPT);
 end;
 
 Const
@@ -121,10 +117,10 @@ begin
   //* create LanManager hashed password */
 
   setup_des_key(pdes_cblock(@lm_pw[0])^, ks);
-  des_ecb_encrypt(@magic, PDES_cblock(@lm_hpw[0]), @ks, DES_ENCRYPT);
+  des_ecb_encrypt(@magic, Pconst_DES_cblock(@lm_hpw[0]), ks, DES_ENCRYPT);
 
   setup_des_key(pdes_cblock(PtrUInt(@lm_pw[0]) + 7)^, ks);
-  des_ecb_encrypt(@magic, PDES_cblock(PtrUInt(@lm_hpw[0]) + 8), @ks, DES_ENCRYPT);
+  des_ecb_encrypt(@magic, Pconst_DES_cblock(PtrUInt(@lm_hpw[0]) + 8), ks, DES_ENCRYPT);
 
   FillChar(lm_hpw[16], 5, 0);
 
@@ -141,14 +137,25 @@ var
   nt_hpw128: TIdBytes;
   nt_resp: array [1..24] of Byte;
   LMD4: TIdHashMessageDigest4;
+  {$IFNDEF STRING_IS_UNICODE}
+  i: integer;
+  lPwUnicode: TIdBytes;
+  {$ENDIF}
 begin
   CheckMD4Permitted;
   LMD4 := TIdHashMessageDigest4.Create;
   try
-    {$IFNDEF STRING_IS_UNICODE}
+    {$IFDEF STRING_IS_UNICODE}
     nt_hpw128 := LMD4.HashString(APassword, IndyTextEncoding_UTF16LE);
     {$ELSE}
-//    nt_hpw128 := LMD4.HashBytes(BuildUnicode(APassword));
+    // RLebeau: TODO - should this use UTF-16 as well?  This logic will
+    // not produce a valid Unicode string if non-ASCII characters are present!
+    SetLength(lPwUnicode, Length(S) * SizeOf(WideChar));
+    for i := 0 to Length(S)-1 do begin
+      lPwUnicode[i*2] := Byte(S[i+1]);
+      lPwUnicode[(i*2)+1] := Byte(#0);
+    end;
+    nt_hpw128 := LMD4.HashBytes(lPwUnicode);
     {$ENDIF}
   finally
     LMD4.Free;
@@ -164,9 +171,9 @@ begin
 end;
 
 initialization
-  IdFIPS.LoadNTLMLibrary := @LoadOpenSSL;
-  IdFIPS.IsNTLMFuncsAvail := @IsNTLMFuncsAvail;
-  IdFIPS.NTLMGetLmChallengeResponse := @SetupLanManagerPassword;
-  IdFIPS.NTLMGetNtChallengeResponse := @CreateNTPassword;
+  IdFIPS.LoadNTLMLibrary := LoadOpenSSL;
+  IdFIPS.IsNTLMFuncsAvail := IsNTLMFuncsAvail;
+  IdFIPS.NTLMGetLmChallengeResponse := SetupLanManagerPassword;
+  IdFIPS.NTLMGetNtChallengeResponse := CreateNTPassword;
 
 end.
