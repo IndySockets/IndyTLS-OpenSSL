@@ -278,6 +278,7 @@ uses
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_ssl,
   IdOpenSSLHeaders_evp,
+  IdOpenSSLHeaders_x509,
   IdSSLOpenSSLFIPS {Ensure FIPS functions initialised};
 
 type
@@ -688,14 +689,41 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   end;
   TIdX509PublicKey = class(TIdX509Info)
   protected
+    function GetModulus : String;
     function GetAlgorithm: String;
     function GetBits : TIdC_INT;
+    function GetSize : TIdC_INT;
+    function GetSecurityBits : TIdC_INT;
+    function GetEncoding : String;
+    function GetEncodingSize : TIdC_INT;
   public
     property Algorithm : String read GetAlgorithm;
     property Bits : TIdC_INT read GetBits;
+    property SecurityBits : TIdC_INT read GetSecurityBits;
+    property Size : TIdC_INT read GetSize;
+    property Encoding : String read GetEncoding;
+    property EncodingSize : TIdC_INT read GetEncodingSize;
+    property Modulus : String read GetModulus;
+  end;
+  TIdX509Exts = class(TIdX509Info)
+  protected
+    //X509_get_ext
+    function GetExtension(const AIndex : TIdC_INT) :  PX509_EXTENSION;
+    function GetExtensionByNid(const ANid : TIdC_INT) :  PX509_EXTENSION;
+    function GetCount: TIdC_INT;
+  public
+    property ExtensionByNid[const ANid : TIdC_INT] : PX509_EXTENSION read GetExtensionByNid;
+    property Extensions[const AIndex : TIdC_INT]  : PX509_EXTENSION read  GetExtension; default;
+    property Count : TIdC_INT read GetCount;
   end;
   TIdX509 = class(TObject)
+  private
+    function GetBasicConstraints: String;
+    function GetExtentionName(const AIndex: TIdC_INT): string;
+    function GetExtentionCritical(const AIndex: TIdC_INT): Boolean;
+    function GetExtentionValues(const AIndex: TIdC_INT): string;
   protected
+    FExtensions : TIdX509Exts;
     FFingerprints : TIdX509Fingerprints;
     FSigInfo : TIdX509SigInfo;
     FPublicKey : TIdX509PublicKey;
@@ -704,6 +732,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     FSubject : TIdX509Name;
     FIssuer  : TIdX509Name;
     FDisplayInfo : TStrings;
+    function GetExtensionCount: TIdC_LONG;
     function RSubject:TIdX509Name;
     function RIssuer:TIdX509Name;
     function RnotBefore:TDateTime;
@@ -714,9 +743,14 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
      function GetIsSelfSigned: Boolean;
     function GetVersion : TIdC_LONG;
     function GetDisplayInfo : TStrings;
+    function GetSubjectKeyIdentifier : String;
+    function GetAuthorityKeyIdentifier : String;
   public
     Constructor Create(aX509: PX509; aCanFreeX509: Boolean = True); virtual;
     Destructor Destroy; override;
+    //These are temporary
+    property ExtensionCount : TIdC_LONG read GetExtensionCount;
+    //
     property Version : TIdC_LONG read GetVersion;
     //
     property SigInfo : TIdX509SigInfo read FSigInfo;
@@ -734,6 +768,12 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     //
     property Certificate: PX509 read FX509;
     property PublicKey : TIdX509PublicKey read FPublicKey;
+    property SubjectKeyIdentifier : String  read GetSubjectKeyIdentifier;
+    property AuthorityKeyIdentifier : String read GetAuthorityKeyIdentifier;
+    property BasicConstraints : String read GetBasicConstraints;
+    property ExtentionName[const AIndex : TIdC_INT] : string read GetExtentionName;
+    property ExtentionCritical[const AIndex : TIdC_INT] : Boolean read GetExtentionCritical;
+    property ExtensionValues[const AIndex : TIdC_INT] : string read GetExtentionValues;
   end;
 
   TIdSSLCipher = class(TObject)
@@ -805,7 +845,7 @@ uses
   IdOpenSSLHeaders_obj_mac,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_bn,
-  IdOpenSSLHeaders_x509,
+  IdOpenSSLHeaders_x509v3,
   IdOpenSSLHeaders_x509_vfy,
   IdOpenSSLHeaders_pkcs12,
   IdOpenSSLHeaders_sslerr,
@@ -814,6 +854,7 @@ uses
   IdOpenSSLHeaders_pem,
   IdOpenSSLHeaders_stack,
   IdOpenSSLHeaders_dh,
+  IdOpenSSLHeaders_rsa,
   IdOpenSSLHeaders_crypto,
   IdOpenSSLHeaders_tls1,
   IdOpenSSLHeaders_objects,
@@ -4597,12 +4638,14 @@ begin
   FFingerprints := TIdX509Fingerprints.Create(FX509);
   FSigInfo := TIdX509SigInfo.Create(FX509);
   FPublicKey := TIdX509PublicKey.Create(FX509);
+  FExtensions := TIdX509Exts.Create(FX509);
   FSubject := nil;
   FIssuer := nil;
 end;
 
 destructor TIdX509.Destroy;
 begin
+  FreeAndNil(FExtensions);
   FreeAndNil(FDisplayInfo);
   FreeAndNil(FSubject);
   FreeAndNil(FIssuer);
@@ -4618,6 +4661,60 @@ begin
   inherited Destroy;
 end;
 
+function TIdX509.GetSubjectKeyIdentifier: String;
+var Lsk : PASN1_OCTET_STRING;
+    LPtr : PAnsiChar;
+    LLen : TIdC_INT;
+begin
+  Result := '';
+  Lsk := X509_get_ext_d2i(FX509, NID_subject_key_identifier,nil,nil);
+  if Assigned(Lsk) then begin
+      LPtr := PAnsiChar(ASN1_STRING_get0_data(PASN1_STRING(Lsk)));
+      LLen :=  ASN1_STRING_length(PASN1_STRING(Lsk));
+      Result := BytesToHexString(LPtr, LLen);
+      ASN1_OCTET_STRING_free(Lsk);
+  end;
+end;
+
+function TIdX509.GetAuthorityKeyIdentifier: String;
+var Lak : PAUTHORITY_KEYID;
+  LASN1 : PASN1_OCTET_STRING;
+    LPtr : PAnsiChar;
+    LLen : TIdC_INT;
+begin
+  Result := '';
+  Lak := X509_get_ext_d2i(FX509, NID_authority_key_identifier,nil,nil);
+  if Assigned(Lak) then begin
+    LASN1 := PAUTHORITY_KEYID_st(Lak)^.keyid;
+    if Assigned(LASN1) then begin
+      LPtr := PAnsiChar(ASN1_STRING_get0_data(PASN1_STRING(LASN1)));
+      LLen :=  ASN1_STRING_length(PASN1_STRING(LASN1));
+      Result := BytesToHexString(LPtr, LLen);
+    end;
+    AUTHORITY_KEYID_free(Lak);
+  end;
+end;
+
+function TIdX509.GetBasicConstraints: String;
+var
+  LBs : PBASIC_CONSTRAINTS;
+begin
+  Result := '';
+  LBs := X509_get_ext_d2i(FX509,NID_basic_constraints, nil, nil);
+  if Assigned(LBs) then begin
+    if LBs^.ca <> 0 then begin
+       Result := 'CA = True';
+       if Assigned(LBs^.pathlen) then  begin
+         if LBs^.pathlen.type_ =  V_ASN1_NEG_INTEGER then begin
+           Result := '(Pathlen = '+ IntToStr(ASN1_INTEGER_get(  LBs^.pathlen )) + ')';
+         end;
+       end;
+    end  else begin
+      Result := 'CA = False';
+    end;
+    BASIC_CONSTRAINTS_free(LBs);
+  end;
+end;
 
 function TIdX509.GetDisplayInfo: TStrings;
 begin
@@ -4626,6 +4723,57 @@ begin
     DumpCert(FDisplayInfo, FX509);
   end;
   Result := FDisplayInfo;
+end;
+
+function TIdX509.GetExtensionCount: TIdC_LONG;
+begin
+  Result := Self.FExtensions.Count;
+end;
+
+function TIdX509.GetExtentionCritical(const AIndex: TIdC_INT): Boolean;
+var LExt : PX509_EXTENSION;
+
+begin
+  Result := False;
+  if AIndex > -1 then begin
+     LExt := X509_get_ext(FX509, AIndex);
+     Result := X509_EXTENSION_get_critical(LExt) > 0;
+  end;
+
+end;
+
+function TIdX509.GetExtentionName(const AIndex: TIdC_INT): string;
+var LExt : PX509_EXTENSION;
+    LASN1 : PASN1_OBJECT;
+    LBuf: array[0..1024] of TIdAnsiChar;
+    LNoName : TIdC_INT;
+begin
+  Result := '';
+  if AIndex > -1 then begin
+      LExt := X509_get_ext(FX509, AIndex);
+     LASN1 := X509_EXTENSION_get_object(LExt);
+     LNoName := 0;
+     OBJ_obj2txt(@LBuf[0],1024,LASN1,LNoName);
+     Result := String(LBuf);
+  end;
+end;
+
+function TIdX509.GetExtentionValues(const AIndex: TIdC_INT): string;
+var LExt : PX509_EXTENSION;
+    LASN1 : PASN1_OCTET_STRING;
+    LPtr : PAnsiChar;
+    LLen : TIdC_INT;
+begin
+  Result := '';
+  if AIndex > -1 then begin
+      LExt := X509_get_ext(FX509, AIndex);
+      LASN1 := X509_EXTENSION_get_data(LExt);
+      if Assigned(LASN1) then begin
+        LPtr := PAnsiChar(ASN1_STRING_get0_data(PASN1_STRING(LASN1)));
+        LLen :=  ASN1_STRING_length(PASN1_STRING(LASN1));
+        Result := BytesToHexString(LPtr, LLen);
+     end;
+  end;
 end;
 
 function TIdX509.GetIsSelfSigned: Boolean;
@@ -4785,7 +4933,41 @@ begin
   Result := String(LBuffer);
 end;
 
-{$I IdSymbolDeprecatedOff.inc}
+function TIdX509PublicKey.GetEncoding: String;
+var LPubKey : PX509_PUBKEY;
+  LLen : TIdC_INT;
+  LKey : array[0..2048] of TIdAnsiChar;
+  LPtr : PByte;
+begin
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  LPtr := @LKey[0];
+  X509_PUBKEY_get0_param(nil, @LPtr, @LLen, nil,LPubKey);
+  Result := BytesToHexString(LPtr,LLen);
+end;
+
+function TIdX509PublicKey.GetEncodingSize: TIdC_INT;
+var LPubKey : PX509_PUBKEY;
+  LKey : array[0..2048] of TIdAnsiChar;
+  LPtr : PByte;
+begin
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  LPtr := @LKey[0];
+  X509_PUBKEY_get0_param(nil, @LPtr, @Result, nil,LPubKey);
+end;
+
+function TIdX509PublicKey.GetModulus: String;
+var LPubKey : PX509_PUBKEY;
+  LKey : PEVP_PKEY;
+  LBN : PBIGNUM;
+begin
+  Result := '';
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  LKey := X509_PUBKEY_get0(LPubKey);
+  if EVP_PKEY_base_id(LKey) = EVP_PKEY_RSA  then begin
+    RSA_get0_key(EVP_PKEY_get0_RSA(LKey), @LBN, nil, nil);
+    Result := String(BN_bn2hex(LBN));
+  end;
+end;
 
 function TIdX509PublicKey.GetBits: TIdC_INT;
 var LPubKey : PX509_PUBKEY;
@@ -4795,6 +4977,50 @@ begin
   LKey := X509_PUBKEY_get0(LPubKey);
   Result := EVP_PKEY_bits(LKey);
 end;
+
+function TIdX509PublicKey.GetSecurityBits: TIdC_INT;
+var LPubKey : PX509_PUBKEY;
+  LKey : PEVP_PKEY;
+begin
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  LKey := X509_PUBKEY_get0(LPubKey);
+  Result := EVP_PKEY_security_bits(LKey);
+
+end;
+
+function TIdX509PublicKey.GetSize: TIdC_INT;
+var LPubKey : PX509_PUBKEY;
+  LKey : PEVP_PKEY;
+begin
+  LPubKey := X509_get_X509_PUBKEY(FX509);
+  LKey := X509_PUBKEY_get0(LPubKey);
+  Result := EVP_PKEY_size(LKey);
+end;
+
+{ TIdX509Exts }
+
+function TIdX509Exts.GetCount: TIdC_INT;
+begin
+  Result := X509_get_ext_count(FX509);
+end;
+
+function TIdX509Exts.GetExtension(const AIndex: TIdC_INT): PX509_EXTENSION;
+begin
+  Result := X509_get_ext(FX509, AIndex);
+end;
+
+function TIdX509Exts.GetExtensionByNid(const ANid: TIdC_INT): PX509_EXTENSION;
+var LIdx : TIdC_INT;
+begin
+  LIdx := X509_get_ext_by_NID(FX509, ANid, -1);
+  if LIdx > -1 then begin
+    Result := X509_get_ext(FX509, LIdx);
+  end else begin
+    Result := nil;
+  end;
+end;
+
+{$I IdSymbolDeprecatedOff.inc}
 
 initialization
   Assert(SSLIsLoaded=nil);

@@ -409,11 +409,12 @@ type
 
 //  DEFINE_STACK_OF(DIST_POINT)
 
-//  AUTHORITY_KEYID_st = record
-//    keyid: PASN1_OCTET_STRING;
-//    issuer: PGENERAL_NAMES;
-//    serial: PASN1_INTEGER;
-//  end;
+  AUTHORITY_KEYID_st = record
+    keyid: PASN1_OCTET_STRING;
+    issuer: Pointer; //PGENERAL_NAMES;
+    serial: PASN1_INTEGER;
+  end;
+  PAUTHORITY_KEYID_st = ^AUTHORITY_KEYID_st;
 
   (* Strong extranet structures *)
 
@@ -698,6 +699,8 @@ type
   {$EXTERNALSYM DIST_POINT_set_dpname}
   {$EXTERNALSYM NAME_CONSTRAINTS_check}
   {$EXTERNALSYM NAME_CONSTRAINTS_check_CN}
+  {$EXTERNALSYM BASIC_CONSTRAINTS_free}
+  {$EXTERNALSYM AUTHORITY_KEYID_free}
   {$EXTERNALSYM X509V3_EXT_nconf_nid}
   {$EXTERNALSYM X509V3_EXT_nconf}
   {$EXTERNALSYM X509V3_EXT_add_nconf}
@@ -820,6 +823,8 @@ var
   NAME_CONSTRAINTS_check: function (x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT; cdecl = nil;
   NAME_CONSTRAINTS_check_CN: function (x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT; cdecl = nil;
 
+  BASIC_CONSTRAINTS_free : procedure(bc : PBASIC_CONSTRAINTS); cdecl = nil;
+  AUTHORITY_KEYID_free : procedure(id : PAUTHORITY_KEYID); cdecl = nil;
 //  DECLARE_ASN1_FUNCTIONS(ACCESS_DESCRIPTION)
 //  DECLARE_ASN1_FUNCTIONS(AUTHORITY_INFO_ACCESS)
 
@@ -1064,7 +1069,8 @@ var
 
   function NAME_CONSTRAINTS_check(x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT cdecl; external CLibCrypto;
   function NAME_CONSTRAINTS_check_CN(x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT cdecl; external CLibCrypto;
-
+  procedure  BASIC_CONSTRAINTS_free(bc : PBASIC_CONSTRAINTS); cdecl;  external CLibCrypto;
+  procedure AUTHORITY_KEYID_free(id : AUTHORITY_KEYID); cdecl; external CLibCrypto;
 //  DECLARE_ASN1_FUNCTIONS(ACCESS_DESCRIPTION)
 //  DECLARE_ASN1_FUNCTIONS(AUTHORITY_INFO_ACCESS)
 
@@ -1323,6 +1329,9 @@ const
 
   NAME_CONSTRAINTS_check_procname = 'NAME_CONSTRAINTS_check';
   NAME_CONSTRAINTS_check_CN_procname = 'NAME_CONSTRAINTS_check_CN';
+
+  BASIC_CONSTRAINTS_free_procname = 'BASIC_CONSTRAINTS_free';
+  AUTHORITY_KEYID_free_procname = 'AUTHORITY_KEYID_free';
 
 //  DECLARE_ASN1_FUNCTIONS(ACCESS_DESCRIPTION)
 //  DECLARE_ASN1_FUNCTIONS(AUTHORITY_INFO_ACCESS)
@@ -1624,6 +1633,15 @@ begin
 end;
 
 
+procedure ERR_BASIC_CONSTRAINTS_free(bc : PBASIC_CONSTRAINTS);
+begin
+  EIdAPIFunctionNotPresent.RaiseException(BASIC_CONSTRAINTS_free_procname);
+end;
+
+procedure ERR_AUTHORITY_KEYID_free(id : PAUTHORITY_KEYID);
+begin
+  EIdAPIFunctionNotPresent.RaiseException(AUTHORITY_KEYID_free_procname);
+end;
 
 //  DECLARE_ASN1_FUNCTIONS(ACCESS_DESCRIPTION)
 //  DECLARE_ASN1_FUNCTIONS(AUTHORITY_INFO_ACCESS)
@@ -2537,6 +2555,70 @@ begin
     {$if not defined(NAME_CONSTRAINTS_check_CN_allownil)}
     if FuncLoadError then
       AFailed.Add('NAME_CONSTRAINTS_check_CN');
+    {$ifend}
+  end;
+
+
+   BASIC_CONSTRAINTS_free := LoadLibFunction(ADllHandle, BASIC_CONSTRAINTS_free_procname);
+  FuncLoadError := not assigned(BASIC_CONSTRAINTS_free);
+  if FuncLoadError then
+  begin
+    {$if not defined(BASIC_CONSTRAINTS_free_allownil)}
+    BASIC_CONSTRAINTS_free := @ERR_BASIC_CONSTRAINTS_free;
+    {$ifend}
+    {$if declared(BASIC_CONSTRAINTS_free_introduced)}
+    if LibVersion < BASIC_CONSTRAINTS_free_introduced then
+    begin
+      {$if declared(FC_BASIC_CONSTRAINTS_free)}
+      BASIC_CONSTRAINTS_free := @FC_BASIC_CONSTRAINTS_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(BASIC_CONSTRAINTS_free_removed)}
+    if BASIC_CONSTRAINTS_free_removed <= LibVersion then
+    begin
+      {$if declared(_BASIC_CONSTRAINTS_free)}
+      BASIC_CONSTRAINTS_free := @_BASIC_CONSTRAINTS_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(BASIC_CONSTRAINTS_free_allownil)}
+    if FuncLoadError then
+      AFailed.Add('BASIC_CONSTRAINTS_free');
+    {$ifend}
+  end;
+
+
+  AUTHORITY_KEYID_free  := LoadLibFunction(ADllHandle, AUTHORITY_KEYID_free_procname);
+  FuncLoadError := not assigned(AUTHORITY_KEYID_free);
+  if FuncLoadError then
+  begin
+    {$if not defined(AUTHORITY_KEYID_free_allownil)}
+    AUTHORITY_KEYID_free := @ERR_AUTHORITY_KEYID_free;
+    {$ifend}
+    {$if declared(AUTHORITY_KEYID_free_introduced)}
+    if LibVersion < AUTHORITY_KEYID_free_introduced then
+    begin
+      {$if declared(FC_AUTHORITY_KEYID_free)}
+      AUTHORITY_KEYID_free := @FC_AUTHORITY_KEYID_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(AUTHORITY_KEYID_free_removed)}
+    if AUTHORITY_KEYID_free_removed <= LibVersion then
+    begin
+      {$if declared(_AUTHORITY_KEYID_free)}
+      AUTHORITY_KEYID_free := @_AUTHORITY_KEYID_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(AUTHORITY_KEYID_free_allownil)}
+    if FuncLoadError then
+      AFailed.Add('AUTHORITY_KEYID_free');
     {$ifend}
   end;
 
@@ -4860,6 +4942,8 @@ begin
   DIST_POINT_set_dpname := nil;
   NAME_CONSTRAINTS_check := nil;
   NAME_CONSTRAINTS_check_CN := nil;
+  BASIC_CONSTRAINTS_free := nil;
+  AUTHORITY_KEYID_free := nil;
   X509V3_EXT_nconf_nid := nil;
   X509V3_EXT_nconf := nil;
   X509V3_EXT_add_nconf := nil;

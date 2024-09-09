@@ -530,6 +530,7 @@ type
   {$EXTERNALSYM ASN1_OCTET_STRING_dup}
   {$EXTERNALSYM ASN1_OCTET_STRING_cmp}
   {$EXTERNALSYM ASN1_OCTET_STRING_set}
+  {$EXTERNALSYM ASN1_OCTET_STRING_free}
   {$EXTERNALSYM UTF8_getc}
   {$EXTERNALSYM UTF8_putc}
   {$EXTERNALSYM ASN1_UTCTIME_new}
@@ -734,7 +735,9 @@ var
   ASN1_OCTET_STRING_dup: function (const a: PASN1_OCTET_STRING): PASN1_OCTET_STRING; cdecl = nil;
   ASN1_OCTET_STRING_cmp: function (const a: PASN1_OCTET_STRING; const b: PASN1_OCTET_STRING): TIdC_INT; cdecl = nil;
   ASN1_OCTET_STRING_set: function (str: PASN1_OCTET_STRING; const data: PByte; len: TIdC_INT): TIdC_INT; cdecl = nil;
-
+  d2i_ASN1_OCTET_STRING : function(val_out : PPASN1_OCTET_STRING; der_in : PPAnsiChar; length : TIdC_LONG) : PASN1_OCTET_STRING; cdecl = nil;
+  i2d_ASN1_OCTET_STRING : function(val_in : PASN1_OCTET_STRING; der_out : PPAnsiChar) : TIdC_INT; cdecl = nil;
+  ASN1_OCTET_STRING_free : procedure(a : PASN1_OCTET_STRING); cdecl = nil;
   //DECLARE_ASN1_FUNCTIONS(ASN1_VISIBLESTRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_UNIVERSALSTRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_UTF8STRING)
@@ -1064,6 +1067,9 @@ var
   function ASN1_OCTET_STRING_dup(const a: PASN1_OCTET_STRING): PASN1_OCTET_STRING cdecl; external CLibCrypto;
   function ASN1_OCTET_STRING_cmp(const a: PASN1_OCTET_STRING; const b: PASN1_OCTET_STRING): TIdC_INT cdecl; external CLibCrypto;
   function ASN1_OCTET_STRING_set(str: PASN1_OCTET_STRING; const data: PByte; len: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function d2i_ASN1_OCTET_STRING(val_out : PPASN1_OCTET_STRING; der_in : PPAnsiChar; length : TIdC_LONG) : PASN1_OCTET_STRING; cdecl;  external CLibCrypto;
+  function i2d_ASN1_OCTET_STRING(val_in : PASN1_OCTET_STRING; der_out : PPAnsiChar) : TIdC_INT; cdecl;  external CLibCrypto;
+  procedure ASN1_OCTET_STRING_free(a : PASN1_OCTET_STRING); cdecl;  external CLibCrypto;
 
   //DECLARE_ASN1_FUNCTIONS(ASN1_VISIBLESTRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_UNIVERSALSTRING)
@@ -1433,6 +1439,9 @@ const
   ASN1_OCTET_STRING_dup_procname = 'ASN1_OCTET_STRING_dup';
   ASN1_OCTET_STRING_cmp_procname = 'ASN1_OCTET_STRING_cmp';
   ASN1_OCTET_STRING_set_procname = 'ASN1_OCTET_STRING_set';
+  d2i_ASN1_OCTET_STRING_procname = 'd2i_ASN1_OCTET_STRING';
+  i2d_ASN1_OCTET_STRING_procname = 'i2d_ASN1_OCTET_STRING';
+  ASN1_OCTET_STRING_free_procname = 'ASN1_OCTET_STRING_free';
 
   //DECLARE_ASN1_FUNCTIONS(ASN1_VISIBLESTRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_UNIVERSALSTRING)
@@ -2018,7 +2027,20 @@ begin
   EIdAPIFunctionNotPresent.RaiseException(ASN1_OCTET_STRING_set_procname);
 end;
 
+function ERR_d2i_ASN1_OCTET_STRING(val_out : PPASN1_OCTET_STRING; der_in : PPAnsiChar; length : TIdC_LONG) : PASN1_OCTET_STRING;
+begin
+   EIdAPIFunctionNotPresent.RaiseException(d2i_ASN1_OCTET_STRING_procname);
+end;
 
+function ERR_i2d_ASN1_OCTET_STRING(val_in : PASN1_OCTET_STRING; der_out : PPAnsiChar) : TIdC_INT;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(i2d_ASN1_OCTET_STRING_procname);
+end;
+
+procedure ERR_ASN1_OCTET_STRING_free (a : PASN1_OCTET_STRING);
+begin
+  EIdAPIFunctionNotPresent.RaiseException(ASN1_OCTET_STRING_free_procname);
+end;
 
   //DECLARE_ASN1_FUNCTIONS(ASN1_VISIBLESTRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_UNIVERSALSTRING)
@@ -4564,6 +4586,104 @@ begin
     if FuncLoadError then
       AFailed.Add('ASN1_OCTET_STRING_set');
     {$ifend}
+  end;
+
+
+  d2i_ASN1_OCTET_STRING := LoadLibFunction(ADllHandle, d2i_ASN1_OCTET_STRING_procname);
+  FuncLoadError := not assigned(d2i_ASN1_OCTET_STRING);
+  if FuncLoadError then
+  begin
+    {$if not defined(d2i_ASN1_OCTET_STRING_allownil)}
+    UTF8_getc := @ERR_d2i_ASN1_OCTET_STRING;
+    {$ifend}
+    {$if declared(d2i_ASN1_OCTET_STRING_introduced)}
+    if LibVersion < d2i_ASN1_OCTET_STRING_introduced then
+    begin
+      {$if declared(d2i_ASN1_OCTET_STRING)}
+      d2i_ASN1_OCTET_STRING := @FC_d2i_ASN1_OCTET_STRING;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(d2i_ASN1_OCTET_STRING_removed)}
+    if UTF8_getc_removed <= LibVersion then
+    begin
+      {$if declared(_d2i_ASN1_OCTET_STRING)}
+      d2i_ASN1_OCTET_STRING := @d2i_ASN1_OCTET_STRING;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(d2i_ASN1_OCTET_STRING_allownil)}
+    if FuncLoadError then
+      AFailed.Add('d2i_ASN1_OCTET_STRING');
+    {$ifend}
+
+  end;
+
+  i2d_ASN1_OCTET_STRING := LoadLibFunction(ADllHandle, i2d_ASN1_OCTET_STRING_procname);
+  FuncLoadError := not assigned(i2d_ASN1_OCTET_STRING);
+  if FuncLoadError then
+  begin
+    {$if not defined(i2d_ASN1_OCTET_STRING_allownil)}
+    UTF8_getc := @ERR_i2d_ASN1_OCTET_STRING;
+    {$ifend}
+    {$if declared(i2d_ASN1_OCTET_STRING_introduced)}
+    if LibVersion < i2d_ASN1_OCTET_STRING_introduced then
+    begin
+      {$if declared(i2d_ASN1_OCTET_STRING)}
+      i2d_ASN1_OCTET_STRING := @FC_i2d_ASN1_OCTET_STRING;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(i2d_ASN1_OCTET_STRING_removed)}
+    if UTF8_getc_removed <= LibVersion then
+    begin
+      {$if declared(_i2d_ASN1_OCTET_STRING)}
+      i2d_ASN1_OCTET_STRING := @i2d_ASN1_OCTET_STRING;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(i2d_ASN1_OCTET_STRING_allownil)}
+    if FuncLoadError then
+      AFailed.Add('i2d_ASN1_OCTET_STRING');
+    {$ifend}
+
+  end;
+
+
+  ASN1_OCTET_STRING_free := LoadLibFunction(ADllHandle, ASN1_OCTET_STRING_free_procname);
+  FuncLoadError := not assigned(ASN1_OCTET_STRING_free);
+  if FuncLoadError then
+  begin
+    {$if not defined(ASN1_OCTET_STRING_free_allownil)}
+    UTF8_getc := @ASN1_OCTET_STRING_free;
+    {$ifend}
+    {$if declared(ASN1_OCTET_STRING_free_introduced)}
+    if LibVersion < ASN1_OCTET_STRING_free_introduced then
+    begin
+      {$if declared(ASN1_OCTET_STRING_free)}
+      i2d_ASN1_OCTET_STRING := @FC_ASN1_OCTET_STRING_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(ASN1_OCTET_STRING_free_removed)}
+    if UTF8_getc_removed <= LibVersion then
+    begin
+      {$if declared(_ASN1_OCTET_STRING_free)}
+      ASN1_OCTET_STRING_free := @ASN1_OCTET_STRING_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(ASN1_OCTET_STRING_free_allownil)}
+    if FuncLoadError then
+      AFailed.Add('ASN1_OCTET_STRING_free');
+    {$ifend}
+
   end;
 
 
@@ -8650,6 +8770,9 @@ begin
   ASN1_OCTET_STRING_dup := nil;
   ASN1_OCTET_STRING_cmp := nil;
   ASN1_OCTET_STRING_set := nil;
+  d2i_ASN1_OCTET_STRING := nil;
+  i2d_ASN1_OCTET_STRING := nil;
+  ASN1_OCTET_STRING_free := nil;
   UTF8_getc := nil;
   UTF8_putc := nil;
   ASN1_UTCTIME_new := nil;

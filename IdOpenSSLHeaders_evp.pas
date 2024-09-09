@@ -3226,10 +3226,13 @@ const
   EVP_PKEY_type_procname = 'EVP_PKEY_type';
   EVP_PKEY_id_procname = 'EVP_PKEY_id'; {removed 3.0.0}
   EVP_PKEY_base_id_procname = 'EVP_PKEY_base_id'; {removed 3.0.0}
+  EVP_PKEY_get_base_id_procname = 'EVP_PKEY_get_base_id';  {introduced 3.0.0}
   EVP_PKEY_bits_procname = 'EVP_PKEY_bits'; {removed 3.0.0}
   EVP_PKEY_get_bits_procname = 'EVP_PKEY_get_bits';  {introduced 3.0.0}
   EVP_PKEY_security_bits_procname = 'EVP_PKEY_security_bits'; {introduced 1.1.0 removed 3.0.0}
+  EVP_PKEY_get_security_bits_procname = 'EVP_PKEY_get_security_bits';  {introduced 3.0.0}
   EVP_PKEY_size_procname = 'EVP_PKEY_size'; {removed 3.0.0}
+  EVP_PKEY_get_size_procname = 'EVP_PKEY_get_size';  {introduced 3.0.0}
   EVP_PKEY_set_type_procname = 'EVP_PKEY_set_type';
   EVP_PKEY_set_type_str_procname = 'EVP_PKEY_set_type_str';
   EVP_PKEY_set_alias_type_procname = 'EVP_PKEY_set_alias_type'; {introduced 1.1.0 removed 3.0.0}
@@ -17403,8 +17406,12 @@ begin
     {$ifend}
   end;
 
- 
+
   EVP_PKEY_base_id := LoadLibFunction(ADllHandle, EVP_PKEY_base_id_procname);
+  if not Assigned(EVP_PKEY_base_id) then begin
+     EVP_PKEY_base_id := LoadLibFunction(ADllHandle, EVP_PKEY_get_base_id_procname);
+  end;
+
   FuncLoadError := not assigned(EVP_PKEY_base_id);
   if FuncLoadError then
   begin
@@ -17474,7 +17481,7 @@ begin
  
   EVP_PKEY_security_bits := LoadLibFunction(ADllHandle, EVP_PKEY_security_bits_procname);
   if not Assigned( EVP_PKEY_security_bits) then begin
-    EVP_PKEY_security_bits := LoadLibFunction(ADllHandle, EVP_PKEY_security_bits_procname);
+    EVP_PKEY_security_bits := LoadLibFunction(ADllHandle, EVP_PKEY_get_security_bits_procname);
   end;
   FuncLoadError := not assigned(EVP_PKEY_security_bits);
   if FuncLoadError then
@@ -17509,7 +17516,7 @@ begin
  
   EVP_PKEY_size := LoadLibFunction(ADllHandle, EVP_PKEY_size_procname);
   if not Assigned( EVP_PKEY_size) then begin
-    EVP_PKEY_size := LoadLibFunction(ADllHandle, EVP_PKEY_size_procname);
+    EVP_PKEY_size := LoadLibFunction(ADllHandle, EVP_PKEY_get_size_procname);
   end;
   FuncLoadError := not assigned(EVP_PKEY_size);
   if FuncLoadError then
