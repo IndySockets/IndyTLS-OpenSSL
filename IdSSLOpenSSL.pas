@@ -716,13 +716,50 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property Extensions[const AIndex : TIdC_INT]  : PX509_EXTENSION read  GetExtension; default;
     property Count : TIdC_INT read GetCount;
   end;
-  TIdX509 = class(TObject)
-  private
-    function GetBasicConstraints: String;
-    function GetExtentionName(const AIndex: TIdC_INT): string;
-    function GetExtentionCritical(const AIndex: TIdC_INT): Boolean;
-    function GetExtentionValues(const AIndex: TIdC_INT): string;
+  TIdX509AuthorityKeyID = class(TIdX509Info)
   protected
+    function GetIssuer(const AIndex: TIdC_INT): String;
+    function GetKeyId : String;
+    function GetSerial : TIdC_INT64;
+    function GetIssuerCount : TIdC_INT;
+  public
+    property KeyID : String read GetKeyId;
+    property Serial : TIdC_INT64 read GetSerial;
+    property Issuer[const AIndex : TIdC_INT] : String read GetIssuer;
+    property IssuerCount : TIdC_INT read GetIssuerCount;
+  end;
+  TIdX509Warnings = class(TIdX509Info)
+  private
+    function GetIsObsoleteV1: Boolean;
+  protected
+    function GetIsSelfSigned: Boolean;
+    function GetSubjectAndIssuerMatch: Boolean;
+  public
+    property IsObsoleteV1 : Boolean read GetIsObsoleteV1;
+    property IsSelfSigned : Boolean read GetIsSelfSigned;
+    property SubjectAndIssuerMatch : Boolean read  GetSubjectAndIssuerMatch;
+  end;
+  TIdX509Errors = class(TIdX509Info)
+  protected
+    function GetInvalidInconsistantValues: Boolean;
+    function GetInvalidPolicy: Boolean;
+    function GetUnhandledCriticalExtension: Boolean;
+    function GetNoFingerprint: Boolean;
+  public
+    property NoFingerprint : Boolean read GetNoFingerprint;
+    property InvalidInconsistantValues : Boolean read GetInvalidInconsistantValues;
+    property InvalidPolicy : Boolean read GetInvalidPolicy;
+    property UnhandledCriticalExtention : Boolean read GetUnhandledCriticalExtension;
+  end;
+  TIdX509KeyUse = (DigitalSignature, NonRepudiation, KeyEncipherment,
+    DataEncipherment, KeyAgreement, CertSign, CRLSign, EncipherOnly, DecipherOnly);
+  TIdX509KeyUsage = set of  TIdX509KeyUse;
+  TIdX509ExtKeyUse = (Server, Client, SMIME, CodeSign, OCSPSign, TimeStamp, DVCS, AnyEKU);
+  TIdX509ExtKeyUsage = set of TIdX509ExtKeyUse;
+  TIdX509 = class(TObject)
+  protected
+    FErrors : TIdX509Errors;
+    FWarnings : TIdX509Warnings;
     FExtensions : TIdX509Exts;
     FFingerprints : TIdX509Fingerprints;
     FSigInfo : TIdX509SigInfo;
@@ -732,6 +769,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     FSubject : TIdX509Name;
     FIssuer  : TIdX509Name;
     FDisplayInfo : TStrings;
+    FAuthorityKeyID : TIdX509AuthorityKeyID;
     function GetExtensionCount: TIdC_LONG;
     function RSubject:TIdX509Name;
     function RIssuer:TIdX509Name;
@@ -740,11 +778,17 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     function RFingerprint:TIdSSLEVP_MD;
     function RFingerprintAsString:String;
     function GetSerialNumber: String;
-     function GetIsSelfSigned: Boolean;
+
     function GetVersion : TIdC_LONG;
     function GetDisplayInfo : TStrings;
     function GetSubjectKeyIdentifier : String;
-    function GetAuthorityKeyIdentifier : String;
+    function GetBasicConstraints: String;
+    function GetExtentionName(const AIndex: TIdC_INT): string;
+    function GetExtentionCritical(const AIndex: TIdC_INT): Boolean;
+    function GetExtentionValues(const AIndex: TIdC_INT): string;
+    function GetKeyUsage: TIdX509KeyUsage;
+    function GetExtKeyUsage: TIdX509ExtKeyUsage;
+    function GetProxyPathLen: TIdC_LONG;
   public
     Constructor Create(aX509: PX509; aCanFreeX509: Boolean = True); virtual;
     Destructor Destroy; override;
@@ -764,16 +808,21 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property notAfter: TDateTime read RnotAfter;
     property SerialNumber : string read GetSerialNumber;
     property DisplayInfo : TStrings read GetDisplayInfo;
-    property IsSelfSigned : Boolean read GetIsSelfSigned;
+
     //
     property Certificate: PX509 read FX509;
     property PublicKey : TIdX509PublicKey read FPublicKey;
     property SubjectKeyIdentifier : String  read GetSubjectKeyIdentifier;
-    property AuthorityKeyIdentifier : String read GetAuthorityKeyIdentifier;
     property BasicConstraints : String read GetBasicConstraints;
     property ExtentionName[const AIndex : TIdC_INT] : string read GetExtentionName;
     property ExtentionCritical[const AIndex : TIdC_INT] : Boolean read GetExtentionCritical;
     property ExtensionValues[const AIndex : TIdC_INT] : string read GetExtentionValues;
+    property AuthorityKeyID : TIdX509AuthorityKeyID read  FAuthorityKeyID;
+    property KeyUsage : TIdX509KeyUsage read GetKeyUsage;
+    property ExtendedKeyUsage : TIdX509ExtKeyUsage read GetExtKeyUsage;
+    property ProxyPathLen : TIdC_LONG read GetProxyPathLen;
+    property Errors : TIdX509Errors read FErrors;
+    property Warnings : TIdX509Warnings read FWarnings;
   end;
 
   TIdSSLCipher = class(TObject)
@@ -4635,16 +4684,21 @@ begin
   FDisplayInfo := nil;
   FX509 := aX509;
   FCanFreeX509 := aCanFreeX509;
+  FErrors := TIdX509Errors.Create(FX509);
   FFingerprints := TIdX509Fingerprints.Create(FX509);
   FSigInfo := TIdX509SigInfo.Create(FX509);
   FPublicKey := TIdX509PublicKey.Create(FX509);
   FExtensions := TIdX509Exts.Create(FX509);
   FSubject := nil;
   FIssuer := nil;
+  FAuthorityKeyID := TIdX509AuthorityKeyID.Create(FX509);
+  FWarnings := TIdX509Warnings.Create(FX509);
 end;
 
 destructor TIdX509.Destroy;
 begin
+  FreeAndNil(FWarnings);
+  FreeAndNil(FAuthorityKeyID);
   FreeAndNil(FExtensions);
   FreeAndNil(FDisplayInfo);
   FreeAndNil(FSubject);
@@ -4658,61 +4712,38 @@ begin
   if FCanFreeX509 then begin
     X509_free(FX509);
   end;
+  FreeAndNil(FErrors);
   inherited Destroy;
 end;
 
 function TIdX509.GetSubjectKeyIdentifier: String;
-var Lsk : PASN1_OCTET_STRING;
+var
     LPtr : PAnsiChar;
     LLen : TIdC_INT;
+    LASN1 : PASN1_OCTET_STRING;
 begin
   Result := '';
-  Lsk := X509_get_ext_d2i(FX509, NID_subject_key_identifier,nil,nil);
-  if Assigned(Lsk) then begin
-      LPtr := PAnsiChar(ASN1_STRING_get0_data(PASN1_STRING(Lsk)));
-      LLen :=  ASN1_STRING_length(PASN1_STRING(Lsk));
-      Result := BytesToHexString(LPtr, LLen);
-      ASN1_OCTET_STRING_free(Lsk);
-  end;
-end;
-
-function TIdX509.GetAuthorityKeyIdentifier: String;
-var Lak : PAUTHORITY_KEYID;
-  LASN1 : PASN1_OCTET_STRING;
-    LPtr : PAnsiChar;
-    LLen : TIdC_INT;
-begin
-  Result := '';
-  Lak := X509_get_ext_d2i(FX509, NID_authority_key_identifier,nil,nil);
-  if Assigned(Lak) then begin
-    LASN1 := PAUTHORITY_KEYID_st(Lak)^.keyid;
-    if Assigned(LASN1) then begin
+  LASN1 := X509_get0_subject_key_id(FX509);
+  if Assigned(LASN1) then begin
       LPtr := PAnsiChar(ASN1_STRING_get0_data(PASN1_STRING(LASN1)));
       LLen :=  ASN1_STRING_length(PASN1_STRING(LASN1));
       Result := BytesToHexString(LPtr, LLen);
-    end;
-    AUTHORITY_KEYID_free(Lak);
   end;
 end;
 
 function TIdX509.GetBasicConstraints: String;
 var
-  LBs : PBASIC_CONSTRAINTS;
+  LFlags : TIdC_UINT32;
+  LPathLen : TIdC_LONG;
 begin
   Result := '';
-  LBs := X509_get_ext_d2i(FX509,NID_basic_constraints, nil, nil);
-  if Assigned(LBs) then begin
-    if LBs^.ca <> 0 then begin
-       Result := 'CA = True';
-       if Assigned(LBs^.pathlen) then  begin
-         if LBs^.pathlen.type_ =  V_ASN1_NEG_INTEGER then begin
-           Result := '(Pathlen = '+ IntToStr(ASN1_INTEGER_get(  LBs^.pathlen )) + ')';
-         end;
-       end;
-    end  else begin
-      Result := 'CA = False';
+  LFlags := X509_get_extension_flags(FX509);
+  if LFlags and  EXFLAG_CA = EXFLAG_CA then begin
+    Result := 'CA = True';
+    LPathLen := X509_get_pathlen(FX509);
+    if LPathLen > -1 then begin
+      Result := Result + ' (Pathlength: '+IntToStr(LPathLen)+')';
     end;
-    BASIC_CONSTRAINTS_free(LBs);
   end;
 end;
 
@@ -4776,9 +4807,82 @@ begin
   end;
 end;
 
-function TIdX509.GetIsSelfSigned: Boolean;
+function TIdX509.GetExtKeyUsage: TIdX509ExtKeyUsage;
+var LFlags : TIdC_UINT32;
 begin
-  Result := X509_NAME_cmp( Self.Subject.fX509Name, Self.Issuer.fX509Name ) = 0;
+  Result := [];
+  if X509_get_extension_flags(FX509) and EXFLAG_XKUSAGE = EXFLAG_XKUSAGE then begin
+    LFlags := X509_get_extended_key_usage(FX509);
+    if  (LFlags and XKU_SSL_SERVER = XKU_SSL_SERVER) then begin
+      Result := Result + [Server];
+    end;
+    if (LFlags and XKU_SSL_CLIENT = XKU_SSL_CLIENT) then begin
+      Result := Result + [Client];
+    end;
+    if (LFlags and XKU_SMIME = XKU_SMIME) then begin
+      Result := Result + [SMIME];
+    end;
+    if (LFlags and XKU_CODE_SIGN = XKU_CODE_SIGN) then begin
+      Result := Result + [CodeSign];
+    end;
+    if (LFlags and XKU_OCSP_SIGN = XKU_OCSP_SIGN) then begin
+      Result := Result +  [OCSPSign];
+    end;
+    if (LFlags and XKU_TIMESTAMP = XKU_TIMESTAMP) then begin
+      Result := Result + [TimeStamp];
+    end;
+    if (LFlags and XKU_DVCS  = XKU_DVCS) then begin
+      Result := Result + [DVCS];
+    end;
+    if (LFlags and XKU_ANYEKU = XKU_ANYEKU) then begin
+      Result := Result + [AnyEKU];
+    end;
+
+  end;
+end;
+
+function TIdX509.GetKeyUsage: TIdX509KeyUsage;
+var
+  LKeyUsage : TIdC_UINT32;
+begin
+  Result := [];
+  if X509_get_extension_flags(FX509) and EXFLAG_KUSAGE = EXFLAG_KUSAGE then begin
+
+    LKeyUsage :=X509_get_key_usage(FX509);
+    if LKeyUsage and KU_DIGITAL_SIGNATURE = KU_DIGITAL_SIGNATURE then begin
+      Result :=  Result + [DigitalSignature];
+    end;
+    if LKeyUsage and KU_NON_REPUDIATION = KU_NON_REPUDIATION then begin
+      Result := Result + [NonRepudiation];
+    end;
+    if  LKeyUsage and KU_KEY_ENCIPHERMENT = KU_KEY_ENCIPHERMENT then begin
+      Result := Result + [DataEncipherment];
+    end;
+    if LKeyUsage and KU_KEY_AGREEMENT = KU_KEY_AGREEMENT then begin
+      Result := Result + [KeyAgreement];
+    end;
+    if LKeyUsage and KU_KEY_CERT_SIGN = KU_KEY_CERT_SIGN then begin
+      Result := Result + [CertSign];
+    end;
+    if LKeyUsage and KU_CRL_SIGN = KU_CRL_SIGN then begin
+      Result := Result + [CRLSign];
+    end;
+    if LKeyUsage and KU_ENCIPHER_ONLY = KU_ENCIPHER_ONLY  then begin
+      Result := Result + [EncipherOnly];
+    end;
+    if LKeyUsage and KU_DECIPHER_ONLY = KU_DECIPHER_ONLY  then begin
+      Result := Result + [DecipherOnly];
+    end;
+  end;
+end;
+
+function TIdX509.GetProxyPathLen: TIdC_LONG;
+begin
+  Result := -1;
+  if X509_get_extension_flags(FX509) and EXFLAG_PROXY = EXFLAG_PROXY then
+  begin
+    Result := X509_get_proxy_pathlen(FX509);
+  end;
 end;
 
 function TIdX509.GetSerialNumber: String;
@@ -5021,6 +5125,164 @@ begin
 end;
 
 {$I IdSymbolDeprecatedOff.inc}
+
+{ TIdX509AuthorityKeyID }
+
+function TIdX509AuthorityKeyID.GetIssuerCount : TIdC_INT;
+var
+    LGNs : PGENERAL_NAMES;
+begin
+  Result := 0;
+  LGNs := X509_get0_authority_issuer( FX509);
+  if Assigned(LGNs) then begin
+    Result := sk_GENERAL_NAME_num(LGNs);
+  end;
+end;
+
+function DirName(const ADirName : PX509_NAME) : String;
+var i, Le_count : TIdC_INT;
+  LE : PX509_NAME_ENTRY;
+  LASN1 : PASN1_STRING;
+  LOBJ : PASN1_OBJECT;
+  LBuf : array [0..1024] of TIdAnsiChar;
+  LNoName : TIdC_INT;
+begin
+  Result := '';
+  Le_count := X509_NAME_entry_count(ADirName);
+
+  for i := 0 to Le_count - 1 do begin
+     LE := X509_NAME_get_entry(  ADirName, i);
+     LOBJ := X509_NAME_ENTRY_get_object(LE);
+     OBJ_obj2txt(@LBuf[0],1024,LOBJ,LNoName);
+     LASN1 := X509_NAME_ENTRY_get_data(LE);
+     Result := Result + ' '+ String(LBuf) + ' = ' + String(PAnsiChar(ASN1_STRING_get0_data(LASN1))) +';';
+  end;
+  Result := Trim(Result);
+end;
+
+function TIdX509AuthorityKeyID.GetIssuer(const AIndex: TIdC_INT): String;
+var
+    LGNs : PGENERAL_NAMES;
+    LG : PGENERAL_NAME;
+    LType : TIdC_INT;
+
+    LPtr : Pointer;
+begin
+  Result := '';
+  LGNs := X509_get0_authority_issuer( FX509);
+  if Assigned(LGNs) then begin
+     LG := sk_GENERAL_NAME_value( LGNs, AIndex);
+     LPTr := GENERAL_NAME_get0_value(LG,  @LType);
+     case LType of
+       GEN_OTHERNAME :
+       begin
+          Result := 'Other Name';
+       end;
+       GEN_EMAIL :
+       begin
+          Result := 'E-Mail' ;
+       end;
+       GEN_DNS  :
+       begin
+         Result := 'DNS';
+         Result := Result + ' '+String(ASN1_STRING_get0_data(LPtr));
+       end;
+       GEN_X400 :
+       begin
+         Result := 'x400';
+       end;
+       GEN_DIRNAME :
+       begin
+          Result := 'Dir Name';
+          Result := Result + ' '+DirName(PX509_NAME(LPtr));
+       end;
+       GEN_EDIPARTY : begin
+         Result := 'EDI Party';
+       end;
+       GEN_URI :
+        begin
+          Result := 'URI';
+
+          Result := Result + ' '+String(ASN1_STRING_get0_data(LPtr));
+       end;
+       GEN_IPADD : begin
+          Result := 'IP Address';
+       end;
+       GEN_RID  :
+       begin
+         Result := 'Registered ID';
+       end;
+     end;
+  end;
+
+end;
+
+function TIdX509AuthorityKeyID.GetKeyId: String;
+var
+  LASN1 : PASN1_OCTET_STRING;
+    LPtr : PAnsiChar;
+    LLen : TIdC_INT;
+begin
+  Result := '';
+  LASN1 := X509_get0_authority_key_id(FX509);
+  if Assigned(LASN1) then begin
+    LPtr := PAnsiChar(ASN1_STRING_get0_data(PASN1_STRING(LASN1)));
+      LLen :=  ASN1_STRING_length(PASN1_STRING(LASN1));
+      Result := BytesToHexString(LPtr, LLen);
+  end;
+end;
+
+function TIdX509AuthorityKeyID.GetSerial: TIdC_INT64;
+var
+  LASN1 : PASN1_INTEGER;
+
+begin
+  Result := -1;
+  LASN1 :=X509_get0_authority_serial(FX509);
+  if Assigned(LASN1) then begin
+    ASN1_INTEGER_get_int64(@Result,LASN1);
+  end;
+end;
+
+{ TIdX509Warnings }
+
+function TIdX509Warnings.GetIsObsoleteV1: Boolean;
+begin
+  Result := X509_get_extension_flags(FX509) and  EXFLAG_V1 = EXFLAG_V1;
+end;
+
+function TIdX509Warnings.GetIsSelfSigned: Boolean;
+begin
+  Result :=  X509_get_extension_flags(FX509) and EXFLAG_SI = EXFLAG_SI;
+end;
+
+function TIdX509Warnings.GetSubjectAndIssuerMatch: Boolean;
+begin
+  Result := X509_get_extension_flags(FX509) and EXFLAG_SS = EXFLAG_SS;
+end;
+
+{ TIdX509Errors }
+
+
+function TIdX509Errors.GetInvalidInconsistantValues: Boolean;
+begin
+  Result := X509_get_extension_flags(FX509) and EXFLAG_INVALID = EXFLAG_INVALID;
+end;
+
+function TIdX509Errors.GetInvalidPolicy: Boolean;
+begin
+  Result := X509_get_extension_flags(FX509) and EXFLAG_INVALID_POLICY = EXFLAG_INVALID_POLICY;
+end;
+
+function TIdX509Errors.GetNoFingerprint: Boolean;
+begin
+  Result := X509_get_extension_flags(FX509) and EXFLAG_NO_FINGERPRINT = EXFLAG_NO_FINGERPRINT;
+end;
+
+function TIdX509Errors.GetUnhandledCriticalExtension: Boolean;
+begin
+  Result := X509_get_extension_flags(FX509) and  EXFLAG_CRITICAL = EXFLAG_CRITICAL;
+end;
 
 initialization
   Assert(SSLIsLoaded=nil);

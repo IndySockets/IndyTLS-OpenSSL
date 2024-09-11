@@ -45,6 +45,7 @@ uses
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_asn1t,
+  IdOpenSSLHeaders_stack,
   IdOpenSSLHeaders_x509;
 
 const
@@ -122,6 +123,12 @@ const
   EXFLAG_FRESHEST         = $1000;
   (* Self signed *)
   EXFLAG_SS               = $2000;
+
+  EXFLAG_BCONS_CRITICAL   = $10000; //introudced 3.0.0
+  EXFLAG_AKID_CRITICAL    = $20000; //introduced 3.0.0
+  EXFLAG_SKID_CRITICAL    = $40000; //introduced 3.0.0
+  EXFLAG_SAN_CRITICAL     = $80000; //introudced 3.0.0
+  EXFLAG_NO_FINGERPRINT   = $100000; //introduced 3.0.0
 
   KU_DIGITAL_SIGNATURE    = $0080;
   KU_NON_REPUDIATION      = $0040;
@@ -366,6 +373,9 @@ type
   GENERAL_NAME = GENERAL_NAME_st;
   PGENERAL_NAME = ^GENERAL_NAME;
 
+  PSTACK_OF_GENERAL_NAME = Pointer;
+  PGENERAL_NAMES = PSTACK_OF_GENERAL_NAME;
+
   ACCESS_DESCRIPTION_st = record
     method: PASN1_OBJECT;
     location: PGENERAL_NAME;
@@ -411,7 +421,7 @@ type
 
   AUTHORITY_KEYID_st = record
     keyid: PASN1_OCTET_STRING;
-    issuer: Pointer; //PGENERAL_NAMES;
+    issuer: PGENERAL_NAMES;
     serial: PASN1_INTEGER;
   end;
   PAUTHORITY_KEYID_st = ^AUTHORITY_KEYID_st;
@@ -919,7 +929,7 @@ var
   X509_get_extended_key_usage: function (x: PX509): TIdC_UINT32; cdecl = nil;
   X509_get0_subject_key_id: function (x: PX509): PASN1_OCTET_STRING; cdecl = nil;
   X509_get0_authority_key_id: function (x: PX509): PASN1_OCTET_STRING; cdecl = nil;
-  //function X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;
+  X509_get0_authority_issuer: function(x : PX509) : PGENERAL_NAMES;  cdecl = nil;
   X509_get0_authority_serial: function (x: PX509): PASN1_INTEGER; cdecl = nil;
 
   X509_PURPOSE_get_count: function : TIdC_INT; cdecl = nil;
@@ -1165,7 +1175,7 @@ var
   function X509_get_extended_key_usage(x: PX509): TIdC_UINT32 cdecl; external CLibCrypto;
   function X509_get0_subject_key_id(x: PX509): PASN1_OCTET_STRING cdecl; external CLibCrypto;
   function X509_get0_authority_key_id(x: PX509): PASN1_OCTET_STRING cdecl; external CLibCrypto;
-  //function X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;
+  function X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;  cdecl; external CLibCrypto;
   function X509_get0_authority_serial(x: PX509): PASN1_INTEGER cdecl; external CLibCrypto;
 
   function X509_PURPOSE_get_count: TIdC_INT cdecl; external CLibCrypto;
@@ -1269,6 +1279,27 @@ var
 
 
 {$ENDIF}
+type
+  Tsk_GENERAL_NAME_new = function(cmp : Tsk_new_cmp) : PSTACK_OF_GENERAL_NAME cdecl;
+  Tsk_GENERAL_NAME_new_null = function : PSTACK_OF_GENERAL_NAME cdecl;
+  Tsk_GENERAL_NAME_free = procedure(st : PSTACK_OF_GENERAL_NAME) cdecl;
+  Tsk_GENERAL_NAME_num = function (const sk : PSTACK_OF_GENERAL_NAME) : TIdC_INT cdecl;
+  Tsk_GENERAL_NAME_value = function (const sk : PSTACK_OF_GENERAL_NAME; i : TIdC_INT) : PGENERAL_NAME cdecl;
+  Tsk_GENERAL_NAME_push = function (sk : PSTACK_OF_GENERAL_NAME; st : PGENERAL_NAME) : TIdC_INT cdecl;
+  Tsk_GENERAL_NAME_dup = function (sk : PSTACK_OF_GENERAL_NAME) : PSTACK_OF_GENERAL_NAME cdecl;
+  Tsk_GENERAL_NAME_find = function (sk : PSTACK_OF_GENERAL_NAME; val : PGENERAL_NAME) : TIdC_INT cdecl;
+  Tsk_GENERAL_NAME_pop_free = procedure (sk : PSTACK_OF_GENERAL_NAME; func: Tsk_pop_free_func) cdecl;
+
+var
+  sk_GENERAL_NAME_new :  Tsk_GENERAL_NAME_new absolute sk_new;
+  sk_GENERAL_NAME_new_null : Tsk_GENERAL_NAME_new_null absolute sk_new_null;
+  sk_GENERAL_NAME_free : Tsk_GENERAL_NAME_free absolute sk_free;
+  sk_GENERAL_NAME_num :  Tsk_GENERAL_NAME_num absolute sk_num;
+  sk_GENERAL_NAME_value : Tsk_GENERAL_NAME_value absolute sk_value;
+  sk_GENERAL_NAME_push : Tsk_GENERAL_NAME_push absolute sk_push;
+  sk_GENERAL_NAME_dup : Tsk_GENERAL_NAME_dup absolute sk_dup;
+  sk_GENERAL_NAME_find : Tsk_GENERAL_NAME_find absolute sk_find;
+  sk_GENERAL_NAME_pop_free : Tsk_GENERAL_NAME_pop_free absolute sk_pop_free;
 
 implementation
 
@@ -1427,7 +1458,7 @@ const
   X509_get_extended_key_usage_procname = 'X509_get_extended_key_usage';
   X509_get0_subject_key_id_procname = 'X509_get0_subject_key_id';
   X509_get0_authority_key_id_procname = 'X509_get0_authority_key_id';
-  //function X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;
+  X509_get0_authority_issuer_procname =  'X509_get0_authority_issuer';
   X509_get0_authority_serial_procname = 'X509_get0_authority_serial';
 
   X509_PURPOSE_get_count_procname = 'X509_PURPOSE_get_count';
@@ -1907,8 +1938,12 @@ begin
 end;
 
 
-  //function X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;
-function  ERR_X509_get0_authority_serial(x: PX509): PASN1_INTEGER; 
+function ERR_X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(X509_get0_authority_issuer_procname);
+end;
+
+function  ERR_X509_get0_authority_serial(x: PX509): PASN1_INTEGER;
 begin
   EIdAPIFunctionNotPresent.RaiseException(X509_get0_authority_serial_procname);
 end;
@@ -3678,6 +3713,36 @@ begin
     {$ifend}
   end;
 
+  X509_get0_authority_issuer := LoadLibFunction(ADllHandle, X509_get0_authority_issuer_procname);
+  FuncLoadError := not assigned(X509_get0_subject_key_id);
+  if FuncLoadError then
+  begin
+    {$if not defined(X509_get0_authority_issuer_allownil)}
+    X509_get0_authority_issuer := @ERR_X509_get0_authority_issuer;
+    {$ifend}
+    {$if declared(X509_get0_authority_issuer_introduced)}
+    if LibVersion < X509_get0_subject_key_id_introduced then
+    begin
+      {$if declared(FC_X509_get0_authority_issuer)}
+      X509_get0_subject_key_id := @FC_X509_get0_subject_key_id;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(X509_get0_authority_issuer_removed)}
+    if X509_get0_subject_key_id_removed <= LibVersion then
+    begin
+      {$if declared(_X509_get0_authority_issuer)}
+      X509_get0_subject_key_id := @_X509_get0_subject_key_id;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(X509_get0_authority_issuer_allownil)}
+    if FuncLoadError then
+      AFailed.Add('X509_get0_authority_issuer');
+    {$ifend}
+  end;
 
   X509_get0_authority_key_id := LoadLibFunction(ADllHandle, X509_get0_authority_key_id_procname);
   FuncLoadError := not assigned(X509_get0_authority_key_id);
