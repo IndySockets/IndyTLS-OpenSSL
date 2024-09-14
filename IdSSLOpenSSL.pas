@@ -5177,7 +5177,8 @@ end;
 
 function ASN1_ToIPAddress(a : PASN1_OCTET_STRING) : String;
 var
-  LIPv6 : ^TIdIPv6Address;
+  LIPv6 : TIdIPv6Address;
+  i : Integer;
 begin
   Result := '';
   if a.length = 4 then begin
@@ -5185,8 +5186,11 @@ begin
         IntToStr( a.data[2])+'.'+IntToStr(a.data[3]);
   end else begin
     if a.length = 16 then begin
-      LIPv6 := @a.data[0];
-      Result := IdGlobal.IPv6AddressToStr( LIPv6^);
+
+      for i := 0 to 7 do begin
+        LIPv6[i] := (a.data[i*2] shl 8) + (a.data[(i*2)+1]);
+      end;
+      Result := IdGlobal.IPv6AddressToStr( LIPv6);
     end;
   end;
 end;
