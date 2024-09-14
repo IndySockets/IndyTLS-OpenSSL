@@ -360,6 +360,13 @@ begin
       redtCertView.Lines.Add(RightJustify('X509v3 Basic Constraints: ',
         TAB1) + LStr);
     end;
+    if X509.AltSubjectNames.ItemsCount > -1 then begin
+       redtCertView.Lines.Add('');
+        redtCertView.Lines.Add(RightJustify(' Subject ALternative Name Count: ',TAB2)+IntToStr(X509.AltSubjectNames.ItemsCount));
+       for i := 0 to X509.AltSubjectNames.ItemsCount -1 do begin
+         redtCertView.Lines.Add(RightJustify('Subject ALternate Name '+IntToStr(i)+': ',TAB1)+X509.AltSubjectNames.Items[i]);
+       end;
+    end;
     DumpX509KeyUsage(X509 );
     DumpX509ExtKeyUsage(X509);
     LProxyPathLen := X509.ProxyPathLen;

@@ -2434,6 +2434,16 @@ begin
   Result := DT + Hrs / 24.0;
 end;
 
+function ASN1_OBJECT_ToStr(a : PASN1_OBJECT) : String;
+var
+  LBuf : array [0..1024] of TIdAnsiChar;
+  LNoName : TIdC_INT;
+begin
+   LNoName := 0;
+   OBJ_obj2txt(@LBuf[0],1024,a,LNoName);
+   Result := String(LBuf);
+end;
+
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
 
 function IdMalloc(num: UInt32): Pointer cdecl;
@@ -4662,12 +4672,10 @@ var
   sig_alg : PX509_ALGOR;
   signature : PASN1_BIT_STRING;
   lalgorithm : PASN1_OBJECT;
-  LBuffer: array[0..2048] of TIdAnsiChar;
 begin
   X509_get0_signature(signature,sig_alg, FX509);
   X509_ALGOR_get0(@lalgorithm, nil, nil, sig_alg);
-  OBJ_obj2txt(@LBuffer[0], 256, lalgorithm, 0);
-  Result := String(LBuffer);
+  Result :=  ASN1_OBJECT_ToStr(lalgorithm);
 end;
 
 function TIdX509SigInfo.GetSignature: String;
@@ -4792,16 +4800,12 @@ end;
 function TIdX509.GetExtentionName(const AIndex: TIdC_INT): string;
 var LExt : PX509_EXTENSION;
     LASN1 : PASN1_OBJECT;
-    LBuf: array[0..1024] of TIdAnsiChar;
-    LNoName : TIdC_INT;
 begin
   Result := '';
   if AIndex > -1 then begin
       LExt := X509_get_ext(FX509, AIndex);
      LASN1 := X509_EXTENSION_get_object(LExt);
-     LNoName := 0;
-     OBJ_obj2txt(@LBuf[0],1024,LASN1,LNoName);
-     Result := String(LBuf);
+     Result := ASN1_OBJECT_ToStr(LASN1);
   end;
 end;
 
@@ -5045,12 +5049,10 @@ end;
 function TIdX509PublicKey.GetAlgorithm: String;
 var LPubKey : PX509_PUBKEY;
   LAlgorithm : PASN1_OBJECT;
-  LBuffer: array[0..2048] of TIdAnsiChar;
 begin
   LPubKey := X509_get_X509_PUBKEY(FX509);
   X509_PUBKEY_get0_param(@LAlgorithm, nil, nil, nil,LPubKey);
-  OBJ_obj2txt(@LBuffer[0], 256, lalgorithm, 0);
-  Result := String(LBuffer);
+  Result := ASN1_OBJECT_ToStr(lalgorithm);
 end;
 
 function TIdX509PublicKey.GetEncoding: String;
@@ -5160,8 +5162,6 @@ var i, Le_count : TIdC_INT;
   LE : PX509_NAME_ENTRY;
   LASN1 : PASN1_STRING;
   LOBJ : PASN1_OBJECT;
-  LBuf : array [0..1024] of TIdAnsiChar;
-  LNoName : TIdC_INT;
 begin
   Result := '';
   Le_count := X509_NAME_entry_count(ADirName);
@@ -5169,66 +5169,76 @@ begin
   for i := 0 to Le_count - 1 do begin
      LE := X509_NAME_get_entry(  ADirName, i);
      LOBJ := X509_NAME_ENTRY_get_object(LE);
-     OBJ_obj2txt(@LBuf[0],1024,LOBJ,LNoName);
      LASN1 := X509_NAME_ENTRY_get_data(LE);
-     Result := Result + ' '+ String(LBuf) + ' = ' + String(PAnsiChar(ASN1_STRING_get0_data(LASN1))) +';';
+     Result := Result + ' '+ ASN1_OBJECT_ToStr(LOBJ) + ' = ' + String(PAnsiChar(ASN1_STRING_get0_data(LASN1))) +';';
   end;
   Result := Trim(Result);
+end;
+
+function ASN1_ToIPAddress(a : PASN1_OCTET_STRING) : String;
+var
+  LIPv6 : ^TIdIPv6Address;
+begin
+  Result := '';
+  if a.length = 4 then begin
+      Result := IntToStr( a.data[0]) +  '.' + IntToStr(a.data[1]) + '.'+
+        IntToStr( a.data[2])+'.'+IntToStr(a.data[3]);
+  end else begin
+    if a.length = 16 then begin
+      LIPv6 := @a.data[0];
+      Result := IdGlobal.IPv6AddressToStr( LIPv6^);
+    end;
+  end;
+end;
+
+function GeneralNameToStr(AGN : PGENERAL_NAME) : String;
+begin
+  Result := '';
+  case AGN.type_ of
+      GEN_OTHERNAME :
+        Result := 'Other Name';
+      GEN_EMAIL :
+      begin
+         Result := 'E-Mail: '+String(PAnsiChar(AGN.d.rfc822Name.data)) ;
+      end;
+      GEN_DNS :
+      begin
+         Result := 'DNS: '+String(PAnsiChar(AGN.d.dNSName.data));
+      end;
+      GEN_X400 :
+      begin
+         Result := 'X400';
+      end;
+      GEN_DIRNAME :
+      begin
+         Result := 'Dir Name: '+DirName(AGN.d.directoryName );
+      end;
+      GEN_EDIPARTY :
+      begin
+        Result := 'EDI Party';
+      end;
+      GEN_URI :
+      begin
+        Result := 'URI: '+String(PAnsiChar(AGN.d.uniformResourceIdentifier.data));
+      end;
+      GEN_IPADD : begin
+        Result := 'IP Address: '+ ASN1_ToIPAddress(AGN.d.iPAddress);
+      end;
+      GEN_RID :
+        Result := 'Registered ID: '+ ASN1_OBJECT_ToStr(AGN.d.rid);
+  end;
 end;
 
 function TIdX509AuthorityKeyID.GetIssuer(const AIndex: TIdC_INT): String;
 var
     LGNs : PGENERAL_NAMES;
     LG : PGENERAL_NAME;
-    LType : TIdC_INT;
-
-    LPtr : Pointer;
 begin
   Result := '';
   LGNs := X509_get0_authority_issuer( FX509);
   if Assigned(LGNs) then begin
      LG := sk_GENERAL_NAME_value( LGNs, AIndex);
-     LPTr := GENERAL_NAME_get0_value(LG,  @LType);
-     case LType of
-       GEN_OTHERNAME :
-       begin
-          Result := 'Other Name';
-       end;
-       GEN_EMAIL :
-       begin
-          Result := 'E-Mail' ;
-       end;
-       GEN_DNS  :
-       begin
-         Result := 'DNS';
-         Result := Result + ' '+String(ASN1_STRING_get0_data(LPtr));
-       end;
-       GEN_X400 :
-       begin
-         Result := 'x400';
-       end;
-       GEN_DIRNAME :
-       begin
-          Result := 'Dir Name';
-          Result := Result + ' '+DirName(PX509_NAME(LPtr));
-       end;
-       GEN_EDIPARTY : begin
-         Result := 'EDI Party';
-       end;
-       GEN_URI :
-        begin
-          Result := 'URI';
-
-          Result := Result + ' '+String(ASN1_STRING_get0_data(LPtr));
-       end;
-       GEN_IPADD : begin
-          Result := 'IP Address';
-       end;
-       GEN_RID  :
-       begin
-         Result := 'Registered ID';
-       end;
-     end;
+     Result :=  GeneralNameToStr(LG);
   end;
 
 end;
@@ -5329,19 +5339,8 @@ begin
   Result := '';
   GetGeneralNames;
   if Assigned(FGeneralNames) then begin
-     LGN := sk_GENERAL_NAME_value(FX509,AIndex);
-     case LGN.type_ of
-      GEN_OTHERNAME : ;
-      GEN_EMAIL : ;
-      GEN_DNS : ;
-      GEN_X400 : ;
-      GEN_DIRNAME :
-       Result := DirName(LGN.d.directoryName );
-      GEN_EDIPARTY : ;
-      GEN_URI : ;
-      GEN_IPADD : ;
-      GEN_RID : ;
-     end;
+     LGN := sk_GENERAL_NAME_value(FGeneralNames,AIndex);
+     Result := GeneralNameToStr(LGN);
   end;
 end;
 
