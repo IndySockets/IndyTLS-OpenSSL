@@ -809,6 +809,7 @@ var
   GENERAL_NAME_set0_othername: function (gen: PGENERAL_NAME; oid: PASN1_OBJECT; value: PASN1_TYPE): TIdC_INT; cdecl = nil;
   GENERAL_NAME_get0_otherName: function (const gen: PGENERAL_NAME; poid: PPASN1_OBJECT; pvalue: PPASN1_TYPE): TIdC_INT; cdecl = nil;
 
+  GENERAL_NAMES_free : procedure(a : PGENERAL_NAMES); cdecl =nil;
   //function i2s_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; const ia5: PASN1_OCTET_STRING): PIdAnsiChar;
   //function s2i_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_OCTET_STRING;
 
@@ -1055,6 +1056,7 @@ var
   function GENERAL_NAME_get0_value(const a: PGENERAL_NAME; ptype: PIdC_INT): Pointer cdecl; external CLibCrypto;
   function GENERAL_NAME_set0_othername(gen: PGENERAL_NAME; oid: PASN1_OBJECT; value: PASN1_TYPE): TIdC_INT cdecl; external CLibCrypto;
   function GENERAL_NAME_get0_otherName(const gen: PGENERAL_NAME; poid: PPASN1_OBJECT; pvalue: PPASN1_TYPE): TIdC_INT cdecl; external CLibCrypto;
+  procedure GENERAL_NAMES_free((a : PGENERAL_NAMES); cdecl;  external CLibCrypto;
 
   //function i2s_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; const ia5: PASN1_OCTET_STRING): PIdAnsiChar;
   //function s2i_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_OCTET_STRING;
@@ -1336,6 +1338,7 @@ const
   GENERAL_NAME_get0_value_procname = 'GENERAL_NAME_get0_value';
   GENERAL_NAME_set0_othername_procname = 'GENERAL_NAME_set0_othername';
   GENERAL_NAME_get0_otherName_procname = 'GENERAL_NAME_get0_otherName';
+  GENERAL_NAMES_free_procname = 'GENERAL_NAMES_free';
 
   //function i2s_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; const ia5: PASN1_OCTET_STRING): PIdAnsiChar;
   //function s2i_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_OCTET_STRING;
@@ -1619,7 +1622,10 @@ begin
   EIdAPIFunctionNotPresent.RaiseException(GENERAL_NAME_get0_otherName_procname);
 end;
 
-
+procedure ERR_GENERAL_NAMES_free(a : PGENERAL_NAMES);
+begin
+  EIdAPIFunctionNotPresent.RaiseException(GENERAL_NAMES_free_procname);
+end;
 
   //function i2s_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; const ia5: PASN1_OCTET_STRING): PIdAnsiChar;
   //function s2i_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_OCTET_STRING;
@@ -2462,6 +2468,38 @@ begin
     {$if not defined(GENERAL_NAME_get0_otherName_allownil)}
     if FuncLoadError then
       AFailed.Add('GENERAL_NAME_get0_otherName');
+    {$ifend}
+  end;
+
+
+  GENERAL_NAMES_free := LoadLibFunction(ADllHandle, GENERAL_NAMES_free_procname);
+  FuncLoadError := not assigned(GENERAL_NAME_get0_otherName);
+  if FuncLoadError then
+  begin
+    {$if not defined(GENERAL_NAMES_free_allownil)}
+    GENERAL_NAMES_free := @ERR_GENERAL_NAMES_free;
+    {$ifend}
+    {$if declared(GENERAL_NAMES_free_introduced)}
+    if LibVersion < GENERAL_NAMES_free_introduced then
+    begin
+      {$if declared(FC_GENERAL_NAMES_free)}
+      GENERAL_NAMES_free := @FC_GENERAL_NAMES_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(GENERAL_NAMES_free_removed)}
+    if GENERAL_NAMES_free_removed <= LibVersion then
+    begin
+      {$if declared(_GENERAL_NAMES_free)}
+      GENERAL_NAMES_free := @_GENERAL_NAMES_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(GENERAL_NAMES_free_allownil)}
+    if FuncLoadError then
+      AFailed.Add('GENERAL_NAMES_free');
     {$ifend}
   end;
 
@@ -5003,6 +5041,7 @@ begin
   GENERAL_NAME_get0_value := nil;
   GENERAL_NAME_set0_othername := nil;
   GENERAL_NAME_get0_otherName := nil;
+  GENERAL_NAMES_free := nil;
   i2a_ACCESS_DESCRIPTION := nil;
   DIST_POINT_set_dpname := nil;
   NAME_CONSTRAINTS_check := nil;
