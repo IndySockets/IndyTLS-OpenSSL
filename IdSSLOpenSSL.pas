@@ -279,6 +279,7 @@ uses
   IdOpenSSLHeaders_ssl,
   IdOpenSSLHeaders_evp,
   IdOpenSSLHeaders_x509,
+  IdOpenSSLHeaders_x509v3,
   IdSSLOpenSSLFIPS {Ensure FIPS functions initialised};
 
 type
@@ -630,7 +631,7 @@ type
     //to the X509 or something else.
     FX509 : PX509;
   public
-    constructor Create( aX509: PX509);
+    constructor Create( aX509: PX509); virtual;
     //
     property Certificate: PX509 read FX509;
   end;
@@ -729,9 +730,8 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property IssuerCount : TIdC_INT read GetIssuerCount;
   end;
   TIdX509Warnings = class(TIdX509Info)
-  private
-    function GetIsObsoleteV1: Boolean;
   protected
+    function GetIsObsoleteV1: Boolean;
     function GetIsSelfSigned: Boolean;
     function GetSubjectAndIssuerMatch: Boolean;
   public
@@ -750,6 +750,19 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property InvalidInconsistantValues : Boolean read GetInvalidInconsistantValues;
     property InvalidPolicy : Boolean read GetInvalidPolicy;
     property UnhandledCriticalExtention : Boolean read GetUnhandledCriticalExtension;
+  end;
+  TIdX509AltSubjectAltNames = class(TIdX509Info)
+  private
+    function GetItems(const AIndex: TIdC_INT): string;
+    function GetItemsCount: TIdC_INT;
+  protected
+    FGeneralNames : PGENERAL_NAMES;
+    procedure GetGeneralNames;
+  public
+    constructor Create( aX509: PX509); override;
+    destructor Destroy; override;
+    property Items[const AIndex : TIdC_INT] : string read GetItems;
+    property ItemsCount : TIdC_INT read GetItemsCount;
   end;
   TIdX509KeyUse = (DigitalSignature, NonRepudiation, KeyEncipherment,
     DataEncipherment, KeyAgreement, CertSign, CRLSign, EncipherOnly, DecipherOnly);
@@ -770,6 +783,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     FIssuer  : TIdX509Name;
     FDisplayInfo : TStrings;
     FAuthorityKeyID : TIdX509AuthorityKeyID;
+    FAltSubjectNames : TIdX509AltSubjectAltNames;
     function GetExtensionCount: TIdC_LONG;
     function RSubject:TIdX509Name;
     function RIssuer:TIdX509Name;
@@ -803,6 +817,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property Fingerprint: TIdSSLEVP_MD read RFingerprint;
     property FingerprintAsString: String read RFingerprintAsString;
     property Subject: TIdX509Name read RSubject;
+    property AltSubjectNames : TIdX509AltSubjectAltNames read  FAltSubjectNames;
     property Issuer: TIdX509Name read RIssuer;
     property notBefore: TDateTime read RnotBefore;
     property notAfter: TDateTime read RnotAfter;
@@ -894,7 +909,6 @@ uses
   IdOpenSSLHeaders_obj_mac,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_bn,
-  IdOpenSSLHeaders_x509v3,
   IdOpenSSLHeaders_x509_vfy,
   IdOpenSSLHeaders_pkcs12,
   IdOpenSSLHeaders_sslerr,
@@ -4684,6 +4698,7 @@ begin
   FDisplayInfo := nil;
   FX509 := aX509;
   FCanFreeX509 := aCanFreeX509;
+  FAltSubjectNames := TIdX509AltSubjectAltNames.Create(FX509);
   FErrors := TIdX509Errors.Create(FX509);
   FFingerprints := TIdX509Fingerprints.Create(FX509);
   FSigInfo := TIdX509SigInfo.Create(FX509);
@@ -4705,6 +4720,7 @@ begin
   FreeAndNil(FIssuer);
   FreeAndNil(FFingerprints);
   FreeAndNil(FSigInfo);
+  FreeAndNil( FAltSubjectNames );
   { If the X.509 certificate handle was obtained from a certificate
   store or from the SSL connection as a peer certificate, then DO NOT
   free it here!  The memory is owned by the OpenSSL library and will
@@ -5282,6 +5298,60 @@ end;
 function TIdX509Errors.GetUnhandledCriticalExtension: Boolean;
 begin
   Result := X509_get_extension_flags(FX509) and  EXFLAG_CRITICAL = EXFLAG_CRITICAL;
+end;
+
+{ TIdX509AltSubjectAltNames }
+
+constructor TIdX509AltSubjectAltNames.Create(aX509: PX509);
+begin
+  inherited Create(aX509);
+  FGeneralNames := nil;
+end;
+
+destructor TIdX509AltSubjectAltNames.Destroy;
+begin
+  if Assigned(FGeneralNames) then begin
+    GENERAL_NAMES_free(FGeneralNames);
+  end;
+  inherited;
+end;
+
+procedure TIdX509AltSubjectAltNames.GetGeneralNames;
+begin
+  if not Assigned(FGeneralNames) then begin
+    FGeneralNames := X509_get_ext_d2i(FX509, NID_subject_alt_name, nil, nil);
+  end;
+end;
+
+function TIdX509AltSubjectAltNames.GetItems(const AIndex: TIdC_INT): string;
+var LGN : PGENERAL_NAME;
+begin
+  Result := '';
+  GetGeneralNames;
+  if Assigned(FGeneralNames) then begin
+     LGN := sk_GENERAL_NAME_value(FX509,AIndex);
+     case LGN.type_ of
+      GEN_OTHERNAME : ;
+      GEN_EMAIL : ;
+      GEN_DNS : ;
+      GEN_X400 : ;
+      GEN_DIRNAME :
+       Result := DirName(LGN.d.directoryName );
+      GEN_EDIPARTY : ;
+      GEN_URI : ;
+      GEN_IPADD : ;
+      GEN_RID : ;
+     end;
+  end;
+end;
+
+function TIdX509AltSubjectAltNames.GetItemsCount: TIdC_INT;
+begin
+  Result := -1;
+  GetGeneralNames;
+  if Assigned(FGeneralNames) then begin
+    Result := sk_GENERAL_NAME_num(FGeneralNames);
+  end;
 end;
 
 initialization
