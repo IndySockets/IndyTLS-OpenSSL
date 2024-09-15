@@ -133,6 +133,8 @@ type
   TFTPThread = class(TThread)
   protected
     FVerifyResult: Boolean;
+    FError : Integer;
+    FDepth : Integer;
     FX509: TIdX509;
     FFTP: TIdFTP;
     procedure PromptVerifyCert;
@@ -1084,6 +1086,8 @@ function TFTPThread.DoVerifyPeer(Certificate: TIdX509; AOk: Boolean;
   ADepth, AError: Integer): Boolean;
 begin
   FX509 := Certificate;
+  Self.FError := AError;
+  Self.FDepth := ADepth;
   Synchronize(Self, PromptVerifyCert);
 end;
 
@@ -1095,6 +1099,7 @@ begin
     LFrm := TfrmCertViewer.Create(nil);
     try
       LFrm.X509 := Self.FX509;
+      LFrm.Error := Self.FError;
       Self.FVerifyResult := LFrm.ShowModal = mrYes;
     finally
       FreeAndNil(LFrm);

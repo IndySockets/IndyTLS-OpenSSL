@@ -16,6 +16,16 @@ object frmCertViewer: TfrmCertViewer
     558
     385)
   TextHeight = 15
+  object lblErrorMessage: TLabel
+    Left = 8
+    Top = 8
+    Width = 542
+    Height = 74
+    Anchors = [akLeft, akTop, akRight]
+    AutoSize = False
+    FocusControl = redtCertView
+    WordWrap = True
+  end
   object Panel2: TPanel
     Left = 0
     Top = 351
@@ -68,9 +78,9 @@ object frmCertViewer: TfrmCertViewer
   end
   object redtCertView: TRichEdit
     Left = 8
-    Top = 32
+    Top = 88
     Width = 542
-    Height = 313
+    Height = 257
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
