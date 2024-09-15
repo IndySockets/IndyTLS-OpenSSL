@@ -338,14 +338,16 @@ begin
         TAB1) + LStr);
     end;
     LStr := X509.AuthorityKeyID.KeyID;
-    if LStr <> '' then
+    if (LStr <> '') or (X509.AuthorityKeyID.Serial <> 0) then
     begin
       redtCertView.Lines.Add
         (RightJustify('X509v3 Authority Key Identifier: ', TAB1));
-      redtCertView.Lines.Add(RightJustify('Key ID: ', TAB2) + LStr);
+      if LStr <> '' then begin
+        redtCertView.Lines.Add(RightJustify('Key ID: ', TAB2) + LStr);
+      end;
       for i := 0 to X509.AuthorityKeyID.IssuerCount - 1 do
       begin
-        redtCertView.Lines.Add(RightJustify('', TAB3) +
+        redtCertView.Lines.Add(RightJustify('', TAB2) +
           X509.AuthorityKeyID.Issuer[i]);
       end;
       if X509.AuthorityKeyID.Serial > -1 then
