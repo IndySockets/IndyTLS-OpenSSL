@@ -1462,13 +1462,13 @@ end;
 
 
   (* Set the result of a UI_STRING. *)
-function  ERR_UI_set_result(ui: PUI; uis: PUI_String; const result: PIdAnsiChar): TIdC_INT; 
+function  ERR_UI_set_result(ui: PUI; uis: PUI_String; const _result: PIdAnsiChar): TIdC_INT;
 begin
   EIdAPIFunctionNotPresent.RaiseException(UI_set_result_procname);
 end;
 
 
-function  ERR_UI_set_result_ex(ui: PUI; uis: PUI_String; const result: PIdAnsiChar; len: TIdC_INT): TIdC_INT; 
+function  ERR_UI_set_result_ex(ui: PUI; uis: PUI_String; const _result: PIdAnsiChar; len: TIdC_INT): TIdC_INT;
 begin
   EIdAPIFunctionNotPresent.RaiseException(UI_set_result_ex_procname);
 end;

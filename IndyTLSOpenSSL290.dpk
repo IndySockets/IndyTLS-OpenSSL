@@ -121,6 +121,7 @@ contains
   IdSSLOpenSSLConsts in 'IdSSLOpenSSLConsts.pas',
   IdSSLOpenSSLExceptionHandlers in 'IdSSLOpenSSLExceptionHandlers.pas',
   IdSSLOpenSSLLoader in 'IdSSLOpenSSLLoader.pas',
-  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas';
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
+  IdSSLOpenSSLFIPS in 'IdSSLOpenSSLFIPS.pas';
 
 end.

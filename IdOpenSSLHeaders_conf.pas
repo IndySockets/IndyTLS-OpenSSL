@@ -494,7 +494,7 @@ begin
 end;
 
 
-function  ERR_NCONF_get_number_e(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT; 
+function  ERR_NCONF_get_number_e(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; _result: PIdC_LONG): TIdC_INT;
 begin
   EIdAPIFunctionNotPresent.RaiseException(NCONF_get_number_e_procname);
 end;
