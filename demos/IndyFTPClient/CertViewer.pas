@@ -425,7 +425,7 @@ begin
     X509_V_ERR_DIFFERENT_CRL_SCOPE :
       begin
         lblErrorMessage.Caption :=
-          'The only CRLs that could be found did not match the scope of the certificate.';
+          'The only Certificate Revocation Lists (CRLs) that could be found did not match the scope of the certificate.';
       end;
     X509_V_ERR_UNSUPPORTED_EXTENSION_FEATURE :
       begin
@@ -460,7 +460,7 @@ begin
     X509_V_ERR_CRL_PATH_VALIDATION_ERROR :
       begin
         lblErrorMessage.Caption :=
-          'An error occured when attempting to verify the CRL path. This error can only happen if extended CRL checking is enabled.';
+          'An error occured when attempting to verify the Certificate Revocation List (CRL) path. This error can only happen if extended CRL checking is enabled.';
       end;
     X509_V_ERR_APPLICATION_VERIFICATION :
       begin
