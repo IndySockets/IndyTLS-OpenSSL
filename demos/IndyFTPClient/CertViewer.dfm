@@ -26,6 +26,14 @@ object frmCertViewer: TfrmCertViewer
     FocusControl = redtCertView
     WordWrap = True
   end
+  object lblAcceptThisCertificate: TLabel
+    Left = 8
+    Top = 88
+    Width = 119
+    Height = 15
+    Caption = 'A&ccept this certificate?'
+    FocusControl = redtCertView
+  end
   object Panel2: TPanel
     Left = 0
     Top = 351
@@ -78,9 +86,9 @@ object frmCertViewer: TfrmCertViewer
   end
   object redtCertView: TRichEdit
     Left = 8
-    Top = 88
+    Top = 104
     Width = 542
-    Height = 257
+    Height = 217
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
@@ -96,5 +104,14 @@ object frmCertViewer: TfrmCertViewer
     WantTabs = True
     WantReturns = False
     WordWrap = False
+  end
+  object chkacceptOnlyOnce: TCheckBox
+    Left = 8
+    Top = 328
+    Width = 542
+    Height = 17
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = '&Accept Certificate Only Once'
+    TabOrder = 2
   end
 end

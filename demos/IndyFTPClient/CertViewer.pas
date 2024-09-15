@@ -17,6 +17,8 @@ type
     HelpBtn: TButton;
     redtCertView: TRichEdit;
     lblErrorMessage: TLabel;
+    chkacceptOnlyOnce: TCheckBox;
+    lblAcceptThisCertificate: TLabel;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -37,11 +39,13 @@ type
 var
   frmCertViewer: TfrmCertViewer;
 
+
 implementation
 
 {$R *.dfm}
 
 uses mainform, dkgFTPConnect, IdCTypes, IniFiles, System.UITypes,
+  System.IOUtils,
   ProgUtils, IdOpenSSLHeaders_x509, IdOpenSSLHeaders_x509_vfy;
 
 function RightJustify(const AText: String; ALen: Integer): String;
@@ -248,9 +252,9 @@ end;
 procedure TfrmCertViewer.SetError(const Value: Integer);
 begin
   FError := Value;
-  {Thuis is stuff from: https://linux.die.net/man/3/x509_store_ctx_get_error
-  I found that the error message from  X509_verify_cert_error_string does not
-  always accurately describe the issue involved.}
+  { Thuis is stuff from: https://linux.die.net/man/3/x509_store_ctx_get_error
+    I found that the error message from  X509_verify_cert_error_string does not
+    always accurately describe the issue involved. }
   case FError of
     X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
       begin
@@ -397,17 +401,17 @@ begin
         lblErrorMessage.Caption :=
           'The current candidate issuer certificate was rejected because its subject key identifier was present and did not match the authority key identifier current certificate. This is only set if issuer check debugging is enabled it is used for status notification and is not in itself an error. ';
       end;
-    X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH :
+    X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH:
       begin
         lblErrorMessage.Caption :=
           'The current candidate issuer certificate was rejected because its issuer name and serial number was present and did not match the authority key identifier of the current certificate. This is only set if issuer check debugging is enabled it is used for status notification and is not in itself an error. ';
       end;
-    X509_V_ERR_KEYUSAGE_NO_CERTSIGN :
+    X509_V_ERR_KEYUSAGE_NO_CERTSIGN:
       begin
-         lblErrorMessage.Caption :=
-           'The current candidate issuer certificate was rejected because its keyUsage extension does not permit certificate signing. This is only set if issuer check debugging is enabled it is used for status notification and is not in itself an error. ';
+        lblErrorMessage.Caption :=
+          'The current candidate issuer certificate was rejected because its keyUsage extension does not permit certificate signing. This is only set if issuer check debugging is enabled it is used for status notification and is not in itself an error. ';
       end;
-    X509_V_ERR_INVALID_EXTENSION :
+    X509_V_ERR_INVALID_EXTENSION:
       begin
         lblErrorMessage.Caption :=
           'A certificate extension had an invalid value (for example an incorrect encoding) or some value inconsistent with other extensions. ';
@@ -422,53 +426,53 @@ begin
         lblErrorMessage.Caption :=
           'The verification flags were set to require and explicit policy but none was present. ';
       end;
-    X509_V_ERR_DIFFERENT_CRL_SCOPE :
+    X509_V_ERR_DIFFERENT_CRL_SCOPE:
       begin
         lblErrorMessage.Caption :=
           'The only Certificate Revocation Lists (CRLs) that could be found did not match the scope of the certificate.';
       end;
-    X509_V_ERR_UNSUPPORTED_EXTENSION_FEATURE :
+    X509_V_ERR_UNSUPPORTED_EXTENSION_FEATURE:
       begin
         lblErrorMessage.Caption :=
           'Some feature of a certificate extension is not supported. Unused. ';
       end;
-    X509_V_ERR_PERMITTED_VIOLATION :
+    X509_V_ERR_PERMITTED_VIOLATION:
       begin
         lblErrorMessage.Caption :=
           'A name constraint violation occured in the permitted subtrees. ';
       end;
-    X509_V_ERR_EXCLUDED_VIOLATION :
+    X509_V_ERR_EXCLUDED_VIOLATION:
       begin
         lblErrorMessage.Caption :=
           'A name constraint violation occured in the excluded subtrees. ';
       end;
-    X509_V_ERR_SUBTREE_MINMAX :
+    X509_V_ERR_SUBTREE_MINMAX:
       begin
         lblErrorMessage.Caption :=
           'A certificate name constraints extension included a minimum or maximum field: this is not supported.';
       end;
-    X509_V_ERR_UNSUPPORTED_CONSTRAINT_TYPE :
+    X509_V_ERR_UNSUPPORTED_CONSTRAINT_TYPE:
       begin
         lblErrorMessage.Caption :=
           'An unsupported name constraint type was encountered. OpenSSL currently only supports directory name, DNS name, email and URI types. ';
       end;
-    X509_V_ERR_UNSUPPORTED_CONSTRAINT_SYNTAX :
+    X509_V_ERR_UNSUPPORTED_CONSTRAINT_SYNTAX:
       begin
         lblErrorMessage.Caption :=
           'The format of the name constraint is not recognised: for example an email address format of a form not mentioned in RFC3280 . This could be caused by a garbage extension or some new feature not currently supported.';
       end;
-    X509_V_ERR_CRL_PATH_VALIDATION_ERROR :
+    X509_V_ERR_CRL_PATH_VALIDATION_ERROR:
       begin
         lblErrorMessage.Caption :=
           'An error occured when attempting to verify the Certificate Revocation List (CRL) path. This error can only happen if extended CRL checking is enabled.';
       end;
-    X509_V_ERR_APPLICATION_VERIFICATION :
+    X509_V_ERR_APPLICATION_VERIFICATION:
       begin
         lblErrorMessage.Caption :=
           'An application specific error. This will never be returned unless explicitly set by an application. ';
       end
   else
-    lblErrorMessage.Caption := X509_verify_cert_error_string(FError);
+    lblErrorMessage.Caption := string(X509_verify_cert_error_string(FError));
 
   end;
 end;
