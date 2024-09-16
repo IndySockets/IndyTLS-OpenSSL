@@ -107,6 +107,8 @@ type
     procedure actFileDownloadExecute(Sender: TObject);
     procedure actFileUploadUpdate(Sender: TObject);
     procedure actFileDownloadUpdate(Sender: TObject);
+    procedure cboLocalCurrentDirKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
     LocalColumnToSort: Integer;
@@ -120,12 +122,14 @@ type
     procedure InitLog;
     // Thread procedure starts
     procedure ConnectFTP;
+    procedure ChangeLocalDir(const ADir: String);
     procedure ChangeRemoteDir(const ADir: String);
     //
     procedure PopulateLocalFiles;
     procedure PopulateRemoteFiles(const ACurDir: String);
     procedure RemoteLvClearArrows;
     procedure LocalClearArrows;
+    procedure DownloadFile(const AFile: String);
   public
     { Public declarations }
   end;
@@ -133,8 +137,8 @@ type
   TFTPThread = class(TThread)
   protected
     FVerifyResult: Boolean;
-    FError : Integer;
-    FDepth : Integer;
+    FError: Integer;
+    FDepth: Integer;
     FX509: TIdX509;
     FFTP: TIdFTP;
     procedure PromptVerifyCert;
@@ -157,7 +161,13 @@ type
     constructor Create(AFTP: TIdFTP; ANewDir: String); reintroduce;
     procedure Execute(); override;
   end;
-
+  TDownloadFileThread = class(TFTPThread)
+  protected
+    FFile : String;
+  public
+    constructor Create(AFTP: TIdFTP; AFile: String); reintroduce;
+    procedure Execute(); override;
+  end;
   TLogEventNotify = class(TIdNotify)
   protected
     FStr: String;
@@ -235,7 +245,7 @@ uses dkgFTPConnect, settingsdlg, frmAbout, frmBookmarks, CertViewer,
   IdFTPCommon,
   IdFTPList, IdGlobal, IdReplyRFC, IdSSLOpenSSLLoader,
   System.IOUtils, System.IniFiles, System.UITypes,
-  Winapi.CommCtrl,  ProgUtils, AcceptableCerts;
+  Winapi.CommCtrl, ProgUtils, AcceptableCerts;
 
 const
   DIR_IMAGE_IDX = 6;
@@ -257,14 +267,29 @@ begin
 end;
 
 procedure TfrmMainForm.actFileDownloadExecute(Sender: TObject);
+var
+  Li: TListItem;
 begin
-  //
+  if lvRemoteFiles.ItemIndex > -1 then
+  begin
+    Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
+    Self.DownloadFile(Li.Caption);
+  end;
+  Self.PopulateLocalFiles;
 end;
 
 procedure TfrmMainForm.actFileDownloadUpdate(Sender: TObject);
+var
+  Li: TListItem;
 begin
 
-  actFileDownload.Enabled := (not FThreadRunning) and IdFTPClient.Connected;
+  actFileDownload.Enabled := (not FThreadRunning) and IdFTPClient.Connected and
+    (Self.lvRemoteFiles.ItemIndex > -1);
+  if actFileDownload.Enabled then
+  begin
+    Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
+    actFileDownload.Enabled := Li.ImageIndex = FILE_IMAGE_IDX;
+  end;
 end;
 
 procedure TfrmMainForm.actFileFTPSitesExecute(Sender: TObject);
@@ -283,9 +308,12 @@ begin
         IdFTPClient.Username := LFTPSite.Username;
         IdFTPClient.Password := LFTPSite.Password;
         case LFTPSite.FTPPRotocol of
-          0 : IdFTPClient.UseTLS := utNoTLSSupport;
-          1 : IdFTPClient.UseTLS := utUseExplicitTLS;
-          2 : IdFTPClient.UseTLS := utUseImplicitTLS;
+          0:
+            IdFTPClient.UseTLS := utNoTLSSupport;
+          1:
+            IdFTPClient.UseTLS := utUseExplicitTLS;
+          2:
+            IdFTPClient.UseTLS := utUseImplicitTLS;
         end;
         case LFTPSite.TransferMode of
           0:
@@ -345,31 +373,36 @@ begin
         'Use_PORT_Transfers', False);
       LFrm.redtLog.Font.Name := redtLog.Font.Name;
       LFrm.redtLog.Font.Size := redtLog.Font.Size;
-      Lfrm.chklbAdvancedOptions.Checked[0] := IdFTPClient.UseHOST;
+      LFrm.chklbAdvancedOptions.Checked[0] := IdFTPClient.UseHOST;
       LFrm.chklbAdvancedOptions.Checked[1] := IdFTPClient.UseExtensionDataPort;
       LFrm.chklbAdvancedOptions.Checked[2] := IdFTPClient.TryNATFastTrack;
       LFrm.chklbAdvancedOptions.Checked[3] := IdFTPClient.UseMLIS;
       if LFrm.ShowModal = mrOk then
       begin
-        IdFTPClient.UseHOST := Lfrm.chklbAdvancedOptions.Checked[0];
+        IdFTPClient.UseHOST := LFrm.chklbAdvancedOptions.Checked[0];
 
-        //Do things in a round about way because NAT fasttracking requires extended DataPort commands.
+        // Do things in a round about way because NAT fasttracking requires extended DataPort commands.
         IdFTPClient.TryNATFastTrack := False;
 
-        IdFTPClient.UseExtensionDataPort := Lfrm.chklbAdvancedOptions.Checked[1];
-        if IdFTPClient.UseExtensionDataPort  then begin
-           IdFTPClient.TryNATFastTrack :=  Lfrm.chklbAdvancedOptions.Checked[2];
+        IdFTPClient.UseExtensionDataPort :=
+          LFrm.chklbAdvancedOptions.Checked[1];
+        if IdFTPClient.UseExtensionDataPort then
+        begin
+          IdFTPClient.TryNATFastTrack := LFrm.chklbAdvancedOptions.Checked[2];
         end;
-        IdFTPClient.UseMLIS := Lfrm.chklbAdvancedOptions.Checked[3];
-        LIni.WriteBool('FTP','Use_HOST_Command', IdFTPClient.UseHOST);
-        LIni.WriteBool('Transfers', 'Use_Extended_Data_Port_Commands', IdFTPClient.UseExtensionDataPort);
-        LIni.WriteBool('Transfers', 'Try_Using_NAT_Fast_Track', IdFTPClient.TryNATFastTrack);
-        LIni.WriteBool('FTP','Use_MLSD_Command_Instead_Of_DIR_Command',IdFTPClient.UseMLIS);
+        IdFTPClient.UseMLIS := LFrm.chklbAdvancedOptions.Checked[3];
+        LIni.WriteBool('FTP', 'Use_HOST_Command', IdFTPClient.UseHOST);
+        LIni.WriteBool('Transfers', 'Use_Extended_Data_Port_Commands',
+          IdFTPClient.UseExtensionDataPort);
+        LIni.WriteBool('Transfers', 'Try_Using_NAT_Fast_Track',
+          IdFTPClient.TryNATFastTrack);
+        LIni.WriteBool('FTP', 'Use_MLSD_Command_Instead_Of_DIR_Command',
+          IdFTPClient.UseMLIS);
 
         LIni.WriteBool('Transfers', 'Use_PORT_Transfers',
           LFrm.UsePortTransferType);
-        LIni.WriteBool('Transfers','Use_EPSV_EPRT_Data_Transfer',
-          Lfrm.chklbAdvancedOptions.Checked[1]);
+        LIni.WriteBool('Transfers', 'Use_EPSV_EPRT_Data_Transfer',
+          LFrm.chklbAdvancedOptions.Checked[1]);
         IdFTPClient.Passive := not LFrm.UsePortTransferType;
 
         Self.redtLog.Font := LFrm.redtLog.Font;
@@ -389,12 +422,33 @@ begin
   end;
 end;
 
+procedure TfrmMainForm.cboLocalCurrentDirKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = 13 then
+  begin
+    ChangeLocalDir(Self.cboLocalCurrentDir.Text);
+  end;
+end;
+
 procedure TfrmMainForm.cboRemoteCurrentDirKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   if Key = 13 then
   begin
     Self.ChangeRemoteDir(cboRemoteCurrentDir.Text);
+  end;
+end;
+
+procedure TfrmMainForm.ChangeLocalDir(const ADir: String);
+begin
+  if System.SysUtils.SetCurrentDir(ADir) then
+  begin
+    PopulateLocalFiles;
+  end
+  else
+  begin
+    System.SysUtils.RaiseLastOSError;
   end;
 end;
 
@@ -419,6 +473,11 @@ begin
   end;
   InitLog;
   TConnectThread.Create(Self.IdFTPClient);
+end;
+
+procedure TfrmMainForm.DownloadFile(const AFile: String);
+begin
+  TDownloadFileThread.Create(IdFTPClient,AFile);
 end;
 
 procedure TfrmMainForm.actFileConnectExecute(Sender: TObject);
@@ -499,10 +558,14 @@ begin
       TFontStyles(Byte(LIni.ReadInteger('Log_Font', 'Style',
       Byte(redtLog.Font.Style))));
 
-      IdFTPClient.UseHOST :=  LIni.ReadBool('FTP','Use_HOST_Command', IdFTPClient.UseHOST);
-      IdFTPClient.UseExtensionDataPort :=  LIni.ReadBool('Transfers', 'Use_Extended_Data_Port_Commands', IdFTPClient.UseExtensionDataPort);
-      IdFTPClient.TryNATFastTrack :=  LIni.ReadBool('Transfers', 'Try_Using_NAT_Fast_Track', IdFTPClient.TryNATFastTrack);
-      IdFTPClient.UseMLIS :=  LIni.ReadBool('FTP','Use_MLSD_Command_Instead_Of_DIR_Command',IdFTPClient.UseMLIS);
+    IdFTPClient.UseHOST := LIni.ReadBool('FTP', 'Use_HOST_Command',
+      IdFTPClient.UseHOST);
+    IdFTPClient.UseExtensionDataPort := LIni.ReadBool('Transfers',
+      'Use_Extended_Data_Port_Commands', IdFTPClient.UseExtensionDataPort);
+    IdFTPClient.TryNATFastTrack := LIni.ReadBool('Transfers',
+      'Try_Using_NAT_Fast_Track', IdFTPClient.TryNATFastTrack);
+    IdFTPClient.UseMLIS := LIni.ReadBool('FTP',
+      'Use_MLSD_Command_Instead_Of_DIR_Command', IdFTPClient.UseMLIS);
   finally
     FreeAndNil(LIni);
   end;
@@ -510,7 +573,8 @@ begin
 end;
 
 procedure TfrmMainForm.InitLog;
-var i : Integer;
+var
+  i: Integer;
 begin
   redtLog.Lines.Clear;
 
@@ -524,7 +588,8 @@ begin
 {$ENDIF}
   redtLog.Lines.Add(' OpenSSL Version: ' + IdSSLOpenSSL.OpenSSLVersion);
   redtLog.Lines.Add('  Failed To Load: ');
-  for i := 0 to GetOpenSSLLoader.GetFailedToLoad.Count -1 do  begin
+  for i := 0 to GetOpenSSLLoader.GetFailedToLoad.Count - 1 do
+  begin
     redtLog.Lines.Add(GetOpenSSLLoader.GetFailedToLoad[i]);
   end;
   ScrollToEnd(redtLog);
@@ -538,7 +603,7 @@ begin
   LData := Trim(AData);
   if Length(LData) > 0 then
   begin
-    if CharInSet(LData[1],['4','5']) then
+    if CharInSet(LData[1], ['4', '5']) then
     begin
       TLogFTPError.NotifyString(LData);
     end
@@ -793,14 +858,7 @@ begin
     begin
       LCurDir := GetCurrentDir;
       LCurDir := LCurDir + '\' + Li.Caption;
-      if System.SysUtils.SetCurrentDir(LCurDir) then
-      begin
-        PopulateLocalFiles;
-      end
-      else
-      begin
-        System.SysUtils.RaiseLastOSError;
-      end;
+      ChangeLocalDir(LCurDir);
     end;
   end;
 end;
@@ -925,6 +983,10 @@ begin
     if Li.ImageIndex = DIR_IMAGE_IDX then
     begin
       ChangeRemoteDir(Li.Caption);
+    end;
+    if Li.ImageIndex = FILE_IMAGE_IDX then
+    begin
+      Self.DownloadFile(Li.Caption);
     end;
   end;
 end;
@@ -1105,13 +1167,16 @@ begin
         LFrm.X509 := Self.FX509;
         LFrm.Error := Self.FError;
         Self.FVerifyResult := LFrm.ShowModal = mrYes;
-        if FVerifyResult and (LFrm.chkacceptOnlyOnce.Checked = False) then begin
+        if FVerifyResult and (LFrm.chkacceptOnlyOnce.Checked = False) then
+        begin
           GAcceptableCertificates.Add(FX509.Fingerprints.SHA512AsString);
         end;
       finally
         FreeAndNil(LFrm);
       end;
-    end else begin
+    end
+    else
+    begin
       Self.FVerifyResult := True;
     end;
     (Self.FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnVerifyPeer := nil;
@@ -1169,6 +1234,38 @@ begin
     FFTP.List;
     TLogDirListingEvent.LogDirListing(FFTP.ListResult);
     TPopulateRemoteListNotify.PopulateRemoteList(LCurDir);
+  except
+    on E: EIdReplyRFCError do
+    begin
+      // This is already reported in the FTP log Window
+    end;
+    on E: Exception do
+      TLogFTPError.NotifyString(E.Message);
+  end;
+  TThreadFinishedNotify.EndThread;
+end;
+
+{ TDownloadFileThread }
+
+constructor TDownloadFileThread.Create(AFTP: TIdFTP; AFile: String);
+begin
+  inherited Create(AFTP);
+  FFile := AFile;
+end;
+
+procedure TDownloadFileThread.Execute;
+var
+  LFile: TStream;
+begin
+  try
+    TThreadStartNotify.StartThread;
+    LFile := TFileStream.Create(FFile, fmCreate);
+    try
+      FFTP.TransferType := ftBinary;
+      FFTP.Get(FFile, LFile);
+    finally
+      FreeAndNil(LFile);
+    end;
   except
     on E: EIdReplyRFCError do
     begin
@@ -1344,5 +1441,7 @@ begin
 end;
 
 initialization
-  GetOpenSSLLoader.OpenSSLPath := ExtractFilePath(ParamStr(0));
+
+GetOpenSSLLoader.OpenSSLPath := ExtractFilePath(ParamStr(0));
+
 end.

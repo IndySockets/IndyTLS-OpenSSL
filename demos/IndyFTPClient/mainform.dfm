@@ -193,6 +193,7 @@ object frmMainForm: TfrmMainForm
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
+        OnKeyDown = cboLocalCurrentDirKeyDown
       end
     end
     object pnlRemoteBrowser: TPanel
