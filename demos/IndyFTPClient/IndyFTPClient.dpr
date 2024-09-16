@@ -8,7 +8,8 @@ uses
   settingsdlg in 'settingsdlg.pas' {frmSettings},
   frmBookmarks in 'frmBookmarks.pas' {frmFTPSites},
   CertViewer in 'CertViewer.pas' {Form1},
-  ProgUtils in 'ProgUtils.pas';
+  ProgUtils in 'ProgUtils.pas',
+  AcceptableCerts in 'AcceptableCerts.pas';
 
 {$R *.res}
 

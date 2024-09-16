@@ -1025,7 +1025,7 @@ object frmMainForm: TfrmMainForm
     DefaultPort = 0
     ReadTimeout = 60000
     SSLOptions.Method = sslvSSLv23
-    SSLOptions.SSLVersions = [sslvSSLv2, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2]
+    SSLOptions.SSLVersions = [sslvSSLv2, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2, sslvTLSv1_3]
     SSLOptions.Mode = sslmUnassigned
     SSLOptions.VerifyMode = [sslvrfFailIfNoPeerCert, sslvrfClientOnce]
     SSLOptions.VerifyDepth = 0

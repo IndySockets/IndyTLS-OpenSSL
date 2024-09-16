@@ -235,7 +235,7 @@ uses dkgFTPConnect, settingsdlg, frmAbout, frmBookmarks, CertViewer,
   IdFTPCommon,
   IdFTPList, IdGlobal, IdReplyRFC, IdSSLOpenSSLLoader,
   System.IOUtils, System.IniFiles, System.UITypes,
-  Winapi.CommCtrl,  ProgUtils;
+  Winapi.CommCtrl,  ProgUtils, AcceptableCerts;
 
 const
   DIR_IMAGE_IDX = 6;
@@ -1096,13 +1096,22 @@ var
   LFrm: TfrmCertViewer;
 begin
   try
-    LFrm := TfrmCertViewer.Create(nil);
-    try
-      LFrm.X509 := Self.FX509;
-      LFrm.Error := Self.FError;
-      Self.FVerifyResult := LFrm.ShowModal = mrYes;
-    finally
-      FreeAndNil(LFrm);
+    if GAcceptableCertificates.IndexOf(FX509.Fingerprints.SHA512AsString) = -1
+    then
+    begin
+      LFrm := TfrmCertViewer.Create(nil);
+      try
+        LFrm.X509 := Self.FX509;
+        LFrm.Error := Self.FError;
+        Self.FVerifyResult := LFrm.ShowModal = mrYes;
+        if FVerifyResult and (LFrm.chkacceptOnlyOnce.Checked = False) then begin
+          GAcceptableCertificates.Add(FX509.Fingerprints.SHA512AsString);
+        end;
+      finally
+        FreeAndNil(LFrm);
+      end;
+    end else begin
+      Self.FVerifyResult := True;
     end;
     (Self.FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnVerifyPeer := nil;
   except
@@ -1333,4 +1342,6 @@ begin
   L.Notify;
 end;
 
+initialization
+  GetOpenSSLLoader.OpenSSLPath := ExtractFilePath(ParamStr(0));
 end.

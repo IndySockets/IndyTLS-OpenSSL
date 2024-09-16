@@ -155,6 +155,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="ProgUtils.pas"/>
+        <DCCReference Include="AcceptableCerts.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -183,6 +184,12 @@
             <Deployment Version="5">
                 <DeployFile LocalName="..\..\icon\IndyLogo.png" Configuration="Debug" Class="UWP_DelphiLogo44"/>
                 <DeployFile LocalName="Win32\Debug\IndyFTPClient.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="Win32\Debug\IndyFTPClient.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>IndyFTPClient.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>
