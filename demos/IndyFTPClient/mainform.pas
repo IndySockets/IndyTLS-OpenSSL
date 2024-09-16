@@ -538,7 +538,7 @@ begin
   LData := Trim(AData);
   if Length(LData) > 0 then
   begin
-    if LData[1] in ['4', '5'] then
+    if CharInSet(LData[1],['4','5']) then
     begin
       TLogFTPError.NotifyString(LData);
     end
@@ -1089,6 +1089,7 @@ begin
   Self.FError := AError;
   Self.FDepth := ADepth;
   Synchronize(Self, PromptVerifyCert);
+  Result := FVerifyResult;
 end;
 
 procedure TFTPThread.PromptVerifyCert;
