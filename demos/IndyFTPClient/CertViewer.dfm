@@ -1,6 +1,7 @@
 object frmCertViewer: TfrmCertViewer
   Left = 0
   Top = 0
+  BorderStyle = bsDialog
   Caption = 'frmCertViewer'
   ClientHeight = 385
   ClientWidth = 558
