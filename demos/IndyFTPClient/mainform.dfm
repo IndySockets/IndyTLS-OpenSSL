@@ -109,6 +109,16 @@ object frmMainForm: TfrmMainForm
       ImageName = 'libre-gui-copy'
       Style = tbsSeparator
     end
+    object ToolButton6: TToolButton
+      Left = 229
+      Top = 0
+      Action = actFileDownload
+    end
+    object ToolButton7: TToolButton
+      Left = 300
+      Top = 0
+      Action = actFileUpload
+    end
   end
   object pnlMainWindow: TPanel
     Left = 0

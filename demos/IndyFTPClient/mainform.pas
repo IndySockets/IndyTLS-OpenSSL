@@ -97,6 +97,8 @@ type
     MakeDirectory1: TMenuItem;
     N9: TMenuItem;
     actFileLocalMakeDirectory1: TMenuItem;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure actFileConnectExecute(Sender: TObject);
     procedure actFileConnectUpdate(Sender: TObject);

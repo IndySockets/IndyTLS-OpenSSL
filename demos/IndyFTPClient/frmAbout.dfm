@@ -3,7 +3,7 @@ object AboutBox: TAboutBox
   Top = 108
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 251
+  ClientHeight = 253
   ClientWidth = 298
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,21 +15,22 @@ object AboutBox: TAboutBox
   OnCreate = FormCreate
   DesignSize = (
     298
-    251)
+    253)
   TextHeight = 13
   object Panel1: TPanel
     Left = 9
     Top = 8
     Width = 281
-    Height = 199
+    Height = 201
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelInner = bvRaised
     BevelOuter = bvLowered
     ParentColor = True
     TabOrder = 0
+    ExplicitHeight = 199
     DesignSize = (
       281
-      199)
+      201)
     object ProductName: TLabel
       Left = 119
       Top = 12
@@ -48,22 +49,27 @@ object AboutBox: TAboutBox
     end
     object Copyright: TLabel
       Left = 8
-      Top = 120
+      Top = 122
       Width = 154
       Height = 13
       Anchors = [akLeft, akBottom]
       Caption = 'Copyright (c) 2024 Indy Pitt Crew'
       IsControl = True
+      ExplicitTop = 120
     end
     object Comments: TLabel
       Left = 8
-      Top = 148
-      Width = 49
-      Height = 13
-      Anchors = [akLeft, akRight]
-      Caption = 'Comments'
+      Top = 150
+      Width = 257
+      Height = 39
+      Anchors = [akLeft, akRight, akBottom]
+      AutoSize = False
+      Caption = 
+        'This software uses the LibreICONS-4.5. '#13#10'Copyright (c) 2018 Diem' +
+        'en Design'#13#10'released under MIT LIcense.'
       WordWrap = True
       IsControl = True
+      ExplicitTop = 148
     end
     object VirtualImage1: TVirtualImage
       Left = 8
@@ -79,7 +85,7 @@ object AboutBox: TAboutBox
   end
   object OKButton: TButton
     Left = 111
-    Top = 214
+    Top = 216
     Width = 75
     Height = 25
     Anchors = [akLeft, akRight]
@@ -87,6 +93,7 @@ object AboutBox: TAboutBox
     Default = True
     ModalResult = 1
     TabOrder = 1
+    ExplicitTop = 214
   end
   object ImageCollection1: TImageCollection
     Images = <
