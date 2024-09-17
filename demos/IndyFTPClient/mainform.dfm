@@ -255,6 +255,8 @@ object frmMainForm: TfrmMainForm
         OnColumnClick = lvRemoteFilesColumnClick
         OnCompare = lvRemoteFilesCompare
         OnDblClick = lvRemoteFilesDblClick
+        ExplicitLeft = -5
+        ExplicitTop = 41
       end
       object cboRemoteCurrentDir: TComboBox
         Left = 64
@@ -344,6 +346,16 @@ object frmMainForm: TfrmMainForm
         CollectionIndex = 14
         CollectionName = 'libre-gui-eraser'
         Name = 'libre-gui-eraser'
+      end
+      item
+        CollectionIndex = 15
+        CollectionName = 'libre-gui-frame'
+        Name = 'libre-gui-frame'
+      end
+      item
+        CollectionIndex = 16
+        CollectionName = 'libre-gui-folder-open'
+        Name = 'libre-gui-folder-open'
       end>
     ImageCollection = imgcolMainProgram
     Width = 64
@@ -972,6 +984,78 @@ object frmMainForm: TfrmMainForm
               793A2DA315F6CF4BFF6E9CA17EDBA39F5EC7528EE4C7946D373F9745E2288B94
               3142FE073D311463891BA5A90000000049454E44AE426082}
           end>
+      end
+      item
+        Name = 'libre-gui-frame'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D494844520000004900000049080600000071730B
+              DC000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              032449444154785EED9A2F78D34018C61354E524B212B929263737240A5014C5
+              709D9CC30D371CB8E1180A50E03607728EB9E198630ED4B2DF351F5D2FBDA77C
+              699B6CEBDEDFF3BCBD3FB9E4BEBCB95CFE352F8A221393B963A998804C722093
+              1CC8240732C9814C7220931CC8240732C9814CF2101E4BAA82B5B0E896AA57F5
+              4323C9814C7220931CC82407C9F749799E8789FBA02C45AC5BBA28BC4777CBEC
+              906778F2CEF225A3B3F83F41F2EA566D77D30527A3FB67D2D56D1A64920399E4
+              607E26E57917F5D04BB46CB5ED431C459EF7D126F97B563B1BD5492A086A4DDC
+              E759B689FED0885229CA6F526D9B54886334068B6327D536085C1377541856D6
+              3089205659482EA9B10E9B52880345076A44C938A0B5ABDB234B53EC31E48B36
+              9467D937D4B17E23D8F3A7969D8A7998349FF3BE59BA964E45AD3B6EDA72B062
+              982077A9EC5B31822D9F911C95A5C6E91247D20CE2386447C79E16D8CF70BA55
+              D769E08E9BDB7AE682DFA4946251FF38B94E136244A7E6A450873652EB404B73
+              52519C720457D8FA77AB093D9DA12D8EDEBE55354F511CF3FB907E7F96158338
+              427E9D38BE96355352752D08EA3FBBB10E2237506B57B531C571AC25DB98A0A5
+              91740B90490E64920399E440263990490E64920399E440263990490E64920399
+              E440263990490E649283B999548C7C1020FF3C9BD737AF3AE4F9D2A06FC3E258
+              B2E2F4545F3005419DD7B79DF32C3B20A574297B95BA9C5CA7099571FC1A8D21
+              88BA1FA4DDD43AE07AE9965BE3889A1F02FA54EE5A31822D1FB1ECB3151B85BE
+              EED3D786152358B6CF8E3EB1E290D63E0470A43EB290DCF515319EA46287D65E
+              DF86CF46D79D99629CF974A3718FDFBDB210C396DFB2C2072B36CD2ADA29B331
+              C4F18A1DDDB6E290F6BEBB2186F3171A90BB944D989D54FBA6943AF527C501AD
+              9D6E61383E60EB2FD02774885E3382D6E9E1AF356905FA0C93F3B6C510B445DD
+              CACC71545D0B825A23E9A60ADA1B498B8E4C7220931CC82407B54CE2BE82A790
+              C511BBE4FA739746920399E440263990490E78A208F3570C935A789B7775FFEA
+              BF5A8EF1E4D4F203922689189D6E0E64920399E440263990490E64920399E440
+              26FD972CBB00451B7076D6310F5F0000000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'libre-gui-folder-open'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D494844520000004900000049080600000071730B
+              DC000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              034E49444154785EED9A3B6C1341104067CE8E6307252584081025124D24A428
+              1D6929E9DC61BA74880AA8101D250D121DA6A2439450918E84065320D95DCA54
+              E086100A7B984D26528CF7CEE3FBA0DCDE3C897877A570F2CBECECCCDD211181
+              914C249F46022649814952609214982405264981495260921498240526498149
+              52609214E81ADC2EDEE09FEEDFFAF13C057C952176E8854C4BC56C495D7C4C08
+              4F11A0292BA9E12B75F11EDD9769694894446FF02DCB69CB3417CA282A362751
+              17DB790B72F0FFD961F9AF655A0AE21337C20319E54ED944F9B75B179B9C877E
+              E691879228CBD6F34AE2ADB689089F655A287CF51E7F0C4F6685D0E38B0CF80F
+              BEC3F1DB97B5B9888BA42DDE139F64160CFC4D9F23C1339675244B2A2A554C72
+              34B97266EE5C58B98A9B45B5DDC92D5315D56C4B101EC948453525B9168B4F70
+              19CFA49292A4B4593D99CDA6AA913417264941FE75D2CA0A07F322C0524B16CE
+              27D46AEE02E20E8EA33DF87DF801B6F6636BA7FC242D3600D62E03B4CEB71C1F
+              AEEA478AEEC0C6F703599A209FED56AB015CBB5A4A410E4EE4EB84A3AFF0E5A6
+              3799E723E9D245808505999413045CA588BCF5537649DC09C3F2B24C4A0ED1B6
+              2F9AB24BBAB0C4DB2D8C43F2B87E8A46EE5EFE04D9BF5D834FB2C0C92EC91DF7
+              2131AE4DDDDBCA4152A1372FFF3F87BFA66ECC6597E4EAA340E092B1EF2B2AB3
+              497251E44EB7504096E4219BA4463851E440823D194E903192024BDA84054452
+              6849BB3E2A42523891C44DEE11DC1AE42CC935B5F5BA4C4280DCF33F2FE925B5
+              02DB6A8005480AAD1D19C3404653A49714D8C986B522B65B70275BB3004921B5
+              234007B0DE8B7D69239DA4D0DA9184A4ED482729B07624E9F877A49374CE1F17
+              CDCD08BFC9C88B45128351E4ADB44F49999302AB913C37DACE32BF24D78A04D4
+              8EB80793494F6F1D7192E21359685184B3DFA3F44BEAD0900DFB7F39B07604C7
+              F05186B1246DB7F7F239C9523895F6F1ED9146D3FF3DCF102BC9BDA5EA8DA690
+              2289E86152A57D4A7C2475E88845DD6551BBB2C2E6B8CA0EA01D21823F1C464F
+              70A3FF4A9612F1BF7AF30FD4C56D40B84D8DC675BCB236F518B834D4A21F10D5
+              DF21E04BD8ECEFCBEA4C5492AA4E52E2360493A4C0242930490A4C920293A4C0
+              242930490A4C920293A4C024CD04E02FD935CAA7E0C81CBD0000000049454E44
+              AE426082}
+          end>
       end>
     Left = 368
     Top = 304
@@ -1071,6 +1155,38 @@ object frmMainForm: TfrmMainForm
       ImageName = 'libre-gui-eraser'
       OnExecute = actFileLocalDeleteExecute
       OnUpdate = actFileLocalDeleteUpdate
+    end
+    object actFileRemoteRename: TAction
+      Category = 'File'
+      Caption = '&Rename...'
+      ImageIndex = 15
+      ImageName = 'libre-gui-frame'
+      OnExecute = actFileRemoteRenameExecute
+      OnUpdate = actFileRemoteRenameUpdate
+    end
+    object actFileLocalRename: TAction
+      Category = 'File'
+      Caption = '&Rename...'
+      ImageIndex = 15
+      ImageName = 'libre-gui-frame'
+      OnExecute = actFileLocalRenameExecute
+      OnUpdate = actFileLocalRenameUpdate
+    end
+    object actFileRemoteMakeDirectory: TAction
+      Category = 'File'
+      Caption = '&Make Directory...'
+      ImageIndex = 16
+      ImageName = 'libre-gui-folder-open'
+      OnExecute = actFileRemoteMakeDirectoryExecute
+      OnUpdate = actFileRemoteMakeDirectoryUpdate
+    end
+    object actFileLocalMakeDirectory: TAction
+      Category = 'File'
+      Caption = '&Make Directory'
+      ImageIndex = 16
+      ImageName = 'libre-gui-folder-open'
+      OnExecute = actFileLocalMakeDirectoryExecute
+      OnUpdate = actFileLocalMakeDirectoryUpdate
     end
   end
   object IdFTPClient: TIdFTP
@@ -1202,6 +1318,16 @@ object frmMainForm: TfrmMainForm
         CollectionIndex = 14
         CollectionName = 'libre-gui-eraser'
         Name = 'libre-gui-eraser'
+      end
+      item
+        CollectionIndex = 15
+        CollectionName = 'libre-gui-frame'
+        Name = 'libre-gui-frame'
+      end
+      item
+        CollectionIndex = 16
+        CollectionName = 'libre-gui-folder-open'
+        Name = 'libre-gui-folder-open'
       end>
     ImageCollection = imgcolMainProgram
     Left = 208
@@ -1277,11 +1403,20 @@ object frmMainForm: TfrmMainForm
     object Dowload2: TMenuItem
       Action = actFileDownload
     end
+    object N8: TMenuItem
+      Caption = '-'
+    end
+    object MakeDirectory1: TMenuItem
+      Action = actFileRemoteMakeDirectory
+    end
     object N7: TMenuItem
       Caption = '-'
     end
     object Delete1: TMenuItem
       Action = actFileRemoteDelete
+    end
+    object Rename2: TMenuItem
+      Action = actFileRemoteRename
     end
   end
   object ppmnuLocal: TPopupMenu
@@ -1291,11 +1426,20 @@ object frmMainForm: TfrmMainForm
     object Upload2: TMenuItem
       Action = actFileUpload
     end
+    object N9: TMenuItem
+      Caption = '-'
+    end
+    object actFileLocalMakeDirectory1: TMenuItem
+      Action = actFileLocalMakeDirectory
+    end
     object N6: TMenuItem
       Caption = '-'
     end
     object actFileLocalDelete1: TMenuItem
       Action = actFileLocalDelete
+    end
+    object Rename1: TMenuItem
+      Action = actFileLocalRename
     end
   end
 end

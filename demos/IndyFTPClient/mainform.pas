@@ -87,6 +87,16 @@ type
     Dowload2: TMenuItem;
     N7: TMenuItem;
     Delete1: TMenuItem;
+    actFileRemoteRename: TAction;
+    actFileLocalRename: TAction;
+    Rename1: TMenuItem;
+    Rename2: TMenuItem;
+    actFileRemoteMakeDirectory: TAction;
+    actFileLocalMakeDirectory: TAction;
+    N8: TMenuItem;
+    MakeDirectory1: TMenuItem;
+    N9: TMenuItem;
+    actFileLocalMakeDirectory1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure actFileConnectExecute(Sender: TObject);
     procedure actFileConnectUpdate(Sender: TObject);
@@ -123,6 +133,14 @@ type
     procedure actFileRemoteDeleteExecute(Sender: TObject);
     procedure actFileLocalDeleteExecute(Sender: TObject);
     procedure actFileLocalDeleteUpdate(Sender: TObject);
+    procedure actFileLocalRenameExecute(Sender: TObject);
+    procedure actFileLocalRenameUpdate(Sender: TObject);
+    procedure actFileRemoteRenameExecute(Sender: TObject);
+    procedure actFileRemoteRenameUpdate(Sender: TObject);
+    procedure actFileRemoteMakeDirectoryExecute(Sender: TObject);
+    procedure actFileRemoteMakeDirectoryUpdate(Sender: TObject);
+    procedure actFileLocalMakeDirectoryExecute(Sender: TObject);
+    procedure actFileLocalMakeDirectoryUpdate(Sender: TObject);
   private
     { Private declarations }
     LocalColumnToSort: Integer;
@@ -145,10 +163,14 @@ type
     procedure LocalClearArrows;
     procedure DownloadFile(const AFile: String);
     procedure UploadFile(const AFile: String);
-    procedure LocalDeleteFile(const AFile : String);
+    procedure LocalDeleteFile(const AFile: String);
     procedure RemoteDeleteFile(const AFile: String);
-    procedure LocalRemoveDir(const ADir : String);
-    procedure RemoteRemoveDir(const ADir : String);
+    procedure LocalRemoveDir(const ADir: String);
+    procedure RemoteRemoveDir(const ADir: String);
+    procedure LocalRename(const AOldPathName, ANewPathName: String);
+    procedure RemoteRename(const AOldPathName, ANewPathName: String);
+    procedure LocalMakeDir(const ADir: String);
+    procedure RemoteMakeDir(const ADir: String);
   public
     { Public declarations }
   end;
@@ -202,7 +224,22 @@ type
   public
     procedure Execute(); override;
   end;
+
   TRemoveDirThread = class(TFileThread)
+  public
+    procedure Execute(); override;
+  end;
+
+  TRenamePathThread = class(TFileThread)
+  protected
+    FNewName: String;
+  public
+    constructor Create(AFTP: TIdFTP; const AOldName, ANewName: String);
+      reintroduce;
+    procedure Execute(); override;
+  end;
+
+  TMakeDirThread = class(TFileThread)
   public
     procedure Execute(); override;
   end;
@@ -381,11 +418,14 @@ procedure TfrmMainForm.actFileLocalDeleteExecute(Sender: TObject);
 var
   Li: TListItem;
 begin
-  if Self.lvLocalFiles.ItemIndex > -1 then begin
+  if Self.lvLocalFiles.ItemIndex > -1 then
+  begin
     Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
     case Li.ImageIndex of
-      FILE_IMAGE_IDX : LocalDeleteFile(Li.Caption);
-      DIR_IMAGE_IDX : LocalRemoveDir(li.Caption);
+      FILE_IMAGE_IDX:
+        LocalDeleteFile(Li.Caption);
+      DIR_IMAGE_IDX:
+        LocalRemoveDir(Li.Caption);
     end;
   end;
 end;
@@ -399,10 +439,61 @@ begin
   if LRes then
   begin
     Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
-    LRes := (Li.ImageIndex = FILE_IMAGE_IDX) or
-            (Li.ImageIndex = DIR_IMAGE_IDX);
+    LRes := Li.ImageIndex in [FILE_IMAGE_IDX, DIR_IMAGE_IDX];
   end;
   actFileLocalDelete.Enabled := LRes;
+end;
+
+procedure TfrmMainForm.actFileLocalMakeDirectoryExecute(Sender: TObject);
+var
+  LNewDir : String;
+begin
+  if InputQuery('Make Directory','New Directory Name: ',LNewDir) then begin
+     if LNewDir <> '' then begin
+       LocalMakeDir(LNewDir);
+     end;
+  end;
+end;
+
+procedure TfrmMainForm.actFileLocalMakeDirectoryUpdate(Sender: TObject);
+begin
+  actFileLocalMakeDirectory.Enabled := (not FThreadRunning);
+end;
+
+procedure TfrmMainForm.actFileLocalRenameExecute(Sender: TObject);
+var
+  Li: TListItem;
+  LNewName: String;
+begin
+  if Self.lvLocalFiles.ItemIndex > -1 then
+  begin
+    Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
+    if Li.ImageIndex in [FILE_IMAGE_IDX, DIR_IMAGE_IDX] then
+    begin
+      if InputQuery('Rename', 'Rename ' + Li.Caption + ' to:', LNewName) then
+      begin
+        if LNewName <> '' then
+        begin
+          LocalRename(Li.Caption, LNewName);
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMainForm.actFileLocalRenameUpdate(Sender: TObject);
+var
+  Li: TListItem;
+  LRes: Boolean;
+begin
+  LRes := (not FThreadRunning) and (lvLocalFiles.ItemIndex > -1);
+  if LRes then
+  begin
+    Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
+    LRes := Li.ImageIndex in [FILE_IMAGE_IDX, DIR_IMAGE_IDX];
+  end;
+  actFileLocalRename.Enabled := LRes;
+
 end;
 
 procedure TfrmMainForm.actFileRemoteDeleteExecute(Sender: TObject);
@@ -413,8 +504,10 @@ begin
   begin
     Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
     case Li.ImageIndex of
-      FILE_IMAGE_IDX : RemoteDeleteFile(Li.Caption);
-      DIR_IMAGE_IDX : RemoteRemoveDir(Li.Caption);
+      FILE_IMAGE_IDX:
+        RemoteDeleteFile(Li.Caption);
+      DIR_IMAGE_IDX:
+        RemoteRemoveDir(Li.Caption);
     end;
 
   end;
@@ -425,14 +518,67 @@ var
   Li: TListItem;
   LRes: Boolean;
 begin
-  LRes := (not FThreadRunning) and IdFTPClient.Connected and (lvRemoteFiles.ItemIndex > -1);
+  LRes := (not FThreadRunning) and IdFTPClient.Connected and
+    (lvRemoteFiles.ItemIndex > -1);
   if LRes then
   begin
     Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
-    LRes := (Li.ImageIndex = FILE_IMAGE_IDX) or
-            (li.ImageIndex = DIR_IMAGE_IDX);
+    LRes := Li.ImageIndex in [FILE_IMAGE_IDX, DIR_IMAGE_IDX];
   end;
   actFileRemoteDelete.Enabled := LRes;
+end;
+
+procedure TfrmMainForm.actFileRemoteMakeDirectoryExecute(Sender: TObject);
+var
+  LNewDir : String;
+begin
+  if InputQuery('Make Directory','New Directory Name: ',LNewDir) then begin
+     if LNewDir <> '' then begin
+       RemoteMakeDir(LNewDir);
+     end;
+  end;
+end;
+
+procedure TfrmMainForm.actFileRemoteMakeDirectoryUpdate(Sender: TObject);
+begin
+  actFileRemoteMakeDirectory.Enabled := (not FThreadRunning) and IdFTPClient.Connected
+end;
+
+procedure TfrmMainForm.actFileRemoteRenameExecute(Sender: TObject);
+var
+  Li: TListItem;
+  LNewName: String;
+begin
+  if lvRemoteFiles.ItemIndex > -1 then
+  begin
+    Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
+    if Li.ImageIndex in [FILE_IMAGE_IDX, DIR_IMAGE_IDX] then
+    begin
+      if InputQuery('Rename', 'Rename ' + Li.Caption + ' to:', LNewName) then
+      begin
+        if LNewName <> '' then
+        begin
+          RemoteRename(Li.Caption, LNewName);
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMainForm.actFileRemoteRenameUpdate(Sender: TObject);
+var
+  Li: TListItem;
+  LRes: Boolean;
+begin
+  LRes := (not FThreadRunning) and IdFTPClient.Connected and
+    (lvRemoteFiles.ItemIndex > -1);
+  if LRes then
+  begin
+    Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
+    LRes := Li.ImageIndex in [FILE_IMAGE_IDX, DIR_IMAGE_IDX];
+  end;
+  actFileRemoteRename.Enabled := LRes;
+
 end;
 
 procedure TfrmMainForm.actFileUploadExecute(Sender: TObject);
@@ -834,20 +980,33 @@ end;
 
 procedure TfrmMainForm.LocalDeleteFile(const AFile: String);
 begin
-  if MessageDlg('Delete '+AFile+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  if MessageDlg('Delete ' + AFile + '?', mtConfirmation, [mbYes, mbNo], 0) = mrYes
+  then
   begin
     System.SysUtils.DeleteFile(AFile);
     Self.PopulateLocalFiles;
   end;
 end;
 
+procedure TfrmMainForm.LocalMakeDir(const ADir: String);
+begin
+  System.SysUtils.CreateDir(ADir);
+  Self.PopulateLocalFiles;
+end;
+
 procedure TfrmMainForm.LocalRemoveDir(const ADir: String);
 begin
-  if MessageDlg('Remove Directory '+ADir+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  if MessageDlg('Remove Directory ' + ADir + '?', mtConfirmation, [mbYes, mbNo],
+    0) = mrYes then
   begin
     System.SysUtils.RemoveDir(ADir);
     Self.PopulateLocalFiles;
   end;
+end;
+
+procedure TfrmMainForm.LocalRename(const AOldPathName, ANewPathName: String);
+begin
+  System.SysUtils.RenameFile(AOldPathName, ANewPathName);
 end;
 
 function CompareCaptions(Item1, Item2: TListItem): Integer;
@@ -1241,7 +1400,8 @@ end;
 
 procedure TfrmMainForm.RemoteDeleteFile(const AFile: String);
 begin
-  if MessageDlg('Delete '+AFile+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  if MessageDlg('Delete ' + AFile + '?', mtConfirmation, [mbYes, mbNo], 0) = mrYes
+  then
   begin
     TDeleteFileThread.Create(IdFTPClient, AFile);
   end;
@@ -1274,9 +1434,19 @@ begin
   end;
 end;
 
+procedure TfrmMainForm.RemoteMakeDir(const ADir: String);
+begin
+  TMakeDirThread.Create(IdFTPClient, ADir);
+end;
+
 procedure TfrmMainForm.RemoteRemoveDir(const ADir: String);
 begin
-  TRemoveDirThread.Create(IdFTPClient,ADir);
+  TRemoveDirThread.Create(IdFTPClient, ADir);
+end;
+
+procedure TfrmMainForm.RemoteRename(const AOldPathName, ANewPathName: String);
+begin
+  TRenamePathThread.Create(IdFTPClient, AOldPathName, ANewPathName);
 end;
 
 { TFTPThread }
@@ -1493,6 +1663,62 @@ begin
   try
     TThreadStartNotify.StartThread;
     FFTP.RemoveDir(FFile);
+    LCurDir := FFTP.RetrieveCurrentDir;
+    FFTP.List;
+    TLogDirListingEvent.LogDirListing(FFTP.ListResult);
+    TPopulateRemoteListNotify.PopulateRemoteList(LCurDir);
+  except
+    on E: EIdReplyRFCError do
+    begin
+      // This is already reported in the FTP log Window
+    end;
+    on E: Exception do
+      TLogFTPError.NotifyString(E.Message);
+  end;
+  TThreadFinishedNotify.EndThread;
+end;
+
+{ TRenamePathThread }
+
+constructor TRenamePathThread.Create(AFTP: TIdFTP;
+  const AOldName, ANewName: String);
+begin
+  inherited Create(AFTP, AOldName);
+  FNewName := ANewName;
+end;
+
+procedure TRenamePathThread.Execute;
+var
+  LCurDir: String;
+begin
+  try
+    TThreadStartNotify.StartThread;
+    FFTP.Rename(FFile, FNewName);
+    LCurDir := FFTP.RetrieveCurrentDir;
+    FFTP.List;
+    TLogDirListingEvent.LogDirListing(FFTP.ListResult);
+    TPopulateRemoteListNotify.PopulateRemoteList(LCurDir);
+  except
+    on E: EIdReplyRFCError do
+    begin
+      // This is already reported in the FTP log Window
+    end;
+    on E: Exception do
+      TLogFTPError.NotifyString(E.Message);
+  end;
+  TThreadFinishedNotify.EndThread;
+
+end;
+
+{ TMakeDirThread }
+
+procedure TMakeDirThread.Execute;
+var
+  LCurDir: String;
+begin
+  try
+    TThreadStartNotify.StartThread;
+    FFTP.MakeDir(FFile);
     LCurDir := FFTP.RetrieveCurrentDir;
     FFTP.List;
     TLogDirListingEvent.LogDirListing(FFTP.ListResult);
