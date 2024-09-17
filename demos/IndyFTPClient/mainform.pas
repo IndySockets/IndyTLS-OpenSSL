@@ -147,6 +147,8 @@ type
     procedure UploadFile(const AFile: String);
     procedure LocalDeleteFile(const AFile : String);
     procedure RemoteDeleteFile(const AFile: String);
+    procedure LocalRemoveDir(const ADir : String);
+    procedure RemoteRemoveDir(const ADir : String);
   public
     { Public declarations }
   end;
@@ -197,6 +199,10 @@ type
   end;
 
   TDeleteFileThread = class(TFileThread)
+  public
+    procedure Execute(); override;
+  end;
+  TRemoveDirThread = class(TFileThread)
   public
     procedure Execute(); override;
   end;
@@ -377,7 +383,10 @@ var
 begin
   if Self.lvLocalFiles.ItemIndex > -1 then begin
     Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
-    LocalDeleteFile(Li.Caption);
+    case Li.ImageIndex of
+      FILE_IMAGE_IDX : LocalDeleteFile(Li.Caption);
+      DIR_IMAGE_IDX : LocalRemoveDir(li.Caption);
+    end;
   end;
 end;
 
@@ -390,7 +399,8 @@ begin
   if LRes then
   begin
     Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
-    LRes := Li.ImageIndex = FILE_IMAGE_IDX;
+    LRes := (Li.ImageIndex = FILE_IMAGE_IDX) or
+            (Li.ImageIndex = DIR_IMAGE_IDX);
   end;
   actFileLocalDelete.Enabled := LRes;
 end;
@@ -402,7 +412,11 @@ begin
   if lvRemoteFiles.ItemIndex > -1 then
   begin
     Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
-    RemoteDeleteFile(Li.Caption);
+    case Li.ImageIndex of
+      FILE_IMAGE_IDX : RemoteDeleteFile(Li.Caption);
+      DIR_IMAGE_IDX : RemoteRemoveDir(Li.Caption);
+    end;
+
   end;
 end;
 
@@ -415,7 +429,8 @@ begin
   if LRes then
   begin
     Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
-    LRes := Li.ImageIndex = FILE_IMAGE_IDX;
+    LRes := (Li.ImageIndex = FILE_IMAGE_IDX) or
+            (li.ImageIndex = DIR_IMAGE_IDX);
   end;
   actFileRemoteDelete.Enabled := LRes;
 end;
@@ -822,6 +837,15 @@ begin
   if MessageDlg('Delete '+AFile+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
   begin
     System.SysUtils.DeleteFile(AFile);
+    Self.PopulateLocalFiles;
+  end;
+end;
+
+procedure TfrmMainForm.LocalRemoveDir(const ADir: String);
+begin
+  if MessageDlg('Remove Directory '+ADir+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  begin
+    System.SysUtils.RemoveDir(ADir);
     Self.PopulateLocalFiles;
   end;
 end;
@@ -1250,6 +1274,11 @@ begin
   end;
 end;
 
+procedure TfrmMainForm.RemoteRemoveDir(const ADir: String);
+begin
+  TRemoveDirThread.Create(IdFTPClient,ADir);
+end;
+
 { TFTPThread }
 
 constructor TFTPThread.Create(AFTP: TIdFTP);
@@ -1262,7 +1291,6 @@ end;
 
 destructor TFTPThread.Destroy;
 begin
-
   inherited;
 end;
 
@@ -1454,6 +1482,31 @@ begin
       TLogFTPError.NotifyString(E.Message);
   end;
   TThreadFinishedNotify.EndThread;
+end;
+
+{ TRemoveDirThread }
+
+procedure TRemoveDirThread.Execute;
+var
+  LCurDir: String;
+begin
+  try
+    TThreadStartNotify.StartThread;
+    FFTP.RemoveDir(FFile);
+    LCurDir := FFTP.RetrieveCurrentDir;
+    FFTP.List;
+    TLogDirListingEvent.LogDirListing(FFTP.ListResult);
+    TPopulateRemoteListNotify.PopulateRemoteList(LCurDir);
+  except
+    on E: EIdReplyRFCError do
+    begin
+      // This is already reported in the FTP log Window
+    end;
+    on E: Exception do
+      TLogFTPError.NotifyString(E.Message);
+  end;
+  TThreadFinishedNotify.EndThread;
+
 end;
 
 { TLogEventNotify }
