@@ -77,6 +77,16 @@ type
     Upload1: TMenuItem;
     redtLog: TRichEdit;
     Splitter1: TSplitter;
+    actFileRemoteDelete: TAction;
+    actFileLocalDelete: TAction;
+    ppmnuRemote: TPopupMenu;
+    ppmnuLocal: TPopupMenu;
+    Upload2: TMenuItem;
+    N6: TMenuItem;
+    actFileLocalDelete1: TMenuItem;
+    Dowload2: TMenuItem;
+    N7: TMenuItem;
+    Delete1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure actFileConnectExecute(Sender: TObject);
     procedure actFileConnectUpdate(Sender: TObject);
@@ -109,6 +119,10 @@ type
     procedure actFileDownloadUpdate(Sender: TObject);
     procedure cboLocalCurrentDirKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure actFileRemoteDeleteUpdate(Sender: TObject);
+    procedure actFileRemoteDeleteExecute(Sender: TObject);
+    procedure actFileLocalDeleteExecute(Sender: TObject);
+    procedure actFileLocalDeleteUpdate(Sender: TObject);
   private
     { Private declarations }
     LocalColumnToSort: Integer;
@@ -130,6 +144,9 @@ type
     procedure RemoteLvClearArrows;
     procedure LocalClearArrows;
     procedure DownloadFile(const AFile: String);
+    procedure UploadFile(const AFile: String);
+    procedure LocalDeleteFile(const AFile : String);
+    procedure RemoteDeleteFile(const AFile: String);
   public
     { Public declarations }
   end;
@@ -161,13 +178,29 @@ type
     constructor Create(AFTP: TIdFTP; ANewDir: String); reintroduce;
     procedure Execute(); override;
   end;
-  TDownloadFileThread = class(TFTPThread)
+
+  TFileThread = class(TFTPThread)
   protected
-    FFile : String;
+    FFile: String;
   public
     constructor Create(AFTP: TIdFTP; AFile: String); reintroduce;
+  end;
+
+  TDownloadFileThread = class(TFileThread)
+  public
     procedure Execute(); override;
   end;
+
+  TUploadFileThread = class(TFileThread)
+  public
+    procedure Execute(); override;
+  end;
+
+  TDeleteFileThread = class(TFileThread)
+  public
+    procedure Execute(); override;
+  end;
+
   TLogEventNotify = class(TIdNotify)
   protected
     FStr: String;
@@ -338,14 +371,77 @@ begin
     not Self.IdFTPClient.Connected;
 end;
 
-procedure TfrmMainForm.actFileUploadExecute(Sender: TObject);
+procedure TfrmMainForm.actFileLocalDeleteExecute(Sender: TObject);
+var
+  Li: TListItem;
 begin
-  //
+  if Self.lvLocalFiles.ItemIndex > -1 then begin
+    Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
+    LocalDeleteFile(Li.Caption);
+  end;
+end;
+
+procedure TfrmMainForm.actFileLocalDeleteUpdate(Sender: TObject);
+var
+  Li: TListItem;
+  LRes: Boolean;
+begin
+  LRes := (not FThreadRunning) and (lvLocalFiles.ItemIndex > -1);
+  if LRes then
+  begin
+    Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
+    LRes := Li.ImageIndex = FILE_IMAGE_IDX;
+  end;
+  actFileLocalDelete.Enabled := LRes;
+end;
+
+procedure TfrmMainForm.actFileRemoteDeleteExecute(Sender: TObject);
+var
+  Li: TListItem;
+begin
+  if lvRemoteFiles.ItemIndex > -1 then
+  begin
+    Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
+    RemoteDeleteFile(Li.Caption);
+  end;
+end;
+
+procedure TfrmMainForm.actFileRemoteDeleteUpdate(Sender: TObject);
+var
+  Li: TListItem;
+  LRes: Boolean;
+begin
+  LRes := (not FThreadRunning) and IdFTPClient.Connected and (lvRemoteFiles.ItemIndex > -1);
+  if LRes then
+  begin
+    Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
+    LRes := Li.ImageIndex = FILE_IMAGE_IDX;
+  end;
+  actFileRemoteDelete.Enabled := LRes;
+end;
+
+procedure TfrmMainForm.actFileUploadExecute(Sender: TObject);
+var
+  Li: TListItem;
+begin
+  if lvLocalFiles.ItemIndex > -1 then
+  begin
+    Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
+    UploadFile(Li.Caption);
+  end;
 end;
 
 procedure TfrmMainForm.actFileUploadUpdate(Sender: TObject);
+var
+  Li: TListItem;
 begin
-  actFileUpload.Enabled := (not FThreadRunning) and IdFTPClient.Connected;
+  actFileUpload.Enabled := (not FThreadRunning) and IdFTPClient.Connected and
+    (lvLocalFiles.ItemIndex > -1);
+  if actFileUpload.Enabled then
+  begin
+    Li := lvLocalFiles.Items[lvLocalFiles.ItemIndex];
+    actFileUpload.Enabled := Li.ImageIndex = FILE_IMAGE_IDX;
+  end;
 end;
 
 procedure TfrmMainForm.actHelpAboutExecute(Sender: TObject);
@@ -477,7 +573,12 @@ end;
 
 procedure TfrmMainForm.DownloadFile(const AFile: String);
 begin
-  TDownloadFileThread.Create(IdFTPClient,AFile);
+  TDownloadFileThread.Create(IdFTPClient, AFile);
+end;
+
+procedure TfrmMainForm.UploadFile(const AFile: String);
+begin
+  TUploadFileThread.Create(IdFTPClient, AFile);
 end;
 
 procedure TfrmMainForm.actFileConnectExecute(Sender: TObject);
@@ -716,6 +817,15 @@ begin
 
 end;
 
+procedure TfrmMainForm.LocalDeleteFile(const AFile: String);
+begin
+  if MessageDlg('Delete '+AFile+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  begin
+    System.SysUtils.DeleteFile(AFile);
+    Self.PopulateLocalFiles;
+  end;
+end;
+
 function CompareCaptions(Item1, Item2: TListItem): Integer;
 begin
   if Item1.Caption > Item2.Caption then
@@ -859,6 +969,10 @@ begin
       LCurDir := GetCurrentDir;
       LCurDir := LCurDir + '\' + Li.Caption;
       ChangeLocalDir(LCurDir);
+    end;
+    if Li.ImageIndex = FILE_IMAGE_IDX then
+    begin
+      UploadFile(Li.Caption);
     end;
   end;
 end;
@@ -1101,6 +1215,14 @@ begin
   end;
 end;
 
+procedure TfrmMainForm.RemoteDeleteFile(const AFile: String);
+begin
+  if MessageDlg('Delete '+AFile+'?',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+  begin
+    TDeleteFileThread.Create(IdFTPClient, AFile);
+  end;
+end;
+
 procedure TfrmMainForm.RemoteLvClearArrows;
 var
   i: Integer;
@@ -1245,13 +1367,15 @@ begin
   TThreadFinishedNotify.EndThread;
 end;
 
-{ TDownloadFileThread }
+{ TFileThread }
 
-constructor TDownloadFileThread.Create(AFTP: TIdFTP; AFile: String);
+constructor TFileThread.Create(AFTP: TIdFTP; AFile: String);
 begin
   inherited Create(AFTP);
   FFile := AFile;
 end;
+
+{ TDownloadFileThread }
 
 procedure TDownloadFileThread.Execute;
 var
@@ -1266,6 +1390,61 @@ begin
     finally
       FreeAndNil(LFile);
     end;
+  except
+    on E: EIdReplyRFCError do
+    begin
+      // This is already reported in the FTP log Window
+    end;
+    on E: Exception do
+      TLogFTPError.NotifyString(E.Message);
+  end;
+  TThreadFinishedNotify.EndThread;
+end;
+
+{ TUploadFileThread }
+
+procedure TUploadFileThread.Execute;
+var
+  LFile: TStream;
+  LCurDir: String;
+begin
+  try
+    TThreadStartNotify.StartThread;
+    LFile := TFileStream.Create(FFile, fmOpenRead);
+    try
+      FFTP.TransferType := ftBinary;
+      FFTP.Put(LFile, FFile);
+    finally
+      FreeAndNil(LFile);
+    end;
+    LCurDir := FFTP.RetrieveCurrentDir;
+    FFTP.List;
+    TLogDirListingEvent.LogDirListing(FFTP.ListResult);
+    TPopulateRemoteListNotify.PopulateRemoteList(LCurDir);
+  except
+    on E: EIdReplyRFCError do
+    begin
+      // This is already reported in the FTP log Window
+    end;
+    on E: Exception do
+      TLogFTPError.NotifyString(E.Message);
+  end;
+  TThreadFinishedNotify.EndThread;
+end;
+
+{ TDeleteFileThread }
+
+procedure TDeleteFileThread.Execute;
+var
+  LCurDir: String;
+begin
+  try
+    TThreadStartNotify.StartThread;
+    FFTP.Delete(FFile);
+    LCurDir := FFTP.RetrieveCurrentDir;
+    FFTP.List;
+    TLogDirListingEvent.LogDirListing(FFTP.ListResult);
+    TPopulateRemoteListNotify.PopulateRemoteList(LCurDir);
   except
     on E: EIdReplyRFCError do
     begin

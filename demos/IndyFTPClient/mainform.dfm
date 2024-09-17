@@ -178,6 +178,7 @@ object frmMainForm: TfrmMainForm
             MinWidth = 150
             Width = 150
           end>
+        PopupMenu = ppmnuLocal
         SmallImages = vimglstSmall
         SortType = stBoth
         TabOrder = 0
@@ -246,6 +247,7 @@ object frmMainForm: TfrmMainForm
           end>
         Enabled = False
         LargeImages = vimglstSmall
+        PopupMenu = ppmnuRemote
         SmallImages = vimglstSmall
         SortType = stData
         TabOrder = 0
@@ -337,6 +339,11 @@ object frmMainForm: TfrmMainForm
         CollectionIndex = 13
         CollectionName = 'libre-gui-action-select'
         Name = 'libre-gui-action-select'
+      end
+      item
+        CollectionIndex = 14
+        CollectionName = 'libre-gui-eraser'
+        Name = 'libre-gui-eraser'
       end>
     ImageCollection = imgcolMainProgram
     Width = 64
@@ -919,6 +926,52 @@ object frmMainForm: TfrmMainForm
               424822218ADFCDF1161CC255C367E4FBF091BF815973612411886265FE199145
               9D583527994C8E011334A632CA6369DA0000000049454E44AE426082}
           end>
+      end
+      item
+        Name = 'libre-gui-eraser'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D494844520000004900000049080600000071730B
+              DC000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              048249444154785EEDDA5B68544718C0F139A79BC4C4905473538CB1901A621F
+              DA7D2928C1883E485EB404095485928434E28315DB42A54FF1C9163110108918
+              8C28E26B4BA997529A34C56A2F48B4A164979A44238D976E6B6AACE676B6E78B
+              33EB6EDCCB9C73E6F21DD83F843D33BB0FE1C7CC64CF6E8C68344AB2A5CFA48F
+              D9D29445E2288BC4511689A32C1247BEF8EBF6DAE9C15773F3CC4F0C420EC2D8
+              FE9DEF19066909ED7CEBD2C20B24871E0980F2F2CC3EFB32F87CE64551CB6A09
+              EF0E9EA64369A1DE6EE98020C3347B6BCE0D36D3A1B4D022650262A9804289C4
+              0BC4920D850EC929104B26142A24B7402C59506890BC02B16440A1401205C412
+              0DA51D4934104B2494562459402C5150DA906403B1444069415205C4F20AA51C
+              493510CB0B9452245D402CB750CA907403B1DC402941C202C4720A251D091B10
+              CB099454A4B6AEF3154706CF8D544F4EA00262F142494302A0C6F08FE1F5F786
+              971DBDD2436C28FA0CAE78A0A42031A037236345302E9C7D46FC0C25FC33EEC5
+              40F14DE52C211FD5B5915BC52BE90CB2A256636857F00B3A8A2514291D100B33
+              147C0B3333135D37D61C7C44A71612B6DD788020CC5BCF308C153901B3960E63
+              0941E20562E186B29ED1CB589E919C02B1704245AF85770707E920962724B740
+              2C4C50F6D13C6618D19D749890EB83BBA3A3ABEAED877FFCE616283EDD873900
+              99A6B579F8DDE0189D4AC81512006DFDBDEF56F1FC74A028274067BDA50B2A13
+              10E478BB31A0DCE92781A77373E4DFD939FA8CB7746C3D1E20C811523C109D22
+              7E85E20582B8919201B1FC06E50408E242EAEEEE5DDB54668C260362F905CA29
+              10941109801A6A2A43E58D3BCC92F7DEA7B3C9C30EE506084A8BB4B0C52A4B42
+              4B6BDF30605CB8A18EF815CA2D109412A967FFA71570064D5DFCD2B09EFE4767
+              FD09E505084A89541D19B90967D0CCDD3BE47EE767C4AF505E81A0944845537F
+              97D34BE2572811405052A4B37B0F6C59FC4EDC6F50A280A094B725BF363658C4
+              9A5F38B0E3CBADAC22151F1E24667E019DB16F29AE5E21913327E92879F98100
+              51750B2312084AB9DD6E97559DA59709615F51A281A0B437B85FB5B67DBF3272
+              BB9E0E13C2B8A2640041295712B4ED54CFA689923503749810B615250B08E2FA
+              A804FB8A7AB8A4786E57C3C76B6500416957120BF38A7A12C8B56E2C5FFD8E2C
+              20880B09C208054057CB6BB6B5741EBE40A7A4C48D0461825205043942823040
+              A904821C23413AA1540341AE90201D503A8020D748904A285D40902724480594
+              4E20C8F597938B93F586F395FC02AD409030244838946190D18AD75B9B4E1CEF
+              A5335A128A040983B281FE2C5DB56F7B4FEF313AA32DCF67D2E2849C51888020
+              E148902728644090F0ED169FD3ADF7B8EF1B32D437800A0892B292584E56143C
+              4EFCF5E8736C4090D495C4CAB4A24AF77C40DADBDBC9D73FFD4C67B575C8F6E8
+              A0D7B1A4AE2456BA1515191D219BEB3762004A99122408A0C64BAB2EC3C1CC1A
+              FA6792B4FEF00B094F3EA6333853B2DDE283AFCFC743D7BB2767E71F747DF7ED
+              793A2DA315F6CF4BFF6E9CA17EDBA39F5EC7528EE4C7946D373F9745E2288B94
+              3142FE073D311463891BA5A90000000049454E44AE426082}
+          end>
       end>
     Left = 368
     Top = 304
@@ -1002,6 +1055,22 @@ object frmMainForm: TfrmMainForm
       ImageIndex = 5
       ImageName = 'libre-gui-about'
       OnExecute = actHelpAboutExecute
+    end
+    object actFileRemoteDelete: TAction
+      Category = 'File'
+      Caption = '&Delete'
+      ImageIndex = 14
+      ImageName = 'libre-gui-eraser'
+      OnExecute = actFileRemoteDeleteExecute
+      OnUpdate = actFileRemoteDeleteUpdate
+    end
+    object actFileLocalDelete: TAction
+      Category = 'File'
+      Caption = '&Delete'
+      ImageIndex = 14
+      ImageName = 'libre-gui-eraser'
+      OnExecute = actFileLocalDeleteExecute
+      OnUpdate = actFileLocalDeleteUpdate
     end
   end
   object IdFTPClient: TIdFTP
@@ -1128,6 +1197,11 @@ object frmMainForm: TfrmMainForm
         CollectionIndex = 13
         CollectionName = 'libre-gui-action-select'
         Name = 'libre-gui-action-select'
+      end
+      item
+        CollectionIndex = 14
+        CollectionName = 'libre-gui-eraser'
+        Name = 'libre-gui-eraser'
       end>
     ImageCollection = imgcolMainProgram
     Left = 208
@@ -1194,6 +1268,34 @@ object frmMainForm: TfrmMainForm
       object About1: TMenuItem
         Action = actHelpAbout
       end
+    end
+  end
+  object ppmnuRemote: TPopupMenu
+    Images = vimglstSmall
+    Left = 577
+    Top = 217
+    object Dowload2: TMenuItem
+      Action = actFileDownload
+    end
+    object N7: TMenuItem
+      Caption = '-'
+    end
+    object Delete1: TMenuItem
+      Action = actFileRemoteDelete
+    end
+  end
+  object ppmnuLocal: TPopupMenu
+    Images = vimglstSmall
+    Left = 120
+    Top = 225
+    object Upload2: TMenuItem
+      Action = actFileUpload
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
+    object actFileLocalDelete1: TMenuItem
+      Action = actFileLocalDelete
     end
   end
 end
