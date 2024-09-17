@@ -255,8 +255,6 @@ object frmMainForm: TfrmMainForm
         OnColumnClick = lvRemoteFilesColumnClick
         OnCompare = lvRemoteFilesCompare
         OnDblClick = lvRemoteFilesDblClick
-        ExplicitLeft = -5
-        ExplicitTop = 41
       end
       object cboRemoteCurrentDir: TComboBox
         Left = 64

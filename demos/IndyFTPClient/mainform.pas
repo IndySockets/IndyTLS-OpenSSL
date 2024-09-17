@@ -151,6 +151,13 @@ type
 
     FThreadRunning: Boolean;
 
+    // colors
+    FErrorForeground: TColor;
+    FErrorBackground: TColor;
+    FSSLMessageForeground: TColor;
+    FSSLMessageBackground: TColor;
+    FDirOutputForeground: TColor;
+    FDirOutputBackground: TColor;
     procedure InitLog;
     // Thread procedure starts
     procedure ConnectFTP;
@@ -446,12 +453,14 @@ end;
 
 procedure TfrmMainForm.actFileLocalMakeDirectoryExecute(Sender: TObject);
 var
-  LNewDir : String;
+  LNewDir: String;
 begin
-  if InputQuery('Make Directory','New Directory Name: ',LNewDir) then begin
-     if LNewDir <> '' then begin
-       LocalMakeDir(LNewDir);
-     end;
+  if InputQuery('Make Directory', 'New Directory Name: ', LNewDir) then
+  begin
+    if LNewDir <> '' then
+    begin
+      LocalMakeDir(LNewDir);
+    end;
   end;
 end;
 
@@ -530,18 +539,21 @@ end;
 
 procedure TfrmMainForm.actFileRemoteMakeDirectoryExecute(Sender: TObject);
 var
-  LNewDir : String;
+  LNewDir: String;
 begin
-  if InputQuery('Make Directory','New Directory Name: ',LNewDir) then begin
-     if LNewDir <> '' then begin
-       RemoteMakeDir(LNewDir);
-     end;
+  if InputQuery('Make Directory', 'New Directory Name: ', LNewDir) then
+  begin
+    if LNewDir <> '' then
+    begin
+      RemoteMakeDir(LNewDir);
+    end;
   end;
 end;
 
 procedure TfrmMainForm.actFileRemoteMakeDirectoryUpdate(Sender: TObject);
 begin
-  actFileRemoteMakeDirectory.Enabled := (not FThreadRunning) and IdFTPClient.Connected
+  actFileRemoteMakeDirectory.Enabled := (not FThreadRunning) and
+    IdFTPClient.Connected
 end;
 
 procedure TfrmMainForm.actFileRemoteRenameExecute(Sender: TObject);
@@ -629,13 +641,27 @@ begin
       LFrm.UsePortTransferType := LIni.ReadBool('Transfers',
         'Use_PORT_Transfers', False);
       LFrm.redtLog.Font.Name := redtLog.Font.Name;
+      LFrm.redtTextSamples.Font.Name := LFrm.redtLog.Font.Name;
       LFrm.redtLog.Font.Size := redtLog.Font.Size;
+      LFrm.redtTextSamples.Font.Size := LFrm.redtLog.Font.Size;
+      LFrm.ErrorForeground := FErrorForeground;
+      LFrm.ErrorBackground := FErrorBackground;
+      LFrm.SSLMessageForeground := FSSLMessageForeground;
+      LFrm.SSLMessageBackground := FSSLMessageBackground;
+      LFrm.DirOutputForeground := FDirOutputForeground;
+      LFrm.DirOutputBackground := FDirOutputBackground;
       LFrm.chklbAdvancedOptions.Checked[0] := IdFTPClient.UseHOST;
       LFrm.chklbAdvancedOptions.Checked[1] := IdFTPClient.UseExtensionDataPort;
       LFrm.chklbAdvancedOptions.Checked[2] := IdFTPClient.TryNATFastTrack;
       LFrm.chklbAdvancedOptions.Checked[3] := IdFTPClient.UseMLIS;
       if LFrm.ShowModal = mrOk then
       begin
+        FErrorForeground := LFrm.ErrorForeground;
+        FErrorBackground := LFrm.ErrorBackground;
+        FSSLMessageForeground := LFrm.SSLMessageForeground;
+        FSSLMessageBackground := LFrm.SSLMessageBackground;
+        FDirOutputForeground := LFrm.DirOutputForeground;
+        FDirOutputBackground := LFrm.DirOutputBackground;
         IdFTPClient.UseHOST := LFrm.chklbAdvancedOptions.Checked[0];
 
         // Do things in a round about way because NAT fasttracking requires extended DataPort commands.
@@ -670,6 +696,16 @@ begin
         LIni.WriteInteger('Log_Font', 'CharSet', Self.redtLog.Font.Charset);
         LIni.WriteInteger('Log_Font', 'Size', Self.redtLog.Font.Size);
         LIni.WriteInteger('Log_Font', 'Style', Byte(redtLog.Font.Style));
+        LIni.WriteInteger('Log_Font', 'Error_Foreground', FErrorForeground);
+        LIni.WriteInteger('Log_Font', 'Error_Background', FErrorBackground);
+        LIni.WriteInteger('Log_Font', 'SSL_Message_Foreground',
+          FSSLMessageForeground);
+        LIni.WriteInteger('Log_Font', 'SSL_Message_Background',
+          FSSLMessageBackground);
+        LIni.WriteInteger('Log_Font', 'Directory_Foreground',
+          FDirOutputForeground);
+        LIni.ReadInteger('Log_Font', 'Directory_Background',
+          FDirOutputBackground);
       end;
     finally
       FreeAndNil(LIni);
@@ -819,6 +855,17 @@ begin
     Self.redtLog.Font.Style :=
       TFontStyles(Byte(LIni.ReadInteger('Log_Font', 'Style',
       Byte(redtLog.Font.Style))));
+    FErrorForeground := LIni.ReadInteger('Log_Font', 'Error_Foreground', clRed);
+    FErrorBackground := LIni.ReadInteger('Log_Font',
+      'Error_Background', clWhite);
+    FSSLMessageForeground := LIni.ReadInteger('Log_Font',
+      'SSL_Message_Foreground', clTeal);
+    FSSLMessageBackground := LIni.ReadInteger('Log_Font',
+      'SSL_Message_Background', clWhite);
+    FDirOutputForeground := LIni.ReadInteger('Log_Font',
+      'Directory_Foreground', clBlue);
+    FDirOutputBackground := LIni.ReadInteger('Log_Font',
+      'Directory_Background', clWhite);
 
     IdFTPClient.UseHOST := LIni.ReadBool('FTP', 'Use_HOST_Command',
       IdFTPClient.UseHOST);
@@ -1484,6 +1531,8 @@ begin
     begin
       LFrm := TfrmCertViewer.Create(nil);
       try
+        LFrm.ErrorForeground := frmMainForm.FErrorForeground;
+        LFrm.ErrorBackground := frmMainForm.FErrorBackground;
         LFrm.X509 := Self.FX509;
         LFrm.Error := Self.FError;
         Self.FVerifyResult := LFrm.ShowModal = mrYes;
@@ -1756,8 +1805,8 @@ end;
 
 procedure TLogFTPError.DoNotify;
 begin
-  frmMainForm.redtLog.SelAttributes.Color := clRed;
-  frmMainForm.redtLog.SelAttributes.BackColor := clWhite;
+  frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FErrorForeground;
+  frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.FErrorBackground;
   inherited;
 end;
 
@@ -1792,8 +1841,9 @@ end;
 
 procedure TSSLCipherEvent.DoNotify;
 begin
-  frmMainForm.redtLog.SelAttributes.Color := clTeal;
-  frmMainForm.redtLog.SelAttributes.BackColor := clWhite;
+  frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FSSLMessageForeground;
+  frmMainForm.redtLog.SelAttributes.BackColor :=
+    frmMainForm.FSSLMessageBackground;
   inherited;
 end;
 
@@ -1849,8 +1899,10 @@ begin
   try
     for i := 0 to FDirListing.Count - 1 do
     begin
-      frmMainForm.redtLog.SelAttributes.Color := clBlue;
-      frmMainForm.redtLog.SelAttributes.BackColor := clWhite;
+      frmMainForm.redtLog.SelAttributes.Color :=
+        frmMainForm.FDirOutputForeground;
+      frmMainForm.redtLog.SelAttributes.BackColor :=
+        frmMainForm.FDirOutputBackground;
       frmMainForm.redtLog.Lines.Add(FDirListing[i]);
     end;
   finally

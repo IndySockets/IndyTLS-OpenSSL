@@ -3,8 +3,8 @@ object frmSettings: TfrmSettings
   Top = 108
   BorderStyle = bsDialog
   Caption = 'Settings'
-  ClientHeight = 300
-  ClientWidth = 427
+  ClientHeight = 362
+  ClientWidth = 508
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clBtnText
@@ -18,34 +18,38 @@ object frmSettings: TfrmSettings
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 427
-    Height = 266
+    Width = 508
+    Height = 328
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 5
     ParentColor = True
     TabOrder = 0
+    ExplicitWidth = 427
+    ExplicitHeight = 310
     object PageControl1: TPageControl
       Left = 5
       Top = 5
-      Width = 417
-      Height = 256
+      Width = 498
+      Height = 318
       ActivePage = TabSheet1
       Align = alClient
       Images = VirtualImageList1
       TabOrder = 0
+      ExplicitWidth = 417
+      ExplicitHeight = 256
       object TabSheet1: TTabSheet
         Caption = 'F&ont'
         ImageIndex = 1
         ImageName = 'libre-gui-font'
         DesignSize = (
-          409
-          226)
+          490
+          288)
         object redtLog: TRichEdit
           Left = 13
-          Top = 56
-          Width = 377
-          Height = 73
+          Top = 55
+          Width = 458
+          Height = 74
           Anchors = [akLeft, akTop, akRight, akBottom]
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
@@ -68,13 +72,122 @@ object frmSettings: TfrmSettings
           TabOrder = 1
           OnClick = Button1Click
         end
+        object redtTextSamples: TRichEdit
+          Left = 13
+          Top = 135
+          Width = 156
+          Height = 150
+          Anchors = [akLeft, akBottom]
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clBtnText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssBoth
+          TabOrder = 2
+          WantReturns = False
+          WordWrap = False
+        end
+        object ScrollBox1: TScrollBox
+          Left = 175
+          Top = 135
+          Width = 296
+          Height = 150
+          Anchors = [akLeft, akRight, akBottom]
+          TabOrder = 3
+          object lblErrors: TLabel
+            Left = 16
+            Top = 39
+            Width = 28
+            Height = 15
+            Caption = 'Error:'
+          end
+          object lblTLSMessages: TLabel
+            Left = 16
+            Top = 67
+            Width = 70
+            Height = 15
+            Caption = 'TLS Message:'
+          end
+          object lblDirOutput: TLabel
+            Left = 16
+            Top = 95
+            Width = 54
+            Height = 15
+            Caption = 'Dir Output:'
+          end
+          object lblForeground: TLabel
+            Left = 92
+            Top = 16
+            Width = 65
+            Height = 15
+            Caption = 'Foreground:'
+          end
+          object lblBackground: TLabel
+            Left = 208
+            Top = 16
+            Width = 64
+            Height = 15
+            Caption = 'Background'
+          end
+          object cboErrorForeground: TColorBox
+            Left = 92
+            Top = 36
+            Width = 110
+            Height = 22
+            TabOrder = 0
+            OnChange = cboErrorForegroundChange
+          end
+          object cboErrorBackground: TColorBox
+            Left = 208
+            Top = 36
+            Width = 113
+            Height = 22
+            TabOrder = 1
+            OnChange = cboErrorBackgroundChange
+          end
+          object cboTLSMessageForeground: TColorBox
+            Left = 89
+            Top = 64
+            Width = 113
+            Height = 22
+            TabOrder = 2
+            OnChange = cboTLSMessageForegroundChange
+          end
+          object cboTLSMessageBackground: TColorBox
+            Left = 208
+            Top = 64
+            Width = 113
+            Height = 22
+            TabOrder = 3
+            OnChange = cboTLSMessageBackgroundChange
+          end
+          object cboDirOutputForeground: TColorBox
+            Left = 89
+            Top = 92
+            Width = 113
+            Height = 22
+            TabOrder = 4
+            OnChange = cboDirOutputForegroundChange
+          end
+          object cboDirOutputBackground: TColorBox
+            Left = 208
+            Top = 92
+            Width = 113
+            Height = 22
+            TabOrder = 5
+            OnChange = cboDirOutputBackgroundChange
+          end
+        end
       end
       object TabSheet2: TTabSheet
         Caption = '&FTP Settings'
         ImageName = 'libre-gui-idea'
         DesignSize = (
-          409
-          226)
+          490
+          288)
         object lblTransferType: TLabel
           Left = 15
           Top = 16
@@ -93,7 +206,7 @@ object frmSettings: TfrmSettings
         object cboTransferTypes: TComboBox
           Left = 92
           Top = 13
-          Width = 301
+          Width = 382
           Height = 23
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
@@ -101,11 +214,12 @@ object frmSettings: TfrmSettings
           Items.Strings = (
             'Use PASV Transfers'
             'Use PORT Transfers')
+          ExplicitWidth = 301
         end
         object chklbAdvancedOptions: TCheckListBox
           Left = 92
           Top = 51
-          Width = 301
+          Width = 382
           Height = 97
           Anchors = [akLeft, akTop, akRight]
           ItemHeight = 17
@@ -116,6 +230,7 @@ object frmSettings: TfrmSettings
             'Send MLSD instead of DIR command')
           TabOrder = 1
           OnClickCheck = chklbAdvancedOptionsClickCheck
+          ExplicitWidth = 301
         end
       end
       object TabSheet3: TTabSheet
@@ -127,8 +242,8 @@ object frmSettings: TfrmSettings
   end
   object Panel2: TPanel
     Left = 0
-    Top = 266
-    Width = 427
+    Top = 328
+    Width = 508
     Height = 34
     Align = alBottom
     BevelOuter = bvNone
@@ -140,11 +255,13 @@ object frmSettings: TfrmSettings
     ParentColor = True
     ParentFont = False
     TabOrder = 1
+    ExplicitTop = 266
+    ExplicitWidth = 427
     DesignSize = (
-      427
+      508
       34)
     object OKBtn: TButton
-      Left = 187
+      Left = 268
       Top = 2
       Width = 75
       Height = 25
@@ -153,9 +270,10 @@ object frmSettings: TfrmSettings
       Default = True
       ModalResult = 1
       TabOrder = 0
+      ExplicitLeft = 187
     end
     object CancelBtn: TButton
-      Left = 267
+      Left = 348
       Top = 2
       Width = 75
       Height = 25
@@ -164,15 +282,17 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
+      ExplicitLeft = 267
     end
     object HelpBtn: TButton
-      Left = 347
+      Left = 428
       Top = 2
       Width = 75
       Height = 25
       Anchors = [akTop, akRight]
       Caption = '&Help'
       TabOrder = 2
+      ExplicitLeft = 347
     end
   end
   object ImageCollection1: TImageCollection
@@ -364,8 +484,8 @@ object frmSettings: TfrmSettings
               426082}
           end>
       end>
-    Left = 297
-    Top = 151
+    Left = 321
+    Top = 103
   end
   object VirtualImageList1: TVirtualImageList
     Images = <
@@ -385,8 +505,8 @@ object frmSettings: TfrmSettings
         Name = 'libre-gui-firewall'
       end>
     ImageCollection = ImageCollection1
-    Left = 209
-    Top = 143
+    Left = 185
+    Top = 95
   end
   object FontDialog1: TFontDialog
     Font.Charset = DEFAULT_CHARSET

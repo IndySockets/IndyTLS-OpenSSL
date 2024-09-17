@@ -21,11 +21,21 @@ type
     lblAcceptThisCertificate: TLabel;
     procedure FormCreate(Sender: TObject);
   private
+    function GetErrorBackground: TColor;
+    function GetErrorForeground: TColor;
+    procedure SetErrorBackground(const Value: TColor);
+    procedure SetErrorForeground(const Value: TColor);
+  protected
     { Private declarations }
     FX509: TIdX509;
     FError: Integer;
+    FErrorForeground : TColor;
+    FErrorBackground : TColor;
     function GetX509: TIdX509;
+    procedure RefreshViewer;
     procedure SetX509(const Value: TIdX509);
+    procedure WriteErrorString(const AStr : String);
+    procedure WriteWarningString(const AStr : String);
     procedure DumpX509Name(AX509Name: TIdX509Name);
     procedure DumpX509KeyUsage(AX509: TIdX509);
     procedure DumpX509ExtKeyUsage(AX509: TIdX509);
@@ -34,11 +44,12 @@ type
     { Public declarations }
     property X509: TIdX509 read GetX509 write SetX509;
     property Error: Integer read FError write SetError;
+    property ErrorForeground : TColor read GetErrorForeground write SetErrorForeground;
+    property ErrorBackground : TColor read GetErrorBackground write SetErrorBackground;
   end;
 
 var
   frmCertViewer: TfrmCertViewer;
-
 
 implementation
 
@@ -225,65 +236,55 @@ begin
   end;
 end;
 
+function TfrmCertViewer.GetErrorBackground: TColor;
+begin
+  Result := Self.FErrorBackground;
+end;
+
+function TfrmCertViewer.GetErrorForeground: TColor;
+begin
+  Result := Self.FErrorForeground;
+end;
+
 function TfrmCertViewer.GetX509: TIdX509;
 begin
   Result := FX509;
 end;
 
-procedure TfrmCertViewer.SetError(const Value: Integer);
-begin
-  FError := Value;
-  lblErrorMessage.Caption := ProgUtils.CertErrorToStr(Value);
-end;
-
-procedure TfrmCertViewer.SetX509(const Value: TIdX509);
+procedure TfrmCertViewer.RefreshViewer;
 var
   LStr: String;
   i: Integer;
   LProxyPathLen: TIdC_LONG;
 begin
-  FX509 := Value;
-  Self.redtCertView.Lines.BeginUpdate;
+  redtCertView.Lines.BeginUpdate;
   try
     redtCertView.Lines.Clear;
     if FX509.Errors.InvalidInconsistantValues then
     begin
-      redtCertView.SelAttributes.Color := clRed;
-      redtCertView.SelAttributes.Style := [fsBold];
-      redtCertView.SelAttributes.BackColor := clWhite;
-      redtCertView.Lines.Add
-        ('Invalid or inconsistant Values - reject this certificated');
+      WriteErrorString('Invalid or Inconsistant Values - Reject this certificated');
     end;
     if FX509.Errors.InvalidPolicy then
     begin
-      redtCertView.SelAttributes.Color := clRed;
-      redtCertView.SelAttributes.Style := [fsBold];
-      redtCertView.SelAttributes.BackColor := clWhite;
-      redtCertView.Lines.Add
-        ('Invalid Certificate Policy - reject this certificated');
+      WriteErrorString('Invalid Certificate Policy - Reject this certificated');
     end;
     if FX509.Errors.UnhandledCriticalExtention then
     begin
-      redtCertView.SelAttributes.Color := clRed;
-      redtCertView.SelAttributes.Style := [fsBold];
-      redtCertView.SelAttributes.BackColor := clWhite;
-      redtCertView.Lines.Add
-        ('Unhandled Critical Extention - reject this certificated');
+      WriteErrorString('Unhandled Critical Extention - Reject this certificated');
+    end;
+    if FX509.Warnings.IsObsoleteV1 then
+    begin
+      WriteWarningString('Certificate is Obsolete Version 1');
     end;
     if FX509.Warnings.IsSelfSigned then
     begin
-      redtCertView.SelAttributes.Color := clRed;
-      redtCertView.SelAttributes.BackColor := clWhite;
-      redtCertView.Lines.Add('Certificate is Self-Signed');
+      WriteWarningString('Certificate is Self-Signed');
     end
     else
     begin
       if FX509.Warnings.SubjectAndIssuerMatch then
       begin
-        redtCertView.SelAttributes.Color := clRed;
-        redtCertView.SelAttributes.BackColor := clWhite;
-        redtCertView.Lines.Add
-          ('Subject and Issuer match - implies self-signed');
+        WriteWarningString('Subject and Issuer match - Implies self-signed');
       end;
     end;
     redtCertView.Lines.Add('Fingerprint: ');
@@ -307,33 +308,33 @@ begin
       DateTimeToStr(FX509.NotAfter));
     redtCertView.Lines.Add('');
     redtCertView.Lines.Add('Subject');
-    DumpX509Name(X509.Subject);
+    DumpX509Name(FX509.Subject);
     redtCertView.Lines.Add('');
 
     if not FX509.Warnings.SubjectAndIssuerMatch then
     begin
       redtCertView.Lines.Add('Issuer');
-      DumpX509Name(X509.Issuer);
+      DumpX509Name(FX509.Issuer);
     end;
     redtCertView.Lines.Add('');
     redtCertView.Lines.Add('Subject Public Key Info');
     redtCertView.Lines.Add(RightJustify('Alorigthm: ', TAB1) +
-      X509.PublicKey.Algorithm);
+      FX509.PublicKey.Algorithm);
     LStr := X509.PublicKey.Encoding;
     if LStr <> '' then
     begin
       redtCertView.Lines.Add(RightJustify('Encoding Size: ', TAB1) +
-        IntToStr(X509.PublicKey.EncodingSize));
+        IntToStr(FX509.PublicKey.EncodingSize));
       redtCertView.Lines.Add(RightJustify('Encoding: ', TAB1) +
-        X509.PublicKey.Encoding);
+        FX509.PublicKey.Encoding);
     end;
     redtCertView.Lines.Add(RightJustify('Bits: ', TAB1) +
-      IntToStr(X509.PublicKey.Bits) + ' Bits');
+      IntToStr(FX509.PublicKey.Bits) + ' Bits');
     redtCertView.Lines.Add(RightJustify('Security Bits: ', TAB1) +
-      IntToStr(X509.PublicKey.SecurityBits) + ' Bits');
+      IntToStr(FX509.PublicKey.SecurityBits) + ' Bits');
     redtCertView.Lines.Add(RightJustify('Size: ', TAB1) +
-      IntToStr(X509.PublicKey.Size));
-    LStr := X509.PublicKey.Modulus;
+      IntToStr(FX509.PublicKey.Size));
+    LStr := FX509.PublicKey.Modulus;
     if LStr <> '' then
     begin
       redtCertView.Lines.Add(RightJustify('Modulus: ', TAB1) + LStr);
@@ -346,14 +347,14 @@ begin
       X509.SigInfo.Algorithm);
     redtCertView.Lines.Add('');
 
-    LStr := X509.SubjectKeyIdentifier;
+    LStr := FX509.SubjectKeyIdentifier;
     if LStr <> '' then
     begin
       redtCertView.Lines.Add(RightJustify('X509v3 Subject Key Identifier: ',
         TAB1) + LStr);
     end;
     LStr := X509.AuthorityKeyID.KeyID;
-    if (LStr <> '') or (X509.AuthorityKeyID.Serial <> 0) then
+    if (LStr <> '') or (FX509.AuthorityKeyID.Serial <> 0) then
     begin
       redtCertView.Lines.Add
         (RightJustify('X509v3 Authority Key Identifier: ', TAB1));
@@ -361,15 +362,15 @@ begin
       begin
         redtCertView.Lines.Add(RightJustify('Key ID: ', TAB2) + LStr);
       end;
-      for i := 0 to X509.AuthorityKeyID.IssuerCount - 1 do
+      for i := 0 to FX509.AuthorityKeyID.IssuerCount - 1 do
       begin
         redtCertView.Lines.Add(RightJustify('', TAB2) +
-          X509.AuthorityKeyID.Issuer[i]);
+          FX509.AuthorityKeyID.Issuer[i]);
       end;
       if X509.AuthorityKeyID.Serial > -1 then
       begin
         redtCertView.Lines.Add(RightJustify('Serial: ', TAB2) +
-          IntToHex(X509.AuthorityKeyID.Serial));
+          IntToHex(FX509.AuthorityKeyID.Serial));
       end;
     end;
     LStr := X509.BasicConstraints;
@@ -382,16 +383,16 @@ begin
     begin
       redtCertView.Lines.Add('');
       redtCertView.Lines.Add(RightJustify(' Subject ALternative Name Count: ',
-        TAB2) + IntToStr(X509.AltSubjectNames.ItemsCount));
-      for i := 0 to X509.AltSubjectNames.ItemsCount - 1 do
+        TAB2) + IntToStr(FX509.AltSubjectNames.ItemsCount));
+      for i := 0 to FX509.AltSubjectNames.ItemsCount - 1 do
       begin
         redtCertView.Lines.Add(RightJustify('Subject ALternate Name ' +
-          IntToStr(i) + ': ', TAB1) + X509.AltSubjectNames.Items[i]);
+          IntToStr(i) + ': ', TAB1) + FX509.AltSubjectNames.Items[i]);
       end;
     end;
-    DumpX509KeyUsage(X509);
-    DumpX509ExtKeyUsage(X509);
-    LProxyPathLen := X509.ProxyPathLen;
+    DumpX509KeyUsage(FX509);
+    DumpX509ExtKeyUsage(FX509);
+    LProxyPathLen := FX509.ProxyPathLen;
     if LProxyPathLen > -1 then
     begin
       redtCertView.Lines.Add('');
@@ -401,19 +402,19 @@ begin
     redtCertView.Lines.Add('');
     redtCertView.Lines.Add('Extensions: ');
     redtCertView.Lines.Add(RightJustify('Extension Count: ', TAB1) +
-      IntToStr(X509.ExtensionCount));
-    for i := 0 to X509.ExtensionCount - 1 do
+      IntToStr(FX509.ExtensionCount));
+    for i := 0 to FX509.ExtensionCount - 1 do
     begin
-      LStr := X509.ExtentionName[i];
+      LStr := FX509.ExtentionName[i];
       if X509.ExtentionCritical[i] then
       begin
         redtCertView.Lines.Add(RightJustify(LStr + ' (critical): ', TAB2) +
-          X509.ExtensionValues[i]);
+          FX509.ExtensionValues[i]);
       end
       else
       begin
         redtCertView.Lines.Add(RightJustify(LStr + ': ', TAB2) +
-          X509.ExtensionValues[i]);
+          FX509.ExtensionValues[i]);
       end;
     end;
 
@@ -421,6 +422,45 @@ begin
     Self.redtCertView.Lines.EndUpdate;
   end;
   ScrollToTop(redtCertView);
+
+end;
+
+procedure TfrmCertViewer.SetError(const Value: Integer);
+begin
+  FError := Value;
+  lblErrorMessage.Caption := ProgUtils.CertErrorToStr(Value);
+end;
+
+procedure TfrmCertViewer.SetErrorBackground(const Value: TColor);
+begin
+ Self.FErrorBackground := Value;
+end;
+
+procedure TfrmCertViewer.SetErrorForeground(const Value: TColor);
+begin
+  Self.FErrorForeground := Value;
+end;
+
+procedure TfrmCertViewer.SetX509(const Value: TIdX509);
+begin
+  FX509 := Value;
+  RefreshViewer;
+end;
+
+procedure TfrmCertViewer.WriteErrorString(const AStr: String);
+begin
+   redtCertView.SelAttributes.Color := FErrorForeground;
+   redtCertView.SelAttributes.Style := [fsBold];
+   redtCertView.SelAttributes.BackColor := FErrorBackground;
+   redtCertView.Lines.Add(AStr);
+end;
+
+procedure TfrmCertViewer.WriteWarningString(const AStr: String);
+begin
+   redtCertView.SelAttributes.Color := FErrorForeground;
+   redtCertView.SelAttributes.Style := [];
+   redtCertView.SelAttributes.BackColor := FErrorBackground;
+   redtCertView.Lines.Add(AStr);
 end;
 
 end.
