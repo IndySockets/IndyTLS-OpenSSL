@@ -30,7 +30,7 @@ object frmSettings: TfrmSettings
       Top = 5
       Width = 498
       Height = 318
-      ActivePage = TabSheet1
+      ActivePage = TabSheet3
       Align = alClient
       Images = VirtualImageList1
       TabOrder = 0
@@ -255,21 +255,72 @@ object frmSettings: TfrmSettings
         Caption = 'F&irewall/Proxy'
         ImageIndex = 2
         ImageName = 'libre-gui-firewall'
-        object Label1: TLabel
-          Left = 8
-          Top = 16
-          Width = 83
-          Height = 15
-          Caption = '&NAT IP Address:'
-        end
-        object edtExternalIPAddress: TEdit
-          Left = 97
-          Top = 13
-          Width = 240
-          Height = 23
+        object grpNATFTPS_PORT: TGroupBox
+          Left = 0
+          Top = 3
+          Width = 487
+          Height = 110
+          Caption = 'Data Port Settings for NAT FTPS PORT Transfers'
           TabOrder = 0
-          TextHint = 'Leave empty unless you are behind a NAT'
-          OnChange = edtExternalIPAddressChange
+          object lblMaximumPort: TLabel
+            Left = 210
+            Top = 79
+            Width = 58
+            Height = 15
+            Caption = 'M&aximum:'
+          end
+          object lblMinPort: TLabel
+            Left = 43
+            Top = 79
+            Width = 56
+            Height = 15
+            Caption = '&Minimum:'
+          end
+          object lblPorts: TLabel
+            Left = 105
+            Top = 56
+            Width = 215
+            Height = 15
+            Caption = 'Data Port Range for PORT/EPRT transfers.'
+          end
+          object lblNATIPAddress: TLabel
+            Left = 41
+            Top = 32
+            Width = 58
+            Height = 15
+            Caption = '&IP Address:'
+          end
+          object spnedtPortMax: TSpinEdit
+            Left = 272
+            Top = 77
+            Width = 73
+            Height = 24
+            MaxValue = 0
+            MinValue = 0
+            TabOrder = 0
+            Value = 0
+            OnChange = spnedtPortMaxChange
+          end
+          object spnedtPortMinimum: TSpinEdit
+            Left = 105
+            Top = 77
+            Width = 73
+            Height = 24
+            MaxValue = 0
+            MinValue = 0
+            TabOrder = 1
+            Value = 0
+            OnChange = spnedtPortMinimumChange
+          end
+          object edtExternalIPAddress: TEdit
+            Left = 105
+            Top = 29
+            Width = 240
+            Height = 23
+            TabOrder = 2
+            TextHint = 'Leave empty unless you are behind a NAT'
+            OnChange = edtExternalIPAddressChange
+          end
         end
       end
       object TabSheet4: TTabSheet
@@ -611,8 +662,8 @@ object frmSettings: TfrmSettings
               7F615AA43C9816E9B610F23F3CD251B86388BFA10000000049454E44AE426082}
           end>
       end>
-    Left = 321
-    Top = 103
+    Left = 305
+    Top = 199
   end
   object VirtualImageList1: TVirtualImageList
     Images = <
@@ -637,8 +688,8 @@ object frmSettings: TfrmSettings
         Name = 'libre-gui-bug'
       end>
     ImageCollection = ImageCollection1
-    Left = 185
-    Top = 95
+    Left = 145
+    Top = 199
   end
   object FontDialog1: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -647,7 +698,7 @@ object frmSettings: TfrmSettings
     Font.Name = 'Segoe UI'
     Font.Style = []
     Options = [fdFixedPitchOnly]
-    Left = 257
-    Top = 95
+    Left = 209
+    Top = 191
   end
 end

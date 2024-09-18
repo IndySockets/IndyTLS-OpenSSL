@@ -162,7 +162,7 @@ type
     FDirOutputBackground: TColor;
     FDebugForeground: TColor;
     FDebugBackground: TColor;
-    FLogDebugOutput : Boolean;
+    FLogDebugOutput: Boolean;
     procedure InitLog;
     // Thread procedure starts
     procedure ConnectFTP;
@@ -299,6 +299,7 @@ type
   public
     class procedure PopulateRemoteList(const ACurrentDir: String);
   end;
+
   TPopulateLocalListNotify = class(TIdNotify)
   protected
     procedure DoNotify; override;
@@ -427,8 +428,7 @@ end;
 
 procedure TfrmMainForm.actFileFTPSitesUpdate(Sender: TObject);
 begin
-  actFileFTPSites.Enabled := (not FThreadRunning) and
-    not IdFTPClient.Connected;
+  actFileFTPSites.Enabled := (not FThreadRunning) and not IdFTPClient.Connected;
 end;
 
 procedure TfrmMainForm.actFileLocalDeleteExecute(Sender: TObject);
@@ -663,6 +663,8 @@ begin
       LFrm.DebugForeground := FDebugForeground;
       LFrm.DebugBackground := FDebugBackground;
       LFrm.edtExternalIPAddress.Text := IdFTPClient.ExternalIP;
+      LFrm.spnedtPortMinimum.Value := IdFTPClient.DataPortMin;
+      LFrm.spnedtPortMax.Value := IdFTPClient.DataPortMax;
       LFrm.chklbAdvancedOptions.Checked[0] := IdFTPClient.UseHOST;
       LFrm.chklbAdvancedOptions.Checked[1] := IdFTPClient.UseExtensionDataPort;
       LFrm.chklbAdvancedOptions.Checked[2] := IdFTPClient.TryNATFastTrack;
@@ -679,6 +681,8 @@ begin
         FDebugBackground := LFrm.DebugBackground;
         IdFTPClient.UseHOST := LFrm.chklbAdvancedOptions.Checked[0];
         IdFTPClient.ExternalIP := LFrm.edtExternalIPAddress.Text;
+        IdFTPClient.DataPortMin := LFrm.spnedtPortMinimum.Value;
+        IdFTPClient.DataPortMax := LFrm.spnedtPortMax.Value;
         // Do things in a round about way because NAT fasttracking requires extended DataPort commands.
         IdFTPClient.TryNATFastTrack := False;
 
@@ -690,7 +694,12 @@ begin
         end;
         IdFTPClient.UseMLIS := LFrm.chklbAdvancedOptions.Checked[3];
         LIni.WriteBool('FTP', 'Use_HOST_Command', IdFTPClient.UseHOST);
-        LIni.WriteString('Firewall_Proxy','NAT_IP_Address', IdFTPClient.ExternalIP);
+        LIni.WriteString('Firewall_Proxy', 'NAT_IP_Address',
+          IdFTPClient.ExternalIP);
+        LIni.WriteInteger('Firewall_Proxy', 'Data_PORT_Minimum',
+          IdFTPClient.DataPortMin);
+        LIni.WriteInteger('Firewall_Proxy', 'Data_PORT_Maximum',
+          IdFTPClient.DataPortMax);
         LIni.WriteBool('Transfers', 'Use_Extended_Data_Port_Commands',
           IdFTPClient.UseExtensionDataPort);
         LIni.WriteBool('Transfers', 'Try_Using_NAT_Fast_Track',
@@ -703,7 +712,7 @@ begin
         LIni.WriteBool('Transfers', 'Use_EPSV_EPRT_Data_Transfer',
           LFrm.chklbAdvancedOptions.Checked[1]);
         IdFTPClient.Passive := not LFrm.UsePortTransferType;
-        LIni.WriteBool('Debug', 'Log_Debug_Output',FLogDebugOutput);
+        LIni.WriteBool('Debug', 'Log_Debug_Output', FLogDebugOutput);
         redtLog.Font := LFrm.redtLog.Font;
         LIni.WriteString('Log_Font', 'Name', redtLog.Font.Name);
         LIni.WriteInteger('Log_Font', 'Size', redtLog.Font.Size);
@@ -866,15 +875,13 @@ begin
   try
     IdFTPClient.Passive := not LIni.ReadBool('Transfers',
       'Use_PORT_Transfers', False);
-    FLogDebugOutput := LIni.ReadBool('Debug', 'Log_Debug_Output',False);
-    redtLog.Font.Name := LIni.ReadString('Log_Font', 'Name',
-      redtLog.Font.Name);
+    FLogDebugOutput := LIni.ReadBool('Debug', 'Log_Debug_Output', False);
+    redtLog.Font.Name := LIni.ReadString('Log_Font', 'Name', redtLog.Font.Name);
     redtLog.Font.Charset := LIni.ReadInteger('Log_Font', 'CharSet',
       redtLog.Font.Charset);
     redtLog.Font.Size := LIni.ReadInteger('Log_Font', 'Size',
       redtLog.Font.Size);
-    redtLog.Font.Style :=
-      TFontStyles(Byte(LIni.ReadInteger('Log_Font', 'Style',
+    redtLog.Font.Style := TFontStyles(Byte(LIni.ReadInteger('Log_Font', 'Style',
       Byte(redtLog.Font.Style))));
     FErrorForeground := LIni.ReadInteger('Log_Font', 'Error_Foreground', clRed);
     FErrorBackground := LIni.ReadInteger('Log_Font',
@@ -899,7 +906,12 @@ begin
       'Try_Using_NAT_Fast_Track', IdFTPClient.TryNATFastTrack);
     IdFTPClient.UseMLIS := LIni.ReadBool('FTP',
       'Use_MLSD_Command_Instead_Of_DIR_Command', IdFTPClient.UseMLIS);
-    IdFTPClient.ExternalIP := LIni.ReadString('Firewall_Proxy','NAT_IP_Address', '');
+    IdFTPClient.ExternalIP := LIni.ReadString('Firewall_Proxy',
+      'NAT_IP_Address', '');
+    IdFTPClient.DataPortMin := LIni.ReadInteger('Firewall_Proxy',
+      'Data_PORT_Minimum', 0);
+    IdFTPClient.DataPortMax := LIni.ReadInteger('Firewall_Proxy',
+      'Data_PORT_Maximum', 0);
   finally
     FreeAndNil(LIni);
   end;
@@ -1019,8 +1031,8 @@ procedure TfrmMainForm.iosslFTPStatusInfoEx(ASender: TObject;
   const AType, AMsg: string);
 
 begin
-   TSSLEvent.NotifyString(AType);
-   TSSLEvent.NotifyString(AMsg);
+  TSSLEvent.NotifyString(AType);
+  TSSLEvent.NotifyString(AMsg);
 end;
 
 procedure TfrmMainForm.LocalClearArrows;
@@ -1663,7 +1675,7 @@ begin
       FreeAndNil(LFile);
     end;
     TFile.SetLastWriteTime(FFile, FFTP.FileDate(FFile));
-     TPopulateLocalListNotify.PopulateLocalList;
+    TPopulateLocalListNotify.PopulateLocalList;
   except
     on E: EIdReplyRFCError do
     begin
@@ -1851,7 +1863,8 @@ end;
 
 procedure TSSLEvent.DoNotify;
 begin
-  if frmMainForm.FLogDebugOutput then begin
+  if frmMainForm.FLogDebugOutput then
+  begin
     frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FDebugForeground;
     frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.FDebugBackground;
     inherited;
@@ -1988,14 +2001,15 @@ begin
 end;
 
 class procedure TPopulateLocalListNotify.PopulateLocalList;
-var LNotify :  TPopulateLocalListNotify;
+var
+  LNotify: TPopulateLocalListNotify;
 begin
-  LNotify :=  TPopulateLocalListNotify.Create;
+  LNotify := TPopulateLocalListNotify.Create;
   LNotify.Notify;
 end;
 
 initialization
 
-  GetOpenSSLLoader.OpenSSLPath := ExtractFilePath(ParamStr(0));
+GetOpenSSLLoader.OpenSSLPath := ExtractFilePath(ParamStr(0));
 
 end.

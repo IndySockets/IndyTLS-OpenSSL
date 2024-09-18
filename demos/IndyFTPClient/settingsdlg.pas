@@ -5,7 +5,7 @@ interface
 uses Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Forms,
   Vcl.Controls, Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,
   System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, Vcl.Dialogs, Vcl.CheckLst;
+  Vcl.ImageCollection, Vcl.Dialogs, Vcl.CheckLst, Vcl.Samples.Spin;
 
 type
   TfrmSettings = class(TForm)
@@ -44,8 +44,14 @@ type
     lblDebugOutput: TLabel;
     TabSheet4: TTabSheet;
     chkLogDebug: TCheckBox;
+    grpNATFTPS_PORT: TGroupBox;
+    spnedtPortMax: TSpinEdit;
+    lblMaximumPort: TLabel;
+    spnedtPortMinimum: TSpinEdit;
+    lblMinPort: TLabel;
+    lblPorts: TLabel;
     edtExternalIPAddress: TEdit;
-    Label1: TLabel;
+    lblNATIPAddress: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chklbAdvancedOptionsClickCheck(Sender: TObject);
@@ -59,6 +65,8 @@ type
     procedure cboDebugForegroundSelect(Sender: TObject);
     procedure cboDebugBackgroundSelect(Sender: TObject);
     procedure edtExternalIPAddressChange(Sender: TObject);
+    procedure spnedtPortMinimumChange(Sender: TObject);
+    procedure spnedtPortMaxChange(Sender: TObject);
   private
     function GetDirOutputBackground: TColor;
     function GetDirOutputForeground: TColor;
@@ -71,14 +79,14 @@ type
     procedure SetDebugBackground(const Value: TColor);
     procedure SetDebugForeground(const Value: TColor);
   protected
-    FErrorForeground : TColor;
-    FErrorBackground : TColor;
-    FSSLMessageForeground : TColor;
-    FSSLMessageBackground : TColor;
-    FDirOutputForeground : TColor;
-    FDirOutputBackground : TColor;
-    FDebugForeground : TColor;
-    FDebugBackground : TColor;
+    FErrorForeground: TColor;
+    FErrorBackground: TColor;
+    FSSLMessageForeground: TColor;
+    FSSLMessageBackground: TColor;
+    FDirOutputForeground: TColor;
+    FDirOutputBackground: TColor;
+    FDebugForeground: TColor;
+    FDebugBackground: TColor;
     procedure ValidateFeilds;
     function GetUsePortTransferType: Boolean;
     procedure SetUsePortTransferType(const Value: Boolean);
@@ -96,20 +104,29 @@ type
     { Public declarations }
     property UsePortTransferType: Boolean read GetUsePortTransferType
       write SetUsePortTransferType;
-    property ErrorForeground : TColor read GetErrorForeground write SetErrorForeground;
-    property ErrorBackground : TColor read GetErrorBackground write SetErrorBackground;
-    property SSLMessageForeground : TColor read GetSSLMessageForeground write SetSSLMessageForeground;
-    property SSLMessageBackground : TColor read GetSSLMessageBackground write SetSSLMessageBackground;
-    property DirOutputForeground : TColor read GetDirOutputForeground write SetDirOutputForeground;
-    property DirOutputBackground : TColor read GetDirOutputBackground write SetDirOutputBackground;
-    property DebugForeground : TColor read GetDebugForeground write SetDebugForeground;
-    property DebugBackground : TColor read GetDebugBackground write SetDebugBackground;
+    property ErrorForeground: TColor read GetErrorForeground
+      write SetErrorForeground;
+    property ErrorBackground: TColor read GetErrorBackground
+      write SetErrorBackground;
+    property SSLMessageForeground: TColor read GetSSLMessageForeground
+      write SetSSLMessageForeground;
+    property SSLMessageBackground: TColor read GetSSLMessageBackground
+      write SetSSLMessageBackground;
+    property DirOutputForeground: TColor read GetDirOutputForeground
+      write SetDirOutputForeground;
+    property DirOutputBackground: TColor read GetDirOutputBackground
+      write SetDirOutputBackground;
+    property DebugForeground: TColor read GetDebugForeground
+      write SetDebugForeground;
+    property DebugBackground: TColor read GetDebugBackground
+      write SetDebugBackground;
   end;
 
 var
   frmSettings: TfrmSettings;
 
 implementation
+
 uses IdSSLOpenSSL, ProgUtils, IdIPAddress;
 
 {$R *.dfm}
@@ -118,7 +135,8 @@ uses IdSSLOpenSSL, ProgUtils, IdIPAddress;
 procedure TfrmSettings.Button1Click(Sender: TObject);
 begin
   FontDialog1.Font := redtLog.Font;
-  if FontDialog1.Execute then begin
+  if FontDialog1.Execute then
+  begin
     redtLog.Font := FontDialog1.Font;
   end;
 end;
@@ -166,8 +184,8 @@ end;
 
 procedure TfrmSettings.cboDebugBackgroundSelect(Sender: TObject);
 begin
- FDebugBackground := cboDebugBackground.Selected;
- DisplaySampleTexts;
+  FDebugBackground := cboDebugBackground.Selected;
+  DisplaySampleTexts;
 end;
 
 procedure TfrmSettings.cboDebugForegroundSelect(Sender: TObject);
@@ -179,7 +197,7 @@ end;
 procedure TfrmSettings.DisplaySampleTexts;
 begin
   redtTextSamples.Lines.Clear;
-  redtTextSamples.SelAttributes.Color :=  FErrorForeground;
+  redtTextSamples.SelAttributes.Color := FErrorForeground;
   cboErrorForeground.Selected := FErrorForeground;
   redtTextSamples.SelAttributes.BackColor := FErrorBackground;
   cboErrorBackground.Selected := FErrorBackground;
@@ -199,16 +217,17 @@ begin
   cboDebugForeground.Selected := FDebugForeground;
   cboDebugBackground.Selected := FDebugBackground;
   redtTextSamples.Lines.Add('Debug Output');
-  ScrollToTop( redtTextSamples);
+  ScrollToTop(redtTextSamples);
 end;
 
-function IsValidIP(const AAddr : String): Boolean;
+function IsValidIP(const AAddr: String): Boolean;
 var
-  LIP : TIdIPAddress;
+  LIP: TIdIPAddress;
 begin
   LIP := TIdIPAddress.MakeAddressObject(AAddr);
   Result := Assigned(LIP);
-  if Result then begin
+  if Result then
+  begin
     FreeAndNil(LIP);
   end;
 end;
@@ -220,10 +239,13 @@ end;
 
 procedure TfrmSettings.EnableDisableCheckBoxes;
 begin
-  if chklbAdvancedOptions.Checked[1] = False then begin
-     chklbAdvancedOptions.ItemEnabled[2] := False;
-  end else begin
-     chklbAdvancedOptions.ItemEnabled[2] := True;
+  if chklbAdvancedOptions.Checked[1] = False then
+  begin
+    chklbAdvancedOptions.ItemEnabled[2] := False;
+  end
+  else
+  begin
+    chklbAdvancedOptions.ItemEnabled[2] := True;
   end;
 end;
 
@@ -355,11 +377,33 @@ begin
   end;
 end;
 
+procedure TfrmSettings.spnedtPortMaxChange(Sender: TObject);
+begin
+  ValidateFeilds;
+end;
+
+procedure TfrmSettings.spnedtPortMinimumChange(Sender: TObject);
+begin
+  ValidateFeilds;
+end;
+
 procedure TfrmSettings.ValidateFeilds;
-var LIP : String;
+var
+  LIP: String;
 begin
   LIP := edtExternalIPAddress.Text;
   Self.OKBtn.Enabled := (LIP = '') or IsValidIP(LIP);
+  if OKBtn.Enabled then
+  begin
+    if (spnedtPortMinimum.Value = 0) and (spnedtPortMax.Value = 0) then
+    begin
+      OKBtn.Enabled := True;
+    end
+    else
+    begin
+      OKBtn.Enabled := (spnedtPortMinimum.Value < spnedtPortMax.Value);
+    end;
+  end;
 end;
 
 end.
