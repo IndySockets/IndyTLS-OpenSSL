@@ -45,7 +45,7 @@ object frmFTPSites: TfrmFTPSites
       267
       34)
     object OKBtn: TButton
-      Left = 27
+      Left = 106
       Top = 2
       Width = 75
       Height = 25
@@ -56,7 +56,7 @@ object frmFTPSites: TfrmFTPSites
       TabOrder = 0
     end
     object CancelBtn: TButton
-      Left = 107
+      Left = 187
       Top = 2
       Width = 75
       Height = 25
@@ -65,15 +65,6 @@ object frmFTPSites: TfrmFTPSites
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-    end
-    object HelpBtn: TButton
-      Left = 187
-      Top = 2
-      Width = 75
-      Height = 25
-      Anchors = [akTop, akRight]
-      Caption = '&Help'
-      TabOrder = 2
     end
   end
   object lbxFTPSites: TListBox

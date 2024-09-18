@@ -16,7 +16,9 @@ type
     OKButton: TButton;
     VirtualImage1: TVirtualImage;
     ImageCollection1: TImageCollection;
+    LinkLabel1: TLinkLabel;
     procedure FormCreate(Sender: TObject);
+    procedure LinkLabel1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -27,6 +29,7 @@ var
   AboutBox: TAboutBox;
 
 implementation
+uses ShellApi;
 
 {$R *.dfm}
 
@@ -36,6 +39,11 @@ begin
   GetProductVersion(ParamStr(0), LMajor, LMinor, LBuild);
   Self.Version.Caption := IntToStr(LMajor)+'.'+IntToStr(LMinor)+'.'+IntToStr(LBuild);
   Self.ProductName.Caption := Application.Title;
+end;
+
+procedure TAboutBox.LinkLabel1Click(Sender: TObject);
+begin
+  ShellExecute(0, 'open', PChar(LinkLabel1.Hint), nil, nil, SW_SHOWNORMAL);
 end;
 
 end.

@@ -25,8 +25,6 @@ object frmSettings: TfrmSettings
     BorderWidth = 5
     ParentColor = True
     TabOrder = 0
-    ExplicitWidth = 427
-    ExplicitHeight = 310
     object PageControl1: TPageControl
       Left = 5
       Top = 5
@@ -36,8 +34,6 @@ object frmSettings: TfrmSettings
       Align = alClient
       Images = VirtualImageList1
       TabOrder = 0
-      ExplicitWidth = 417
-      ExplicitHeight = 256
       object TabSheet1: TTabSheet
         Caption = 'F&ont'
         ImageIndex = 1
@@ -95,46 +91,54 @@ object frmSettings: TfrmSettings
           Top = 135
           Width = 296
           Height = 150
+          VertScrollBar.Position = 13
           Anchors = [akLeft, akRight, akBottom]
           TabOrder = 3
           object lblErrors: TLabel
             Left = 16
-            Top = 39
+            Top = 26
             Width = 28
             Height = 15
             Caption = 'Error:'
           end
           object lblTLSMessages: TLabel
             Left = 16
-            Top = 67
+            Top = 54
             Width = 70
             Height = 15
             Caption = 'TLS Message:'
           end
           object lblDirOutput: TLabel
             Left = 16
-            Top = 95
-            Width = 54
+            Top = 82
+            Width = 59
             Height = 15
             Caption = 'Dir Output:'
           end
           object lblForeground: TLabel
             Left = 92
-            Top = 16
+            Top = 3
             Width = 65
             Height = 15
             Caption = 'Foreground:'
           end
           object lblBackground: TLabel
             Left = 208
-            Top = 16
+            Top = 3
             Width = 64
             Height = 15
             Caption = 'Background'
           end
+          object lblDebugOutput: TLabel
+            Left = 16
+            Top = 110
+            Width = 38
+            Height = 15
+            Caption = 'Debug:'
+          end
           object cboErrorForeground: TColorBox
             Left = 92
-            Top = 36
+            Top = 23
             Width = 110
             Height = 22
             TabOrder = 0
@@ -142,7 +146,7 @@ object frmSettings: TfrmSettings
           end
           object cboErrorBackground: TColorBox
             Left = 208
-            Top = 36
+            Top = 23
             Width = 113
             Height = 22
             TabOrder = 1
@@ -150,7 +154,7 @@ object frmSettings: TfrmSettings
           end
           object cboTLSMessageForeground: TColorBox
             Left = 89
-            Top = 64
+            Top = 51
             Width = 113
             Height = 22
             TabOrder = 2
@@ -158,7 +162,7 @@ object frmSettings: TfrmSettings
           end
           object cboTLSMessageBackground: TColorBox
             Left = 208
-            Top = 64
+            Top = 51
             Width = 113
             Height = 22
             TabOrder = 3
@@ -166,7 +170,7 @@ object frmSettings: TfrmSettings
           end
           object cboDirOutputForeground: TColorBox
             Left = 89
-            Top = 92
+            Top = 79
             Width = 113
             Height = 22
             TabOrder = 4
@@ -174,11 +178,27 @@ object frmSettings: TfrmSettings
           end
           object cboDirOutputBackground: TColorBox
             Left = 208
-            Top = 92
+            Top = 79
             Width = 113
             Height = 22
             TabOrder = 5
             OnChange = cboDirOutputBackgroundChange
+          end
+          object cboDebugForeground: TColorBox
+            Left = 88
+            Top = 107
+            Width = 114
+            Height = 22
+            TabOrder = 6
+            OnSelect = cboDebugForegroundSelect
+          end
+          object cboDebugBackground: TColorBox
+            Left = 208
+            Top = 107
+            Width = 110
+            Height = 22
+            TabOrder = 7
+            OnSelect = cboDebugBackgroundSelect
           end
         end
       end
@@ -214,7 +234,6 @@ object frmSettings: TfrmSettings
           Items.Strings = (
             'Use PASV Transfers'
             'Use PORT Transfers')
-          ExplicitWidth = 301
         end
         object chklbAdvancedOptions: TCheckListBox
           Left = 92
@@ -230,13 +249,25 @@ object frmSettings: TfrmSettings
             'Send MLSD instead of DIR command')
           TabOrder = 1
           OnClickCheck = chklbAdvancedOptionsClickCheck
-          ExplicitWidth = 301
         end
       end
       object TabSheet3: TTabSheet
         Caption = 'F&irewall/Proxy'
         ImageIndex = 2
         ImageName = 'libre-gui-firewall'
+      end
+      object TabSheet4: TTabSheet
+        Caption = '&Debug Settings'
+        ImageIndex = 3
+        ImageName = 'libre-gui-bug'
+        object chkLogDebug: TCheckBox
+          Left = 97
+          Top = 13
+          Width = 316
+          Height = 28
+          Caption = 'Log Debug Output (This will be Extremely Verbose)'
+          TabOrder = 0
+        end
       end
     end
   end
@@ -255,13 +286,11 @@ object frmSettings: TfrmSettings
     ParentColor = True
     ParentFont = False
     TabOrder = 1
-    ExplicitTop = 266
-    ExplicitWidth = 427
     DesignSize = (
       508
       34)
     object OKBtn: TButton
-      Left = 268
+      Left = 347
       Top = 2
       Width = 75
       Height = 25
@@ -270,10 +299,9 @@ object frmSettings: TfrmSettings
       Default = True
       ModalResult = 1
       TabOrder = 0
-      ExplicitLeft = 187
     end
     object CancelBtn: TButton
-      Left = 348
+      Left = 428
       Top = 2
       Width = 75
       Height = 25
@@ -282,17 +310,6 @@ object frmSettings: TfrmSettings
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 267
-    end
-    object HelpBtn: TButton
-      Left = 428
-      Top = 2
-      Width = 75
-      Height = 25
-      Anchors = [akTop, akRight]
-      Caption = '&Help'
-      TabOrder = 2
-      ExplicitLeft = 347
     end
   end
   object ImageCollection1: TImageCollection
@@ -483,6 +500,100 @@ object frmSettings: TfrmSettings
               4A6010298141A4040691265214FF030C769EA3AE3398370000000049454E44AE
               426082}
           end>
+      end
+      item
+        Name = 'libre-gui-bug'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D494844520000004900000049080600000071730B
+              DC000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0A8A49444154785EED9B7F6C93C719C7EF5EFB75280B25143142A576A0AE6A50
+              B53548FB03A4490D5201A71416446913D3AA8E9A00D9FE184CD55AFEA2F9672D
+              FF0CD054419554645209B494D690B298508974AB4ABA6AE0AE6B93741B4DC318
+              16BF4A134AC86BFB6ECFF3BEE7D7AFED37C6B1EF8C32E52339EFDDD97EFDBEDF
+              F79EE7EE79EE4239E7649ADC68E2384D0EA645CA836991F2605AA43C9816290F
+              0A1EDDD61E3F120489F7C3D787282543708C70CA3EF152BD2FE4AF1B121FBB23
+              AC3E7EB8D2437835A1DA5242E9A384F04AB8D52AC279EBB1C79F7C597C2C6F8A
+              16495433897242C3705147BB1E5F1F126D4A59DBFDEE52B897A7A158070F6DA1
+              D59A41A9457AA2FB70BD46B483A23A219CF0EB60D521C6127B8EAFDE1011CD52
+              A80B8716329E78118BF082DE921BCEC8F6AED5EB5F15D5BC297A32695E68C2A8
+              B2BB3627702433C4DB19F05082F1D662C5C2DF4C70B683121E144D59C07DF5C1
+              EDF5A10BA0712DD2B566FD80786BD2289971834FA8D6A8F61C1427E8FAA6582D
+              20565434E4454D6FC78C593767BD02E7DC2A9A9CE0B942703B27649BB812919C
+              A0AF208481495034091B34434EC9BAF7FD4FF68AA69C08D37A0F8AD5568B4D2F
+              61899DC7563F151675E9281729C99AAE2355C44B5FCC34917CFCC4DAE36FFBB9
+              A61DA484568826A49751DE9AAFC8C55032919208537C2FC30CF71DAB5DDF22CA
+              69640D109CDC629435BE5FBBE19068514EC94542EA42A18A4459027A06F18B26
+              B0C8446DA6C9E07C47D3687FAA07F101F0650DB247C9DB7147444AB2A6FBDDFD
+              0EF38B26185BE274E66BBB8F9C82438D5523116DDCB33C545707538AD27247C3
+              92D1BB465AE0192567E7951EAAED1265B2E64FEF6C81832510981808D8782704
+              42EE684F429E08BF53A3718A3D4640978DDC35129935567ED136B30267CAB250
+              DE93563CD3BCB426189C607249088E4E10C274882A0E77FEF25BE54B9D7E6864
+              E68D9CA3DF630D4D29DFA6006522A1302B3736BF423939ED8BE93B44B32B302B
+              FE231E2F5CB8403EFB7BE4977F3D7D7ACFF9E161F0E50C4DEDADDE9AE02DF383
+              2EC06F04C1B977C3B1BBE6A9E06D43934250261208530F8797AC1A79097B9428
+              67F1E9E099FE8F4F7F44CE9CF9940C0F7F33EFF2E54B3F8D7C76867CF8975364
+              F8EB7F5F101FCBC2148593A41FF3FB742FC671D2512652CF813634A1D4448FF3
+              FD1399DDA5C1E1DD57AF5C11B514374647C9E75F7EF91B3AC1F77CBABE1FE244
+              D32CC1B30E197A7CBBF9866494FA242DE16984AB374724F031556E66473707AA
+              E02FF63A57186755646622CBE7A099C1C16EE79437F676744C6896C5A054A4F0
+              A17D43A0CE3651C5C7BD157A9333B4007D3C139AA18347C5D10662BF946971BE
+              EF8337DB9585274A45B2E08F88023C6D1285A79D3ED7D1B87B822C8DB498CD04
+              7A662A8340691EE7281CA5228149548332382934D1384BF5AAE2719ECBBF2AF0
+              7C5A964126AA7BD22E47022E7CA2F30D69791E1818226866A20ACF42DB9B6B3E
+              560CCA44124FD60E2BE0AFF491C788C75BE19034BBCADBCDC70A454958824F14
+              2EF86B288AC91DDFDD73A03DCBD4167674CCB87EFE8B7D9AE6794EF378498C12
+              32EEF5A08F21BA112765E273C6D858F89E453F69180A06B362B7151B9BB7C0D7
+              F69A15781894684B4E74BE5E70AAD60D2522E14C1B0EC98964D4D0638B92C3F3
+              43075FF78308BFE08CFA3353BB23DFDF20D16B57CDF2DCD91564EEDDB3CD7212
+              B8D4287CA717AEF9E857814D763E6945A0E92CA53499B10C8329D68AB214A48B
+              8443BCCFD02F267D11E7B423E6335A866A6A66949519DDF093130EF9B713C909
+              5CF5005CFCBAC1C0A6819581A6974178DBD418E3B51F1C6C9796CE95EE93BC71
+              6FB5C359C3B5F3208A36FFDCB9C3B9049A2C60625533FF7BB50D7A2D3C909440
+              08C472526338E92259933ABE5B542D2074F08E8D3F266AD2D0BF1FFF391CD204
+              811E7608CC5B6A6A57C9E8864EDA88C51680296F878B36936ADEF1B8F99E4C3C
+              31FB9C38C2BD0A61D0A29307DA1A6487274A1C772698EF199F77F7D64BCB16AF
+              124DAE4CC6272115FDE73F9FFDAF0BBFEBE97C43E9A2404944421E3EFC5A653C
+              EEBB28AAAE4C562418D1960FD437295F52523DE3B6F962C3AF52B196245802F7
+              19A8A7642221D069A56EC9D17D8674E1DD28A948301D907A532A7AA71B2511C9
+              5FBF6521C672FA776359298F42D18CF8772B03CFD7AF0A6CAE124DCA50E6B831
+              A74D39D9011317DC8A638A73EDE11F91D145F3CDF7DD988CE39E716D94CCFFB8
+              DFAA60004D491FE56C8FCC4C4312753D8973DC0507719A2510E21D3744A9783C
+              B762A2045833FC1A4EB4832AD2254A4442F3C29CB6A8E293C6510803D3B7AC86
+              E2619C7F08078CCF527E09C482B0485AE893448948CC9348AEDF639810EAE96C
+              9B0391F9F2EB55F7495B85BD79EF3DFB30DA87D702F8153B0CD298BD77401A4A
+              4482C83F95B867049FB80946ECA2583C9CDAE702C76AFF060CA1598B06C5A2C6
+              27516E3F4DAA39D6DE00E85952843262BA7D9E715FC2B1BE47722EAB17827491
+              2C7F249269E08BCC5C743A458B0403727428985AFAC61518F077D6EF28F04B52
+              45C22708FEC84AA5029CA6F722818C9E94B5890B3396A2482823BB30F927AA45
+              234D2414C817D371E3A7BDAAAA716B238413F01F9F886211B89D83DABF85A95C
+              DDF09E9225943491F4986ECD8B9270DEEA36B1A31A2B7A2B1F9873D639845937
+              5A354B289FE1ED16D5A29026125CF84E311F3205EAE96C771DEEEFEFFADB66CD
+              39112C807B7BCE3EEBD64B4028DCA46109851B5039C125A7A2911A96E08A2D9C
+              CF7FB2B33D6BD3156E93F1E93AEEA2ADB9FCB307C9CDCA39D61B0EF2094B7C23
+              37C9823FFF0334E00330616D701918CCCD148CF1A8ACC5809224DDCCE56E42B0
+              EB9BF9E8911F2F20DF56DD87C534F211A9FC3F57C8DCC839AB622E7AB246D599
+              49E953005738C711CF4AD8E38DC5F96B66B900C084FE609BB519B399CBDBD246
+              3237948B84A31E78517BDEC235B23CFAE0032F40A9A0ACE2D8FD737EAF31CF12
+              285A311B04D030AA4EDD5D25489951E6BC81E8C937DBFAAC89202DC05FF0C840
+              FD962173DF937384C38D5E0A2981B9C59D37604F24C1171E15C5BC01F7E9F80E
+              4F9D8B4CE1FD4908E35AEA0678EAC60CC387FF7635A9F4ABA6317B2B3367F41B
+              5104B487444109CA45A294DB3700E3A87D63C2E4F21E9540D0309A9AA8C2B952
+              825332D5CDCDB1554F73DC18A2EBE33BE176F35A6DA594ED1145130FF5A4565E
+              A6F27640047A8FFD9439D5D2969470B58373CDDEAD3611708ED060C3E634479F
+              B107A952E53440A94838FCDB6913C0D063693D09310C6F2B98528EF5387E5DA3
+              09D7BD964E9353390D502A52E6F0EFB691C1DCBDC6C93A144334A5C349A3D317
+              3981B024D5AE701AA04C24EC459C247E2DAA48562F4AF2D5C6E608F89C25F178
+              C2FE4C82B12B2C41960D0636E55822724C03A8F6B42A93532212AEB9E931EF59
+              70A8F6F664A04F1C5DC1DE7279CB0B8B2B7E50B1F087E5B31FF9B6E5B7F3FEF9
+              4C73CEEFC09067E795C0ACEBC0E4FA55FCC792D400177B0F5C28EE3A4BEE974C
+              12067FB44EF6BE216465A0696FC6C300EDCC2D88DB30AD2B9A8A427A4FC25489
+              2842C50C441B7B0EB4D5AA1008E9E96C6FC13D9250B427A63037F3939BA92D89
+              C52255241482528AFF748382848D786CB148842905F346D05317630F321B38DB
+              D6FB7687BCCD14686EB25F2B024D987C737D4FF54BC56F9724E936D5513A4FFA
+              7F615AA43C9816E9B610F23F3CD251B86388BFA10000000049454E44AE426082}
+          end>
       end>
     Left = 321
     Top = 103
@@ -503,6 +614,11 @@ object frmSettings: TfrmSettings
         CollectionIndex = 2
         CollectionName = 'libre-gui-firewall'
         Name = 'libre-gui-firewall'
+      end
+      item
+        CollectionIndex = 3
+        CollectionName = 'libre-gui-bug'
+        Name = 'libre-gui-bug'
       end>
     ImageCollection = ImageCollection1
     Left = 185

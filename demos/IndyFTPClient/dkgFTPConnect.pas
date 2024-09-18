@@ -16,7 +16,6 @@ type
     TabSheet2: TTabSheet;
     OKBtn: TButton;
     CancelBtn: TButton;
-    HelpBtn: TButton;
     edtHostname: TEdit;
     lblHost: TLabel;
     chkAnonymousFTP: TCheckBox;

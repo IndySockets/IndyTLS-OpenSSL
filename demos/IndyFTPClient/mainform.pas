@@ -160,6 +160,9 @@ type
     FSSLMessageBackground: TColor;
     FDirOutputForeground: TColor;
     FDirOutputBackground: TColor;
+    FDebugForeground: TColor;
+    FDebugBackground: TColor;
+    FLogDebugOutput : Boolean;
     procedure InitLog;
     // Thread procedure starts
     procedure ConnectFTP;
@@ -652,6 +655,8 @@ begin
       LFrm.SSLMessageBackground := FSSLMessageBackground;
       LFrm.DirOutputForeground := FDirOutputForeground;
       LFrm.DirOutputBackground := FDirOutputBackground;
+      LFrm.DebugForeground := FDebugForeground;
+      LFrm.DebugBackground := FDebugBackground;
       LFrm.chklbAdvancedOptions.Checked[0] := IdFTPClient.UseHOST;
       LFrm.chklbAdvancedOptions.Checked[1] := IdFTPClient.UseExtensionDataPort;
       LFrm.chklbAdvancedOptions.Checked[2] := IdFTPClient.TryNATFastTrack;
@@ -664,6 +669,8 @@ begin
         FSSLMessageBackground := LFrm.SSLMessageBackground;
         FDirOutputForeground := LFrm.DirOutputForeground;
         FDirOutputBackground := LFrm.DirOutputBackground;
+        FDebugForeground := LFrm.DebugForeground;
+        FDebugBackground := LFrm.DebugBackground;
         IdFTPClient.UseHOST := LFrm.chklbAdvancedOptions.Checked[0];
 
         // Do things in a round about way because NAT fasttracking requires extended DataPort commands.
@@ -689,7 +696,7 @@ begin
         LIni.WriteBool('Transfers', 'Use_EPSV_EPRT_Data_Transfer',
           LFrm.chklbAdvancedOptions.Checked[1]);
         IdFTPClient.Passive := not LFrm.UsePortTransferType;
-
+        LIni.WriteBool('Debug', 'Log_Debug_Output',FLogDebugOutput);
         Self.redtLog.Font := LFrm.redtLog.Font;
         LIni.WriteString('Log_Font', 'Name', redtLog.Font.Name);
         LIni.WriteInteger('Log_Font', 'Size', redtLog.Font.Size);
@@ -706,8 +713,12 @@ begin
           FSSLMessageBackground);
         LIni.WriteInteger('Log_Font', 'Directory_Foreground',
           FDirOutputForeground);
-        LIni.ReadInteger('Log_Font', 'Directory_Background',
+        LIni.WriteInteger('Log_Font', 'Directory_Background',
           FDirOutputBackground);
+        LIni.WriteInteger('Log_Font', 'Debug_Output_Foreground',
+          FDebugForeground);
+        LIni.WriteInteger('Log_Font', 'Debug_Output_Background',
+          FDebugBackground);
       end;
     finally
       FreeAndNil(LIni);
@@ -848,6 +859,7 @@ begin
   try
     Self.IdFTPClient.Passive := not LIni.ReadBool('Transfers',
       'Use_PORT_Transfers', False);
+    Self.FLogDebugOutput := LIni.ReadBool('Debug', 'Log_Debug_Output',False);
     Self.redtLog.Font.Name := LIni.ReadString('Log_Font', 'Name',
       Self.redtLog.Font.Name);
     Self.redtLog.Font.Charset := LIni.ReadInteger('Log_Font', 'CharSet',
@@ -868,7 +880,10 @@ begin
       'Directory_Foreground', clBlue);
     FDirOutputBackground := LIni.ReadInteger('Log_Font',
       'Directory_Background', clWhite);
-
+    FDebugForeground := LIni.ReadInteger('Log_Font', 'Debug_Output_Foreground',
+      clPurple);
+    FDebugBackground := LIni.ReadInteger('Log_Font',
+      'Debug_Output_Background', clWhite);
     IdFTPClient.UseHOST := LIni.ReadBool('FTP', 'Use_HOST_Command',
       IdFTPClient.UseHOST);
     IdFTPClient.UseExtensionDataPort := LIni.ReadBool('Transfers',
@@ -996,8 +1011,8 @@ procedure TfrmMainForm.iosslFTPStatusInfoEx(ASender: TObject;
   const AType, AMsg: string);
 
 begin
-  { TSSLEvent.NotifyString(AType);
-    TSSLEvent.NotifyString(AMsg); }
+   TSSLEvent.NotifyString(AType);
+   TSSLEvent.NotifyString(AMsg);
 end;
 
 procedure TfrmMainForm.LocalClearArrows;
@@ -1825,9 +1840,11 @@ end;
 
 procedure TSSLEvent.DoNotify;
 begin
-  frmMainForm.redtLog.SelAttributes.Color := clPurple;
-  frmMainForm.redtLog.SelAttributes.BackColor := clWhite;
-  inherited;
+  if frmMainForm.FLogDebugOutput then begin
+    frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FDebugForeground;
+    frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.FDebugBackground;
+    inherited;
+  end;
 end;
 
 class procedure TSSLEvent.NotifyString(const AStr: String);

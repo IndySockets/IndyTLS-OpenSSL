@@ -14,7 +14,6 @@ type
     Panel2: TPanel;
     OKBtn: TButton;
     CancelBtn: TButton;
-    HelpBtn: TButton;
     redtCertView: TRichEdit;
     lblErrorMessage: TLabel;
     chkacceptOnlyOnce: TCheckBox;

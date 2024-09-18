@@ -54,7 +54,7 @@ object frmCertViewer: TfrmCertViewer
       558
       34)
     object OKBtn: TButton
-      Left = 318
+      Left = 397
       Top = 2
       Width = 75
       Height = 25
@@ -65,7 +65,7 @@ object frmCertViewer: TfrmCertViewer
       TabOrder = 0
     end
     object CancelBtn: TButton
-      Left = 398
+      Left = 478
       Top = 2
       Width = 75
       Height = 25
@@ -74,15 +74,6 @@ object frmCertViewer: TfrmCertViewer
       Caption = '&No'
       ModalResult = 7
       TabOrder = 1
-    end
-    object HelpBtn: TButton
-      Left = 478
-      Top = 2
-      Width = 75
-      Height = 25
-      Anchors = [akTop, akRight]
-      Caption = '&Help'
-      TabOrder = 2
     end
   end
   object redtCertView: TRichEdit

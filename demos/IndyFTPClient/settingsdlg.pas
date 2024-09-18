@@ -17,7 +17,6 @@ type
     TabSheet3: TTabSheet;
     OKBtn: TButton;
     CancelBtn: TButton;
-    HelpBtn: TButton;
     cboTransferTypes: TComboBox;
     lblTransferType: TLabel;
     ImageCollection1: TImageCollection;
@@ -40,6 +39,11 @@ type
     cboDirOutputBackground: TColorBox;
     lblForeground: TLabel;
     lblBackground: TLabel;
+    cboDebugForeground: TColorBox;
+    cboDebugBackground: TColorBox;
+    lblDebugOutput: TLabel;
+    TabSheet4: TTabSheet;
+    chkLogDebug: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chklbAdvancedOptionsClickCheck(Sender: TObject);
@@ -50,6 +54,8 @@ type
     procedure cboTLSMessageForegroundChange(Sender: TObject);
     procedure cboDirOutputForegroundChange(Sender: TObject);
     procedure cboDirOutputBackgroundChange(Sender: TObject);
+    procedure cboDebugForegroundSelect(Sender: TObject);
+    procedure cboDebugBackgroundSelect(Sender: TObject);
   private
     function GetDirOutputBackground: TColor;
     function GetDirOutputForeground: TColor;
@@ -57,6 +63,10 @@ type
     function GetErrorForeground: TColor;
     function GetSSLMessageBackground: TColor;
     function GetSSLMessageForeground: TColor;
+    function GetDebugBackground: TColor;
+    function GetDebugForeground: TColor;
+    procedure SetDebugBackground(const Value: TColor);
+    procedure SetDebugForeground(const Value: TColor);
   protected
     FErrorForeground : TColor;
     FErrorBackground : TColor;
@@ -64,6 +74,8 @@ type
     FSSLMessageBackground : TColor;
     FDirOutputForeground : TColor;
     FDirOutputBackground : TColor;
+    FDebugForeground : TColor;
+    FDebugBackground : TColor;
     function GetUsePortTransferType: Boolean;
     procedure SetUsePortTransferType(const Value: Boolean);
     procedure EnableDisableCheckBoxes;
@@ -86,6 +98,8 @@ type
     property SSLMessageBackground : TColor read GetSSLMessageBackground write SetSSLMessageBackground;
     property DirOutputForeground : TColor read GetDirOutputForeground write SetDirOutputForeground;
     property DirOutputBackground : TColor read GetDirOutputBackground write SetDirOutputBackground;
+    property DebugForeground : TColor read GetDebugForeground write SetDebugForeground;
+    property DebugBackground : TColor read GetDebugBackground write SetDebugBackground;
   end;
 
 var
@@ -146,6 +160,18 @@ begin
   EnableDisableCheckBoxes;
 end;
 
+procedure TfrmSettings.cboDebugBackgroundSelect(Sender: TObject);
+begin
+ FDebugBackground := cboDebugBackground.Selected;
+ DisplaySampleTexts;
+end;
+
+procedure TfrmSettings.cboDebugForegroundSelect(Sender: TObject);
+begin
+  FDebugForeground := cboDebugForeground.Selected;
+  DisplaySampleTexts;
+end;
+
 procedure TfrmSettings.DisplaySampleTexts;
 begin
   redtTextSamples.Lines.Clear;
@@ -164,6 +190,11 @@ begin
   redtTextSamples.SelAttributes.BackColor := FDirOutputBackground;
   cboDirOutputBackground.Selected := FDirOutputBackground;
   redtTextSamples.Lines.Add('Directory List Output');
+  redtTextSamples.SelAttributes.Color := FDebugForeground;
+  redtTextSamples.SelAttributes.BackColor := FDebugBackground;
+  cboDebugForeground.Selected := FDebugForeground;
+  cboDebugBackground.Selected := FDebugBackground;
+  redtTextSamples.Lines.Add('Debug Output');
   ScrollToTop( redtTextSamples);
 end;
 
@@ -196,6 +227,16 @@ end;
 procedure TfrmSettings.FormShow(Sender: TObject);
 begin
   EnableDisableCheckBoxes;
+end;
+
+function TfrmSettings.GetDebugBackground: TColor;
+begin
+  Result := cboDebugBackground.Selected;
+end;
+
+function TfrmSettings.GetDebugForeground: TColor;
+begin
+  Result := cboDebugForeground.Selected;
 end;
 
 function TfrmSettings.GetDirOutputBackground: TColor;
@@ -231,6 +272,18 @@ end;
 function TfrmSettings.GetUsePortTransferType: Boolean;
 begin
   Result := cboTransferTypes.ItemIndex = 1;
+end;
+
+procedure TfrmSettings.SetDebugBackground(const Value: TColor);
+begin
+  Self.FDebugBackground := Value;
+  DisplaySampleTexts;
+end;
+
+procedure TfrmSettings.SetDebugForeground(const Value: TColor);
+begin
+  FDebugForeground := Value;
+  DisplaySampleTexts;
 end;
 
 procedure TfrmSettings.SetDirOutputBackground(const Value: TColor);

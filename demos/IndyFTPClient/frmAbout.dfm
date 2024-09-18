@@ -3,7 +3,7 @@ object AboutBox: TAboutBox
   Top = 108
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 253
+  ClientHeight = 274
   ClientWidth = 298
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,13 +15,13 @@ object AboutBox: TAboutBox
   OnCreate = FormCreate
   DesignSize = (
     298
-    253)
+    274)
   TextHeight = 13
   object Panel1: TPanel
     Left = 9
     Top = 8
     Width = 281
-    Height = 201
+    Height = 222
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelInner = bvRaised
     BevelOuter = bvLowered
@@ -30,7 +30,7 @@ object AboutBox: TAboutBox
     ExplicitHeight = 199
     DesignSize = (
       281
-      201)
+      222)
     object ProductName: TLabel
       Left = 119
       Top = 12
@@ -49,27 +49,25 @@ object AboutBox: TAboutBox
     end
     object Copyright: TLabel
       Left = 8
-      Top = 122
+      Top = 123
       Width = 154
       Height = 13
       Anchors = [akLeft, akBottom]
       Caption = 'Copyright (c) 2024 Indy Pitt Crew'
       IsControl = True
-      ExplicitTop = 120
     end
     object Comments: TLabel
       Left = 8
-      Top = 150
+      Top = 142
       Width = 257
-      Height = 39
+      Height = 43
       Anchors = [akLeft, akRight, akBottom]
       AutoSize = False
       Caption = 
         'This software uses the LibreICONS-4.5. '#13#10'Copyright (c) 2018 Diem' +
-        'en Design'#13#10'released under MIT LIcense.'
+        'en Design'#13#10'released under MIT LIcense and available at:'
       WordWrap = True
       IsControl = True
-      ExplicitTop = 148
     end
     object VirtualImage1: TVirtualImage
       Left = 8
@@ -82,10 +80,22 @@ object AboutBox: TAboutBox
       ImageIndex = 0
       ImageName = 'IndyLogo'
     end
+    object LinkLabel1: TLinkLabel
+      Left = 8
+      Top = 191
+      Width = 226
+      Height = 17
+      Hint = 'https://github.com/DennisSuitters/LibreICONS'
+      Caption = 
+        '<a href="https://github.com/DennisSuitters/LibreICONS">https://g' +
+        'ithub.com/DennisSuitters/LibreICONS</a>'
+      TabOrder = 0
+      OnClick = LinkLabel1Click
+    end
   end
   object OKButton: TButton
     Left = 111
-    Top = 216
+    Top = 235
     Width = 75
     Height = 25
     Anchors = [akLeft, akRight]

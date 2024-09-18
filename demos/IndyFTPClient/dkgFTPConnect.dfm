@@ -198,7 +198,7 @@ object frmConnect: TfrmConnect
     ParentFont = False
     TabOrder = 1
     object OKBtn: TButton
-      Left = 187
+      Left = 266
       Top = 2
       Width = 75
       Height = 25
@@ -209,7 +209,7 @@ object frmConnect: TfrmConnect
       TabOrder = 0
     end
     object CancelBtn: TButton
-      Left = 267
+      Left = 347
       Top = 2
       Width = 75
       Height = 25
@@ -217,14 +217,6 @@ object frmConnect: TfrmConnect
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-    end
-    object HelpBtn: TButton
-      Left = 347
-      Top = 2
-      Width = 75
-      Height = 25
-      Caption = '&Help'
-      TabOrder = 2
     end
   end
   object ImageCollection1: TImageCollection

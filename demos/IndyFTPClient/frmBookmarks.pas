@@ -38,7 +38,6 @@ type
     Panel2: TPanel;
     OKBtn: TButton;
     CancelBtn: TButton;
-    HelpBtn: TButton;
     lbxFTPSites: TListBox;
     lblFTPSites: TLabel;
     Button1: TButton;
