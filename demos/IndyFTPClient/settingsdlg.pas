@@ -44,6 +44,8 @@ type
     lblDebugOutput: TLabel;
     TabSheet4: TTabSheet;
     chkLogDebug: TCheckBox;
+    edtExternalIPAddress: TEdit;
+    Label1: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chklbAdvancedOptionsClickCheck(Sender: TObject);
@@ -56,6 +58,7 @@ type
     procedure cboDirOutputBackgroundChange(Sender: TObject);
     procedure cboDebugForegroundSelect(Sender: TObject);
     procedure cboDebugBackgroundSelect(Sender: TObject);
+    procedure edtExternalIPAddressChange(Sender: TObject);
   private
     function GetDirOutputBackground: TColor;
     function GetDirOutputForeground: TColor;
@@ -76,6 +79,7 @@ type
     FDirOutputBackground : TColor;
     FDebugForeground : TColor;
     FDebugBackground : TColor;
+    procedure ValidateFeilds;
     function GetUsePortTransferType: Boolean;
     procedure SetUsePortTransferType(const Value: Boolean);
     procedure EnableDisableCheckBoxes;
@@ -106,7 +110,7 @@ var
   frmSettings: TfrmSettings;
 
 implementation
-uses IdSSLOpenSSL, ProgUtils;
+uses IdSSLOpenSSL, ProgUtils, IdIPAddress;
 
 {$R *.dfm}
 { TfrmSettings }
@@ -198,6 +202,22 @@ begin
   ScrollToTop( redtTextSamples);
 end;
 
+function IsValidIP(const AAddr : String): Boolean;
+var
+  LIP : TIdIPAddress;
+begin
+  LIP := TIdIPAddress.MakeAddressObject(AAddr);
+  Result := Assigned(LIP);
+  if Result then begin
+    FreeAndNil(LIP);
+  end;
+end;
+
+procedure TfrmSettings.edtExternalIPAddressChange(Sender: TObject);
+begin
+  ValidateFeilds;
+end;
+
 procedure TfrmSettings.EnableDisableCheckBoxes;
 begin
   if chklbAdvancedOptions.Checked[1] = False then begin
@@ -227,6 +247,7 @@ end;
 procedure TfrmSettings.FormShow(Sender: TObject);
 begin
   EnableDisableCheckBoxes;
+  ValidateFeilds;
 end;
 
 function TfrmSettings.GetDebugBackground: TColor;
@@ -332,6 +353,13 @@ begin
   begin
     cboTransferTypes.ItemIndex := 0;
   end;
+end;
+
+procedure TfrmSettings.ValidateFeilds;
+var LIP : String;
+begin
+  LIP := edtExternalIPAddress.Text;
+  Self.OKBtn.Enabled := (LIP = '') or IsValidIP(LIP);
 end;
 
 end.

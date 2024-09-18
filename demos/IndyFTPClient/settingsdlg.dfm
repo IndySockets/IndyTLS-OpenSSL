@@ -255,6 +255,22 @@ object frmSettings: TfrmSettings
         Caption = 'F&irewall/Proxy'
         ImageIndex = 2
         ImageName = 'libre-gui-firewall'
+        object Label1: TLabel
+          Left = 8
+          Top = 16
+          Width = 83
+          Height = 15
+          Caption = '&NAT IP Address:'
+        end
+        object edtExternalIPAddress: TEdit
+          Left = 97
+          Top = 13
+          Width = 240
+          Height = 23
+          TabOrder = 0
+          TextHint = 'Leave empty unless you are behind a NAT'
+          OnChange = edtExternalIPAddressChange
+        end
       end
       object TabSheet4: TTabSheet
         Caption = '&Debug Settings'
