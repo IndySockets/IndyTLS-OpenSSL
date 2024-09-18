@@ -299,6 +299,12 @@ type
   public
     class procedure PopulateRemoteList(const ACurrentDir: String);
   end;
+  TPopulateLocalListNotify = class(TIdNotify)
+  protected
+    procedure DoNotify; override;
+  public
+    class procedure PopulateLocalList;
+  end;
 
   TLogDirListingEvent = class(TIdNotify)
   protected
@@ -363,7 +369,6 @@ begin
     Li := lvRemoteFiles.Items[lvRemoteFiles.ItemIndex];
     Self.DownloadFile(Li.Caption);
   end;
-  Self.PopulateLocalFiles;
 end;
 
 procedure TfrmMainForm.actFileDownloadUpdate(Sender: TObject);
@@ -1654,6 +1659,8 @@ begin
     finally
       FreeAndNil(LFile);
     end;
+    TFile.SetLastWriteTime(FFile, FFTP.FileDate(FFile));
+     TPopulateLocalListNotify.PopulateLocalList;
   except
     on E: EIdReplyRFCError do
     begin
@@ -1681,6 +1688,7 @@ begin
     finally
       FreeAndNil(LFile);
     end;
+    FFTP.SetModTime(FFile, TFile.GetLastWriteTime(FFile));
     LCurDir := FFTP.RetrieveCurrentDir;
     FFTP.List;
     TLogDirListingEvent.LogDirListing(FFTP.ListResult);
@@ -1967,6 +1975,20 @@ var
 begin
   L := TThreadStartNotify.Create;
   L.Notify;
+end;
+
+{ TPopulateLocalListNotify }
+
+procedure TPopulateLocalListNotify.DoNotify;
+begin
+  frmMainForm.PopulateLocalFiles;
+end;
+
+class procedure TPopulateLocalListNotify.PopulateLocalList;
+var LNotify :  TPopulateLocalListNotify;
+begin
+  LNotify :=  TPopulateLocalListNotify.Create;
+  LNotify.Notify;
 end;
 
 initialization
