@@ -12,7 +12,8 @@ uses
   IdExplicitTLSClientServerBase, IdFTP, IdCTypes, IdOpenSSLHeaders_ossl_typ,
   IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL,
   IdIntercept, IdLogBase, IdLogEvent, Vcl.Menus, Vcl.StdActns,
-  IdZLibCompressorBase, IdCompressorZLib, IdSync;
+  IdZLibCompressorBase, IdCompressorZLib, IdSync, IdConnectThroughHttpProxy,
+  IdCustomTransparentProxy, IdSocks;
 
 type
   TfrmMainForm = class(TForm)
@@ -99,6 +100,8 @@ type
     actFileLocalMakeDirectory1: TMenuItem;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
+    SocksInfo: TIdSocksInfo;
+    HTTPConnectThrough: TIdConnectThroughHttpProxy;
     procedure FormCreate(Sender: TObject);
     procedure actFileConnectExecute(Sender: TObject);
     procedure actFileConnectUpdate(Sender: TObject);
@@ -183,6 +186,7 @@ type
     procedure RemoteRename(const AOldPathName, ANewPathName: String);
     procedure LocalMakeDir(const ADir: String);
     procedure RemoteMakeDir(const ADir: String);
+    procedure SetProxyType(const AType: Integer);
   public
     { Public declarations }
   end;
@@ -669,6 +673,43 @@ begin
       LFrm.chklbAdvancedOptions.Checked[1] := IdFTPClient.UseExtensionDataPort;
       LFrm.chklbAdvancedOptions.Checked[2] := IdFTPClient.TryNATFastTrack;
       LFrm.chklbAdvancedOptions.Checked[3] := IdFTPClient.UseMLIS;
+      if not Assigned(iosslFTP.TransparentProxy) then
+      begin
+        // 0 - none
+        LFrm.cboProxyType.ItemIndex := 0;
+      end
+      else
+      begin
+        // 1 - HTTP Connect Proxy
+        if iosslFTP.TransparentProxy = HTTPConnectThrough then
+        begin
+          LFrm.cboProxyType.ItemIndex := 1;
+        end
+        else
+        begin
+          case SocksInfo.Version of
+            // 2 - SOCKS4
+            svSocks4:
+              begin
+                LFrm.cboProxyType.ItemIndex := 2;
+              end;
+            // 3 - SOCKS4A
+            svSocks4A:
+              begin
+                LFrm.cboProxyType.ItemIndex := 3;
+              end;
+            // 4 - SOCKS5
+            svSocks5:
+              begin
+                LFrm.cboProxyType.ItemIndex := 4;
+              end;
+          end;
+        end;
+      end;
+      LFrm.edtProxyServerName.Text := SocksInfo.Host;
+      LFrm.edtProxyServerUserName.Text := SocksInfo.Username;
+      LFrm.edtProxyServerPassword.Text := SocksInfo.Password;
+      LFrm.spededtProxyPort.Value := SocksInfo.Port;
       if LFrm.ShowModal = mrOk then
       begin
         FErrorForeground := LFrm.ErrorForeground;
@@ -694,12 +735,9 @@ begin
         end;
         IdFTPClient.UseMLIS := LFrm.chklbAdvancedOptions.Checked[3];
         LIni.WriteBool('FTP', 'Use_HOST_Command', IdFTPClient.UseHOST);
-        LIni.WriteString('Firewall_Proxy', 'NAT_IP_Address',
-          IdFTPClient.ExternalIP);
-        LIni.WriteInteger('Firewall_Proxy', 'Data_PORT_Minimum',
-          IdFTPClient.DataPortMin);
-        LIni.WriteInteger('Firewall_Proxy', 'Data_PORT_Maximum',
-          IdFTPClient.DataPortMax);
+        LIni.WriteString('NAT', 'NAT_IP_Address', IdFTPClient.ExternalIP);
+        LIni.WriteInteger('NAT', 'Data_PORT_Minimum', IdFTPClient.DataPortMin);
+        LIni.WriteInteger('NAT', 'Data_PORT_Maximum', IdFTPClient.DataPortMax);
         LIni.WriteBool('Transfers', 'Use_Extended_Data_Port_Commands',
           IdFTPClient.UseExtensionDataPort);
         LIni.WriteBool('Transfers', 'Try_Using_NAT_Fast_Track',
@@ -735,6 +773,25 @@ begin
           FDebugForeground);
         LIni.WriteInteger('Log_Font', 'Debug_Output_Background',
           FDebugBackground);
+        SetProxyType(LFrm.cboProxyType.ItemIndex);
+        LIni.WriteInteger('Proxy', 'Type', LFrm.cboProxyType.ItemIndex);
+        SocksInfo.Host := LFrm.edtProxyServerName.Text;
+        SocksInfo.Port := LFrm.spededtProxyPort.Value;
+        SocksInfo.Username := LFrm.edtProxyServerUserName.Text;
+        SocksInfo.Password := LFrm.edtProxyServerPassword.Text;
+        if (SocksInfo.Username <> '') and (SocksInfo.Password <> '') then
+        begin
+          SocksInfo.Authentication := saUsernamePassword;
+        end;
+        SocksInfo.Host := LFrm.edtProxyServerName.Text;
+        HTTPConnectThrough.Host := SocksInfo.Host;
+        HTTPConnectThrough.Port := SocksInfo.Port;
+        HTTPConnectThrough.Username := SocksInfo.Username;
+        HTTPConnectThrough.Password := SocksInfo.Password;
+        LIni.WriteString('Proxy', 'Server_Name', SocksInfo.Host);
+        LIni.WriteString('Proxy', 'User_Name', SocksInfo.Username);
+        LIni.WriteString('Proxy', 'Password', SocksInfo.Password);
+        LIni.WriteInteger('Proxy','Port',SocksInfo.Port);
       end;
     finally
       FreeAndNil(LIni);
@@ -852,6 +909,7 @@ end;
 procedure TfrmMainForm.FormCreate(Sender: TObject);
 var
   LIni: TIniFile;
+  i: Integer;
 begin
   FThreadRunning := False;
   LocalColumnToSort := 0;
@@ -906,12 +964,22 @@ begin
       'Try_Using_NAT_Fast_Track', IdFTPClient.TryNATFastTrack);
     IdFTPClient.UseMLIS := LIni.ReadBool('FTP',
       'Use_MLSD_Command_Instead_Of_DIR_Command', IdFTPClient.UseMLIS);
-    IdFTPClient.ExternalIP := LIni.ReadString('Firewall_Proxy',
-      'NAT_IP_Address', '');
-    IdFTPClient.DataPortMin := LIni.ReadInteger('Firewall_Proxy',
-      'Data_PORT_Minimum', 0);
-    IdFTPClient.DataPortMax := LIni.ReadInteger('Firewall_Proxy',
-      'Data_PORT_Maximum', 0);
+    IdFTPClient.ExternalIP := LIni.ReadString('NAT', 'NAT_IP_Address', '');
+    IdFTPClient.DataPortMin := LIni.ReadInteger('NAT', 'Data_PORT_Minimum', 0);
+    IdFTPClient.DataPortMax := LIni.ReadInteger('NAT', 'Data_PORT_Maximum', 0);
+    i := LIni.ReadInteger('Proxy', 'Type', 0);
+    SetProxyType(i);
+    if (SocksInfo.Username <> '') and (SocksInfo.Password <> '') then
+    begin
+      SocksInfo.Authentication := saUsernamePassword;
+    end;
+    SocksInfo.Host := LIni.ReadString('Proxy', 'Server_Name', '');
+    SocksInfo.Username := LIni.ReadString('Proxy', 'User_Name', '');
+    SocksInfo.Password := LIni.ReadString('Proxy', 'Password', '');
+    SocksInfo.Port := LIni.ReadInteger('Proxy','Port',1080);
+    HTTPConnectThrough.Username := SocksInfo.Username;
+    HTTPConnectThrough.Password := SocksInfo.Password;
+    HTTPConnectThrough.Port := SocksInfo.Port;
   finally
     FreeAndNil(LIni);
   end;
@@ -1531,6 +1599,31 @@ end;
 procedure TfrmMainForm.RemoteRename(const AOldPathName, ANewPathName: String);
 begin
   TRenamePathThread.Create(IdFTPClient, AOldPathName, ANewPathName);
+end;
+
+procedure TfrmMainForm.SetProxyType(const AType: Integer);
+begin
+  case AType of
+    0:
+      iosslFTP.TransparentProxy := nil;
+    1:
+      iosslFTP.TransparentProxy := HTTPConnectThrough;
+    2:
+      begin
+        iosslFTP.TransparentProxy := SocksInfo;
+        SocksInfo.Version := svSocks4;
+      end;
+    3:
+      begin
+        iosslFTP.TransparentProxy := SocksInfo;
+        SocksInfo.Version := svSocks4A;
+      end;
+    4:
+      begin
+        iosslFTP.TransparentProxy := SocksInfo;
+        SocksInfo.Version := svSocks5;
+      end;
+  end;
 end;
 
 { TFTPThread }

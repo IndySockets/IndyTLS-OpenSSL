@@ -52,6 +52,17 @@ type
     lblPorts: TLabel;
     edtExternalIPAddress: TEdit;
     lblNATIPAddress: TLabel;
+    grpbxProxyServer: TGroupBox;
+    edtProxyServerName: TEdit;
+    lblProxyServerName: TLabel;
+    edtProxyServerUserName: TEdit;
+    edtProxyServerPassword: TEdit;
+    cboProxyType: TComboBox;
+    lblProxyServerUserName: TLabel;
+    lblProxyServerPassword: TLabel;
+    lblProxyType: TLabel;
+    spededtProxyPort: TSpinEdit;
+    lblProxyPort: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chklbAdvancedOptionsClickCheck(Sender: TObject);
@@ -67,6 +78,8 @@ type
     procedure edtExternalIPAddressChange(Sender: TObject);
     procedure spnedtPortMinimumChange(Sender: TObject);
     procedure spnedtPortMaxChange(Sender: TObject);
+    procedure cboProxyTypeChange(Sender: TObject);
+    procedure edtProxyServerNameChange(Sender: TObject);
   private
     function GetDirOutputBackground: TColor;
     function GetDirOutputForeground: TColor;
@@ -165,6 +178,11 @@ begin
   DisplaySampleTexts;
 end;
 
+procedure TfrmSettings.cboProxyTypeChange(Sender: TObject);
+begin
+  ValidateFeilds;
+end;
+
 procedure TfrmSettings.cboTLSMessageBackgroundChange(Sender: TObject);
 begin
   FSSLMessageBackground := cboTLSMessageBackground.Selected;
@@ -233,6 +251,11 @@ begin
 end;
 
 procedure TfrmSettings.edtExternalIPAddressChange(Sender: TObject);
+begin
+  ValidateFeilds;
+end;
+
+procedure TfrmSettings.edtProxyServerNameChange(Sender: TObject);
 begin
   ValidateFeilds;
 end;
@@ -390,6 +413,7 @@ end;
 procedure TfrmSettings.ValidateFeilds;
 var
   LIP: String;
+  LBool : Boolean;
 begin
   LIP := edtExternalIPAddress.Text;
   Self.OKBtn.Enabled := (LIP = '') or IsValidIP(LIP);
@@ -404,6 +428,23 @@ begin
       OKBtn.Enabled := (spnedtPortMinimum.Value < spnedtPortMax.Value);
     end;
   end;
+  if OKBtn.Enabled then
+  begin
+    if cboProxyType.ItemIndex > 0 then
+    begin
+      OKBtn.Enabled := (edtProxyServerName.Text <> '');
+    end;
+  end;
+  //validate proxy/host feilds - enable or disable appropriately
+  LBool := cboProxyType.ItemIndex > 0;
+  edtProxyServerName.Enabled := LBool;
+  lblProxyServerName.Enabled := LBool;
+  edtProxyServerUserName.Enabled := LBool;
+  lblProxyServerUserName.Enabled := LBool;
+  edtProxyServerPassword.Enabled := LBool;
+  lblProxyServerPassword.Enabled := LBool;
+  Self.spededtProxyPort.Enabled := LBool;
+  Self.lblProxyPort.Enabled := LBool;
 end;
 
 end.

@@ -1450,4 +1450,14 @@ object frmMainForm: TfrmMainForm
       Action = actFileLocalRename
     end
   end
+  object SocksInfo: TIdSocksInfo
+    Left = 513
+    Top = 193
+  end
+  object HTTPConnectThrough: TIdConnectThroughHttpProxy
+    Enabled = False
+    Port = 0
+    Left = 593
+    Top = 177
+  end
 end
