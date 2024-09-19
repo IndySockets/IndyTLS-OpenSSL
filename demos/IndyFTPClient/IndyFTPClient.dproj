@@ -112,6 +112,7 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Icon_MainIcon>IndyFTPClient_Icon1.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -154,11 +155,23 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="CertViewer.pas">
-            <Form>Form1</Form>
+            <Form>frmCertViewer</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="ProgUtils.pas"/>
         <DCCReference Include="AcceptableCerts.pas"/>
+        <DCCReference Include="dlgFTPProxySettings.pas">
+            <Form>frmFTPProxySettings</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="dlgNATSettings.pas">
+            <Form>frmNATSettings</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="dlgProxySettings.pas">
+            <Form>frmProxySettings</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

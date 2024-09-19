@@ -7,9 +7,12 @@ uses
   frmAbout in 'frmAbout.pas' {AboutBox},
   settingsdlg in 'settingsdlg.pas' {frmSettings},
   frmBookmarks in 'frmBookmarks.pas' {frmFTPSites},
-  CertViewer in 'CertViewer.pas' {Form1},
+  CertViewer in 'CertViewer.pas' {frmCertViewer},
   ProgUtils in 'ProgUtils.pas',
-  AcceptableCerts in 'AcceptableCerts.pas';
+  AcceptableCerts in 'AcceptableCerts.pas',
+  dlgFTPProxySettings in 'dlgFTPProxySettings.pas' {frmFTPProxySettings},
+  dlgNATSettings in 'dlgNATSettings.pas' {frmNATSettings},
+  dlgProxySettings in 'dlgProxySettings.pas' {frmProxySettings};
 
 {$R *.res}
 

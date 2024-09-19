@@ -666,9 +666,9 @@ begin
       LFrm.DirOutputBackground := FDirOutputBackground;
       LFrm.DebugForeground := FDebugForeground;
       LFrm.DebugBackground := FDebugBackground;
-      LFrm.edtExternalIPAddress.Text := IdFTPClient.ExternalIP;
-      LFrm.spnedtPortMinimum.Value := IdFTPClient.DataPortMin;
-      LFrm.spnedtPortMax.Value := IdFTPClient.DataPortMax;
+      LFrm.NATIPAddress := IdFTPClient.ExternalIP;
+      LFrm.NATPortMin := IdFTPClient.DataPortMin;
+      LFrm.NATPortMax := IdFTPClient.DataPortMax;
       LFrm.chklbAdvancedOptions.Checked[0] := IdFTPClient.UseHOST;
       LFrm.chklbAdvancedOptions.Checked[1] := IdFTPClient.UseExtensionDataPort;
       LFrm.chklbAdvancedOptions.Checked[2] := IdFTPClient.TryNATFastTrack;
@@ -676,14 +676,14 @@ begin
       if not Assigned(iosslFTP.TransparentProxy) then
       begin
         // 0 - none
-        LFrm.cboProxyType.ItemIndex := 0;
+        LFrm.ProxyType := 0;
       end
       else
       begin
         // 1 - HTTP Connect Proxy
         if iosslFTP.TransparentProxy = HTTPConnectThrough then
         begin
-          LFrm.cboProxyType.ItemIndex := 1;
+          LFrm.ProxyType := 1;
         end
         else
         begin
@@ -691,25 +691,30 @@ begin
             // 2 - SOCKS4
             svSocks4:
               begin
-                LFrm.cboProxyType.ItemIndex := 2;
+                LFrm.ProxyType := 2;
               end;
             // 3 - SOCKS4A
             svSocks4A:
               begin
-                LFrm.cboProxyType.ItemIndex := 3;
+                LFrm.ProxyType := 3;
               end;
             // 4 - SOCKS5
             svSocks5:
               begin
-                LFrm.cboProxyType.ItemIndex := 4;
+                LFrm.ProxyType := 4;
               end;
           end;
         end;
       end;
-      LFrm.edtProxyServerName.Text := SocksInfo.Host;
-      LFrm.edtProxyServerUserName.Text := SocksInfo.Username;
-      LFrm.edtProxyServerPassword.Text := SocksInfo.Password;
-      LFrm.spededtProxyPort.Value := SocksInfo.Port;
+      LFrm.ProxyHost := SocksInfo.Host;
+      LFrm.ProxyUsername := SocksInfo.Username;
+      LFrm.ProxyPassword := SocksInfo.Password;
+      LFrm.ProxyPort := SocksInfo.Port;
+      LFrm.FTPProxyType := Ord(IdFTPClient.ProxySettings.ProxyType);
+      LFrm.FTPProxyHost := IdFTPClient.ProxySettings.Host;
+      LFrm.FTPProxyPort := IdFTPClient.ProxySettings.Port;
+      LFrm.FTPProxyUsername := IdFTPClient.ProxySettings.UserName;
+      LFrm.FTPProxyPassword := IdFTPClient.ProxySettings.Password;
       if LFrm.ShowModal = mrOk then
       begin
         FErrorForeground := LFrm.ErrorForeground;
@@ -721,9 +726,9 @@ begin
         FDebugForeground := LFrm.DebugForeground;
         FDebugBackground := LFrm.DebugBackground;
         IdFTPClient.UseHOST := LFrm.chklbAdvancedOptions.Checked[0];
-        IdFTPClient.ExternalIP := LFrm.edtExternalIPAddress.Text;
-        IdFTPClient.DataPortMin := LFrm.spnedtPortMinimum.Value;
-        IdFTPClient.DataPortMax := LFrm.spnedtPortMax.Value;
+        IdFTPClient.ExternalIP := LFrm.NATIPAddress;
+        IdFTPClient.DataPortMin := LFrm.NATPortMin;
+        IdFTPClient.DataPortMax := LFrm.NATPortMax;
         // Do things in a round about way because NAT fasttracking requires extended DataPort commands.
         IdFTPClient.TryNATFastTrack := False;
 
@@ -773,17 +778,16 @@ begin
           FDebugForeground);
         LIni.WriteInteger('Log_Font', 'Debug_Output_Background',
           FDebugBackground);
-        SetProxyType(LFrm.cboProxyType.ItemIndex);
-        LIni.WriteInteger('Proxy', 'Type', LFrm.cboProxyType.ItemIndex);
-        SocksInfo.Host := LFrm.edtProxyServerName.Text;
-        SocksInfo.Port := LFrm.spededtProxyPort.Value;
-        SocksInfo.Username := LFrm.edtProxyServerUserName.Text;
-        SocksInfo.Password := LFrm.edtProxyServerPassword.Text;
+        SetProxyType(LFrm.ProxyType);
+        LIni.WriteInteger('Proxy', 'Type', LFrm.ProxyType);
+        SocksInfo.Host := LFrm.ProxyHost;
+        SocksInfo.Port := LFrm.ProxyPort;
+        SocksInfo.Username := LFrm.ProxyUsername;
+        SocksInfo.Password := LFrm.ProxyPassword;
         if (SocksInfo.Username <> '') and (SocksInfo.Password <> '') then
         begin
           SocksInfo.Authentication := saUsernamePassword;
         end;
-        SocksInfo.Host := LFrm.edtProxyServerName.Text;
         HTTPConnectThrough.Host := SocksInfo.Host;
         HTTPConnectThrough.Port := SocksInfo.Port;
         HTTPConnectThrough.Username := SocksInfo.Username;
@@ -792,6 +796,17 @@ begin
         LIni.WriteString('Proxy', 'User_Name', SocksInfo.Username);
         LIni.WriteString('Proxy', 'Password', SocksInfo.Password);
         LIni.WriteInteger('Proxy','Port',SocksInfo.Port);
+        IdFTPClient.ProxySettings.ProxyType := TIdFtpProxyType( LFrm.FTPProxyType );
+        IdFTPClient.ProxySettings.Host := LFrm.FTPProxyHost;
+        IdFTPClient.ProxySettings.Port := LFrm.FTPProxyPort;
+        IdFTPClient.ProxySettings.UserName := LFrm.FTPProxyUsername;
+        IdFTPClient.ProxySettings.Password := LFrm.FTPProxyPassword;
+        LIni.WriteInteger('FTP_Proxy', 'Type', LFrm.FTPProxyType);
+        LIni.WriteString('FTP_Proxy', 'Server_Name', SocksInfo.Host);
+        LIni.WriteString('FTP_Proxy', 'User_Name', SocksInfo.Username);
+        LIni.WriteString('FTP_Proxy', 'Password', SocksInfo.Password);
+        LIni.WriteInteger('FTP_Proxy','Port',SocksInfo.Port);
+
       end;
     finally
       FreeAndNil(LIni);
@@ -980,6 +995,11 @@ begin
     HTTPConnectThrough.Username := SocksInfo.Username;
     HTTPConnectThrough.Password := SocksInfo.Password;
     HTTPConnectThrough.Port := SocksInfo.Port;
+    IdFTPClient.ProxySettings.ProxyType := TIdFtpProxyType( LIni.ReadInteger('FTP_Proxy', 'Type', 0));
+    IdFTPClient.ProxySettings.Host := LIni.ReadString('FTP_Proxy', 'Server_Name', '');
+    IdFTPClient.ProxySettings.UserName := LIni.ReadString('FTP_Proxy', 'User_Name', '');
+    IdFTPClient.ProxySettings.Password := LIni.ReadString('FTP_Proxy', 'Password', '');
+    IdFTPClient.ProxySettings.Port := LIni.ReadInteger('FTP_Proxy','Port',0);
   finally
     FreeAndNil(LIni);
   end;

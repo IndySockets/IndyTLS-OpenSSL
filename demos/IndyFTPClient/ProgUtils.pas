@@ -8,10 +8,24 @@ procedure ScrollToTop(ARichEdit: TRichEdit);
 procedure ScrollToEnd(ARichEdit: TRichEdit);
 function CertErrorToStr(ACertError: Integer): String;
 function RightJustify(const AText: String; ALen: Integer): String;
+function IsValidIP(const AAddr: String): Boolean;
 
 implementation
 
-uses WinAPI.Messages, IdOpenSSLHeaders_x509, IdOpenSSLHeaders_x509_vfy;
+uses WinAPI.Messages, IdIPAddress, IdOpenSSLHeaders_x509,
+IdOpenSSLHeaders_x509_vfy, System.SysUtils;
+
+function IsValidIP(const AAddr: String): Boolean;
+var
+  LIP: TIdIPAddress;
+begin
+  LIP := TIdIPAddress.MakeAddressObject(AAddr);
+  Result := Assigned(LIP);
+  if Result then
+  begin
+    FreeAndNil(LIP);
+  end;
+end;
 
 function CertErrorToStr(ACertError: Integer): String;
 begin

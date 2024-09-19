@@ -25,7 +25,6 @@ object frmSettings: TfrmSettings
     BorderWidth = 5
     ParentColor = True
     TabOrder = 0
-    ExplicitHeight = 328
     object PageControl1: TPageControl
       Left = 5
       Top = 5
@@ -35,8 +34,6 @@ object frmSettings: TfrmSettings
       Align = alClient
       Images = VirtualImageList1
       TabOrder = 0
-      ExplicitTop = 6
-      ExplicitHeight = 318
       object TabSheet1: TTabSheet
         Caption = 'F&ont'
         ImageIndex = 1
@@ -61,16 +58,15 @@ object frmSettings: TfrmSettings
           TabOrder = 0
           WantReturns = False
           WordWrap = False
-          ExplicitHeight = 74
         end
-        object Button1: TButton
+        object btnFontSelect: TButton
           Left = 178
           Top = 13
           Width = 75
           Height = 25
           Caption = 'Fon&t'
           TabOrder = 1
-          OnClick = Button1Click
+          OnClick = btnFontSelectClick
         end
         object redtTextSamples: TRichEdit
           Left = 13
@@ -89,7 +85,6 @@ object frmSettings: TfrmSettings
           TabOrder = 2
           WantReturns = False
           WordWrap = False
-          ExplicitTop = 135
         end
         object ScrollBox1: TScrollBox
           Left = 175
@@ -99,7 +94,6 @@ object frmSettings: TfrmSettings
           VertScrollBar.Position = 13
           Anchors = [akLeft, akRight, akBottom]
           TabOrder = 3
-          ExplicitTop = 135
           object lblErrors: TLabel
             Left = 16
             Top = 26
@@ -261,175 +255,32 @@ object frmSettings: TfrmSettings
         Caption = 'F&irewall/Proxy'
         ImageIndex = 2
         ImageName = 'libre-gui-firewall'
-        object grpNATFTPS_PORT: TGroupBox
-          Left = 0
-          Top = 3
-          Width = 487
-          Height = 110
-          Caption = 'Data Port Settings for  NAT FTPS PORT Transfers'
+        object btnNATSettings: TButton
+          Left = 103
+          Top = 13
+          Width = 210
+          Height = 25
+          Caption = '&NAT Settings'
           TabOrder = 0
-          object lblMaximumPort: TLabel
-            Left = 210
-            Top = 79
-            Width = 58
-            Height = 15
-            Caption = 'M&aximum:'
-          end
-          object lblMinPort: TLabel
-            Left = 43
-            Top = 79
-            Width = 56
-            Height = 15
-            Caption = '&Minimum:'
-          end
-          object lblPorts: TLabel
-            Left = 105
-            Top = 56
-            Width = 215
-            Height = 15
-            Caption = 'Data Port Range for PORT/EPRT transfers.'
-          end
-          object lblNATIPAddress: TLabel
-            Left = 41
-            Top = 32
-            Width = 58
-            Height = 15
-            Caption = '&IP Address:'
-          end
-          object spnedtPortMax: TSpinEdit
-            Left = 272
-            Top = 77
-            Width = 73
-            Height = 24
-            MaxValue = 65535
-            MinValue = 0
-            TabOrder = 0
-            Value = 0
-            OnChange = spnedtPortMaxChange
-          end
-          object spnedtPortMinimum: TSpinEdit
-            Left = 105
-            Top = 77
-            Width = 73
-            Height = 24
-            MaxValue = 65535
-            MinValue = 0
-            TabOrder = 1
-            Value = 0
-            OnChange = spnedtPortMinimumChange
-          end
-          object edtExternalIPAddress: TEdit
-            Left = 105
-            Top = 29
-            Width = 240
-            Height = 23
-            TabOrder = 2
-            TextHint = 'Leave empty unless you are behind a NAT'
-            OnChange = edtExternalIPAddressChange
-          end
+          OnClick = btnNATSettingsClick
         end
-        object grpbxProxyServer: TGroupBox
-          Left = 3
-          Top = 119
-          Width = 484
-          Height = 178
-          Caption = 'Proxy Server'
+        object btnTransparentProxy: TButton
+          Left = 104
+          Top = 48
+          Width = 209
+          Height = 25
+          Caption = '&HTTP Connect or SOCKS Proxy'
           TabOrder = 1
-          object lblProxyServerName: TLabel
-            Left = 28
-            Top = 59
-            Width = 68
-            Height = 15
-            Caption = 'Proxy &Server:'
-            Enabled = False
-            FocusControl = edtProxyServerName
-          end
-          object lblProxyServerUserName: TLabel
-            Left = 39
-            Top = 87
-            Width = 56
-            Height = 15
-            Caption = 'Username:'
-            Enabled = False
-            FocusControl = edtProxyServerUserName
-          end
-          object lblProxyServerPassword: TLabel
-            Left = 41
-            Top = 116
-            Width = 53
-            Height = 15
-            Caption = 'Password:'
-            Enabled = False
-            FocusControl = edtProxyServerPassword
-          end
-          object lblProxyType: TLabel
-            Left = 69
-            Top = 30
-            Width = 27
-            Height = 15
-            Caption = '&Type:'
-            FocusControl = cboProxyType
-          end
-          object lblProxyPort: TLabel
-            Left = 69
-            Top = 144
-            Width = 25
-            Height = 15
-            Caption = 'P&ort:'
-          end
-          object edtProxyServerName: TEdit
-            Left = 101
-            Top = 56
-            Width = 368
-            Height = 23
-            Enabled = False
-            TabOrder = 1
-            OnChange = edtProxyServerNameChange
-          end
-          object edtProxyServerUserName: TEdit
-            Left = 101
-            Top = 84
-            Width = 369
-            Height = 23
-            Enabled = False
-            TabOrder = 2
-          end
-          object edtProxyServerPassword: TEdit
-            Left = 100
-            Top = 113
-            Width = 370
-            Height = 23
-            Enabled = False
-            PasswordChar = '*'
-            TabOrder = 3
-          end
-          object cboProxyType: TComboBox
-            Left = 102
-            Top = 27
-            Width = 369
-            Height = 23
-            Style = csDropDownList
-            ItemIndex = 0
-            TabOrder = 0
-            Text = 'None'
-            OnChange = cboProxyTypeChange
-            Items.Strings = (
-              'None'
-              ' HTTP CONNECT proxy'
-              'SOCKS4'
-              'SOCKS4a'
-              'SOCKS5')
-          end
-          object spededtProxyPort: TSpinEdit
-            Left = 101
-            Top = 142
-            Width = 121
-            Height = 24
-            MaxValue = 65535
-            MinValue = 1
-            TabOrder = 4
-            Value = 0
-          end
+          OnClick = btnTransparentProxyClick
+        end
+        object btnFTPProxySettings: TButton
+          Left = 103
+          Top = 83
+          Width = 209
+          Height = 25
+          Caption = 'F&TP Proxy'
+          TabOrder = 2
+          OnClick = btnFTPProxySettingsClick
         end
       end
       object TabSheet4: TTabSheet
@@ -462,7 +313,6 @@ object frmSettings: TfrmSettings
     ParentColor = True
     ParentFont = False
     TabOrder = 1
-    ExplicitTop = 328
     DesignSize = (
       508
       34)
