@@ -12,9 +12,9 @@ type
     Panel1: TPanel;
     Panel2: TPanel;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
+    tbshtFont: TTabSheet;
+    tbshtFTPSettings: TTabSheet;
+    tbshtFrewallProxy: TTabSheet;
     OKBtn: TButton;
     CancelBtn: TButton;
     cboTransferTypes: TComboBox;
@@ -42,7 +42,7 @@ type
     cboDebugForeground: TColorBox;
     cboDebugBackground: TColorBox;
     lblDebugOutput: TLabel;
-    TabSheet4: TTabSheet;
+    tbshtDebugSetting: TTabSheet;
     chkLogDebug: TCheckBox;
     btnNATSettings: TButton;
     btnTransparentProxy: TButton;
@@ -67,6 +67,9 @@ type
     procedure btnNATSettingsClick(Sender: TObject);
     procedure btnTransparentProxyClick(Sender: TObject);
     procedure btnFTPProxySettingsClick(Sender: TObject);
+  private
+    function GetConnected: Boolean;
+    procedure SetConnected(const Value: Boolean);
   protected
     FErrorForeground: TColor;
     FErrorBackground: TColor;
@@ -115,6 +118,7 @@ type
     { Private declarations }
   public
     { Public declarations }
+    property Connected : Boolean read GetConnected write SetConnected;
     property UsePortTransferType: Boolean read GetUsePortTransferType
       write SetUsePortTransferType;
     property ErrorForeground: TColor read GetErrorForeground
@@ -365,6 +369,11 @@ begin
   ValidateFeilds;
 end;
 
+function TfrmSettings.GetConnected: Boolean;
+begin
+  Result := not cboTransferTypes.Enabled;
+end;
+
 function TfrmSettings.GetDebugBackground: TColor;
 begin
   Result := cboDebugBackground.Selected;
@@ -408,6 +417,17 @@ end;
 function TfrmSettings.GetUsePortTransferType: Boolean;
 begin
   Result := cboTransferTypes.ItemIndex = 1;
+end;
+
+procedure TfrmSettings.SetConnected(const Value: Boolean);
+begin
+  cboTransferTypes.Enabled := not Value;
+  lblTransferType.Enabled := not Value;
+  chklbAdvancedOptions.Enabled := not Value;
+  lblAdvancedOptions.Enabled := not Value;
+  btnNATSettings.Enabled := not Value;
+  btnTransparentProxy.Enabled := not Value;
+  btnFTPProxySettings.Enabled := not Value;
 end;
 
 procedure TfrmSettings.SetDebugBackground(const Value: TColor);

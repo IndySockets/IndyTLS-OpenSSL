@@ -30,11 +30,11 @@ object frmSettings: TfrmSettings
       Top = 5
       Width = 498
       Height = 338
-      ActivePage = TabSheet1
+      ActivePage = tbshtFont
       Align = alClient
       Images = VirtualImageList1
       TabOrder = 0
-      object TabSheet1: TTabSheet
+      object tbshtFont: TTabSheet
         Caption = 'F&ont'
         ImageIndex = 1
         ImageName = 'libre-gui-font'
@@ -202,7 +202,7 @@ object frmSettings: TfrmSettings
           end
         end
       end
-      object TabSheet2: TTabSheet
+      object tbshtFTPSettings: TTabSheet
         Caption = '&FTP Settings'
         ImageName = 'libre-gui-idea'
         DesignSize = (
@@ -251,7 +251,7 @@ object frmSettings: TfrmSettings
           OnClickCheck = chklbAdvancedOptionsClickCheck
         end
       end
-      object TabSheet3: TTabSheet
+      object tbshtFrewallProxy: TTabSheet
         Caption = 'F&irewall/Proxy'
         ImageIndex = 2
         ImageName = 'libre-gui-firewall'
@@ -283,7 +283,7 @@ object frmSettings: TfrmSettings
           OnClick = btnFTPProxySettingsClick
         end
       end
-      object TabSheet4: TTabSheet
+      object tbshtDebugSetting: TTabSheet
         Caption = '&Debug Settings'
         ImageIndex = 3
         ImageName = 'libre-gui-bug'

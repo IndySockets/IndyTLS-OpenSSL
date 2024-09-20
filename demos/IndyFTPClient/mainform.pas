@@ -715,6 +715,7 @@ begin
       LFrm.FTPProxyPort := IdFTPClient.ProxySettings.Port;
       LFrm.FTPProxyUsername := IdFTPClient.ProxySettings.UserName;
       LFrm.FTPProxyPassword := IdFTPClient.ProxySettings.Password;
+      LFrm.Connected := IdFTPClient.Connected;
       if LFrm.ShowModal = mrOk then
       begin
         FErrorForeground := LFrm.ErrorForeground;
@@ -1077,19 +1078,7 @@ var
 begin
   if Assigned(ASender.SSLSocket) then
   begin
-    LStr := '';
-    case ASender.SSLSocket.SSLProtocolVersion of
-      sslvSSLv3:
-        LStr := 'SSL 3';
-      sslvTLSv1:
-        LStr := 'TLS 1.0';
-      sslvTLSv1_1:
-        LStr := 'TLS 1.1';
-      sslvTLSv1_2:
-        LStr := 'TLS 1.2';
-      sslvTLSv1_3:
-        LStr := 'TLS 1.3';
-    end;
+    LStr := ASender.SSLSocket.SSLProtocolVersionStr;
     if LStr <> '' then
     begin
       TSSLCipherEvent.NotifyString('       TLS Version: ' + LStr);
