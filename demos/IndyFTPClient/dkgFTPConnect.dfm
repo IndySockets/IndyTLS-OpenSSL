@@ -188,7 +188,7 @@ object frmConnect: TfrmConnect
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           ItemIndex = 0
-          TabOrder = 0
+          TabOrder = 1
           Text = 'Use Default Setting'
           Items.Strings = (
             'Use Default Setting'
@@ -200,8 +200,7 @@ object frmConnect: TfrmConnect
           Top = 13
           Width = 301
           Height = 23
-          TabOrder = 1
-          Text = 'edtAccount'
+          TabOrder = 0
         end
         object spnedtPort: TSpinEdit
           Left = 96
