@@ -233,6 +233,7 @@ begin
   AIni.WriteBool(FSiteName, 'Anonymous', FAnonymous);
   AIni.WriteString(FSiteName, 'User_Name', FUserName);
   AIni.WriteString(FSiteName, 'Password', FPassword);
+  AIni.WriteString(FSiteName, 'Account', FAccount);
   AIni.WriteInteger(FSiteName, 'Protocol', FFTPPRotocol);
   AIni.WriteInteger(FSiteName, 'Transfer_Mode', FTransferMode);
   AIni.WriteInteger(FSiteName, 'Port', FPort);
