@@ -135,9 +135,11 @@ object frmConnect: TfrmConnect
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 5
+          OnChange = cboConnectionTypeChange
           Items.Strings = (
             'Unencrypted FTP Connection'
-            'Explikcit TLS FTP Connection (FTPS)'
+            'Use Explicit FTP TLS (FTPS) if Available'
+            'Require Explicit FTP TLS (FTPS)'
             'Implicit TLS FTP Connection (FTPS)')
         end
         object edtProfileName: TEdit
@@ -158,15 +160,29 @@ object frmConnect: TfrmConnect
           226)
         object lblTransferType: TLabel
           Left = 15
-          Top = 16
+          Top = 45
           Width = 71
           Height = 15
           Caption = '&Transfer Type:'
           FocusControl = cboTransferTypes
         end
+        object lblAccount: TLabel
+          Left = 38
+          Top = 16
+          Width = 48
+          Height = 15
+          Caption = 'A&ccount:'
+        end
+        object lblPort: TLabel
+          Left = 61
+          Top = 75
+          Width = 25
+          Height = 15
+          Caption = 'Po&rt:'
+        end
         object cboTransferTypes: TComboBox
-          Left = 92
-          Top = 13
+          Left = 96
+          Top = 42
           Width = 301
           Height = 23
           Style = csDropDownList
@@ -178,6 +194,24 @@ object frmConnect: TfrmConnect
             'Use Default Setting'
             'Use PASV Transfers'
             'Use PORT Transfers')
+        end
+        object edtAccount: TEdit
+          Left = 96
+          Top = 13
+          Width = 301
+          Height = 23
+          TabOrder = 1
+          Text = 'edtAccount'
+        end
+        object spnedtPort: TSpinEdit
+          Left = 96
+          Top = 72
+          Width = 121
+          Height = 24
+          MaxValue = 65535
+          MinValue = 1
+          TabOrder = 2
+          Value = 21
         end
       end
     end

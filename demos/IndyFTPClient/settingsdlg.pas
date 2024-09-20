@@ -170,6 +170,8 @@ begin
   if FontDialog1.Execute then
   begin
     redtLog.Font := FontDialog1.Font;
+    Self.redtTextSamples.Font := FontDialog1.Font;
+    Self.DisplaySampleTexts;
   end;
 end;
 
@@ -224,7 +226,7 @@ var Lfrm : TfrmFTPProxySettings;
 begin
   LFrm := TfrmFTPProxySettings.Create(Application);
   try
-    LFrm.Caption := StringReplace(btnFTPProxySettings.Caption,'&','',[]);
+    LFrm.Caption := DlgCaptionToFormCaption(btnFTPProxySettings.Caption);
     LFrm.cboProxyType.ItemIndex := FFTPProxyType;
     LFrm.edtProxyServerName.Text := FFTPProxyHost;
     LFrm.edtProxyServerUserName.Text := FFTPProxyUsername;
@@ -248,7 +250,7 @@ var LFrm : TfrmNATSettings;
 begin
   LFrm := TfrmNATSettings.Create(Application);
   try
-    LFrm.Caption := StringReplace(btnNATSettings.Caption,'&','',[]);
+    LFrm.Caption := DlgCaptionToFormCaption(btnNATSettings.Caption);
     LFrm.edtExternalIPAddress.Text := FNATIPAddress;
     LFrm.spnedtPortMinimum.Value := FNATPortMin;
     LFrm.spnedtPortMaximum.Value := FNATPortMax;
@@ -267,7 +269,7 @@ var LFrm : TfrmProxySettings;
 begin
   LFrm := TfrmProxySettings.Create(Application);
   try
-    LFrm.Caption := StringReplace(btnTransparentProxy.Caption,'&','',[]);
+    LFrm.Caption := DlgCaptionToFormCaption(btnTransparentProxy.Caption);
     LFrm.cboProxyType.ItemIndex := FProxyType;
     LFrm.edtProxyServerName.Text := FProxyHost;
     LFrm.edtProxyServerUserName.Text := FProxyUsername;

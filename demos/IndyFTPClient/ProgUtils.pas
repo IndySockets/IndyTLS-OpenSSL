@@ -9,11 +9,30 @@ procedure ScrollToEnd(ARichEdit: TRichEdit);
 function CertErrorToStr(ACertError: Integer): String;
 function RightJustify(const AText: String; ALen: Integer): String;
 function IsValidIP(const AAddr: String): Boolean;
+function DlgCaptionToFormCaption(const ACaption : String) : String;
 
 implementation
 
 uses WinAPI.Messages, IdIPAddress, IdOpenSSLHeaders_x509,
 IdOpenSSLHeaders_x509_vfy, System.SysUtils;
+
+function DlgCaptionToFormCaption(const ACaption : String) : String;
+var i : Integer;
+begin
+  Result := StringReplace(ACaption,'&','',[]);
+  //remove trailing ...
+  for i := Length(Result) downto 1 do
+  begin
+    if Result[i] = '.' then
+    begin
+      Delete(Result,i,1);
+    end
+    else
+    begin
+      break;
+    end;
+  end;
+end;
 
 function IsValidIP(const AAddr: String): Boolean;
 var

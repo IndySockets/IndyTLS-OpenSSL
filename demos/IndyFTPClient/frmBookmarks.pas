@@ -18,8 +18,10 @@ type
     FAnonymous: Boolean;
     FUserName: String;
     FPassword: String;
+    FAccount: String;
     FFTPPRotocol: Integer;
     FTransferMode: Integer;
+    FPort : Integer;
   public
     constructor Create(const AName: String); overload;
     constructor Create(const AName: String; AIni: TIniFile); overload;
@@ -29,9 +31,10 @@ type
     property Anonymous: Boolean read FAnonymous write FAnonymous;
     property UserName: String read FUserName write FUserName;
     property Password: String read FPassword write FPassword;
+    property Account: String read FAccount write FAccount;
     property FTPPRotocol: Integer read FFTPPRotocol write FFTPPRotocol;
     property TransferMode: Integer read FTransferMode write FTransferMode;
-
+    property Port : Integer read FPort write FPort;
   end;
 
   TfrmFTPSites = class(TForm)
@@ -112,8 +115,10 @@ begin
     LFrm.chkAnonymousFTP.Checked := LFTP.Anonymous;
     LFrm.edtUsername.Text := LFTP.UserName;
     LFrm.edtPassword.Text := LFTP.Password;
+    LFrm.edtAccount.Text := LFTP.Account;
     LFrm.cboConnectionType.ItemIndex := LFTP.FTPPRotocol;
     LFrm.cboTransferTypes.ItemIndex := LFTP.TransferMode;
+    LFrm.spnedtPort.Value := LFTP.Port;
     if LFrm.ShowModal = mrOk then
     begin
       LFTP.SiteName := LFrm.edtProfileName.Text;
@@ -121,8 +126,10 @@ begin
       LFTP.Anonymous := LFrm.chkAnonymousFTP.Checked;
       LFTP.UserName := LFrm.edtUsername.Text;
       LFTP.Password := LFrm.edtPassword.Text;
+      LFTP.Account := LFrm.edtAccount.Text;
       LFTP.FTPPRotocol := LFrm.cboConnectionType.ItemIndex;
       LFTP.TransferMode := LFrm.cboTransferTypes.ItemIndex;
+      LFTP.Port := LFrm.spnedtPort.Value;
     end;
   finally
     FreeAndNil(LFrm);
@@ -142,6 +149,7 @@ begin
   LFrm := TfrmConnect.Create(nil);
   try
     LFrm.Caption := 'New FTP Site';
+    LFrm.cboTransferTypes.ItemIndex := 0;
     if LFrm.ShowModal = mrOk then
     begin
       lbxFTPSites.Items.Add(LFrm.edtProfileName.Text);
@@ -150,8 +158,10 @@ begin
       LFTP.Anonymous := LFrm.chkAnonymousFTP.Checked;
       LFTP.UserName := LFrm.edtUsername.Text;
       LFTP.Password := LFrm.edtPassword.Text;
+      LFTP.Account := LFrm.edtAccount.Text;
       LFTP.FTPPRotocol := LFrm.cboConnectionType.ItemIndex;
       LFTP.TransferMode := LFrm.cboTransferTypes.ItemIndex;
+      LFTP.Port := LFrm.spnedtPort.Value;
       FFTPSites.Add(LFTP);
     end;
   finally
@@ -211,8 +221,10 @@ begin
   FAnonymous := AIni.ReadBool(AName, 'Anonymous', False);
   FUserName := AIni.ReadString(AName, 'User_Name', '');
   FPassword := AIni.ReadString(AName, 'Password', '');
+  FAccount := AIni.ReadString(AName, 'Account','');
   FFTPPRotocol := AIni.ReadInteger(AName, 'Protocol', 0);
-  TransferMode := AIni.ReadInteger(AName, 'Transfer_Mode', 0);
+  FTransferMode := AIni.ReadInteger(AName, 'Transfer_Mode', 0);
+  FPort := AIni.ReadInteger(AName, 'Port',21);
 end;
 
 procedure TFTPSite.Save(AIni: TIniFile);
@@ -222,7 +234,8 @@ begin
   AIni.WriteString(FSiteName, 'User_Name', FUserName);
   AIni.WriteString(FSiteName, 'Password', FPassword);
   AIni.WriteInteger(FSiteName, 'Protocol', FFTPPRotocol);
-  AIni.WriteInteger(FSiteName, 'Transfer_Mode', TransferMode);
+  AIni.WriteInteger(FSiteName, 'Transfer_Mode', FTransferMode);
+  AIni.WriteInteger(FSiteName, 'Port', FPort);
 end;
 
 constructor TFTPSite.Create(const AName: String);

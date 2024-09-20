@@ -5,7 +5,7 @@ interface
 uses Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Forms,
   Vcl.Controls, Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,
   System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, IdExplicitTLSClientServerBase;
+  Vcl.ImageCollection, IdExplicitTLSClientServerBase, Vcl.Samples.Spin;
 
 type
   TfrmConnect = class(TForm)
@@ -31,11 +31,16 @@ type
     edtProfileName: TEdit;
     lblProfileName: TLabel;
     lblConnectionType: TLabel;
+    edtAccount: TEdit;
+    lblAccount: TLabel;
+    spnedtPort: TSpinEdit;
+    lblPort: TLabel;
     procedure chkAnonymousFTPClick(Sender: TObject);
     procedure edtProfileNameChange(Sender: TObject);
     procedure edtHostnameChange(Sender: TObject);
     procedure edtUsernameChange(Sender: TObject);
     procedure edtPasswordChange(Sender: TObject);
+    procedure cboConnectionTypeChange(Sender: TObject);
   private
     FQuickConnect: Boolean;
     function GetHost: String;
@@ -89,6 +94,24 @@ end;
 
 {$R *.dfm}
 { TfrmConnect }
+
+procedure TfrmConnect.cboConnectionTypeChange(Sender: TObject);
+begin
+  if cboConnectionType.ItemIndex = 3 then
+  begin
+    if spnedtPort.Value = 21 then
+    begin
+      spnedtPort.Value := 990;
+    end;
+  end
+  else
+  begin
+    if SpnedtPort.Value = 990 then
+    begin
+      spnedtPort.Value := 21;
+    end;
+  end;
+end;
 
 procedure TfrmConnect.chkAnonymousFTPClick(Sender: TObject);
 begin
@@ -200,6 +223,8 @@ begin
     1:
       Result := utUseExplicitTLS;
     2:
+      Result := utUseRequireTLS;
+    3:
       Result := utUseImplicitTLS;
   end;
 
@@ -265,8 +290,10 @@ begin
       cboConnectionType.ItemIndex := 0;
     utUseExplicitTLS:
       cboConnectionType.ItemIndex := 1;
-    utUseImplicitTLS:
+    utUseRequireTLS:
       cboConnectionType.ItemIndex := 2;
+    utUseImplicitTLS:
+      cboConnectionType.ItemIndex := 3;
   end;
 end;
 

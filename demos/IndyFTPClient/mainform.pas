@@ -405,12 +405,16 @@ begin
         IdFTPClient.Host := LFTPSite.HostName;
         IdFTPClient.Username := LFTPSite.Username;
         IdFTPClient.Password := LFTPSite.Password;
+        IdFTPClient.Account := LFTPSite.Account;
+        IdFTPClient.Port := LFTPSite.Port;
         case LFTPSite.FTPPRotocol of
           0:
             IdFTPClient.UseTLS := utNoTLSSupport;
           1:
             IdFTPClient.UseTLS := utUseExplicitTLS;
           2:
+            IdFTPClient.UseTLS := utUseRequireTLS;
+          3:
             IdFTPClient.UseTLS := utUseImplicitTLS;
         end;
         case LFTPSite.TransferMode of
@@ -858,14 +862,6 @@ begin
   begin
     IdFTPClient.DataPortProtection := ftpdpsPrivate;
   end;
-  if IdFTPClient.UseTLS = utUseImplicitTLS then
-  begin
-    IdFTPClient.Port := 990;
-  end
-  else
-  begin
-    IdFTPClient.Port := 21;
-  end;
   InitLog;
   TConnectThread.Create(IdFTPClient);
 end;
@@ -894,11 +890,12 @@ begin
       IdFTPClient.Host := LFrm.edtHostname.Text;
       IdFTPClient.Username := LFrm.Username;
       IdFTPClient.Password := LFrm.Password;
+      IdFTPClient.Account := LFrm.edtAccount.Text;
+      IdFTPClient.Port := LFrm.spnedtPort.Value;
       IdFTPClient.IOHandler := iosslFTP;
       IdFTPClient.Passive := not LFrm.UsePortTransferType;
       IdFTPClient.UseTLS := LFrm.UseTLS;
       ConnectFTP;
-
     end;
   finally
     FreeAndNil(LFrm);

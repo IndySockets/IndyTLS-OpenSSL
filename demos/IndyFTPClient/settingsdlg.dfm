@@ -64,7 +64,7 @@ object frmSettings: TfrmSettings
           Top = 13
           Width = 75
           Height = 25
-          Caption = 'Fon&t'
+          Caption = 'Fon&t...'
           TabOrder = 1
           OnClick = btnFontSelectClick
         end
@@ -260,7 +260,7 @@ object frmSettings: TfrmSettings
           Top = 13
           Width = 210
           Height = 25
-          Caption = '&NAT Settings'
+          Caption = '&NAT Settings...'
           TabOrder = 0
           OnClick = btnNATSettingsClick
         end
@@ -269,7 +269,7 @@ object frmSettings: TfrmSettings
           Top = 48
           Width = 209
           Height = 25
-          Caption = '&HTTP Connect or SOCKS Proxy'
+          Caption = '&HTTP Connect or SOCKS Proxy...'
           TabOrder = 1
           OnClick = btnTransparentProxyClick
         end
@@ -278,7 +278,7 @@ object frmSettings: TfrmSettings
           Top = 83
           Width = 209
           Height = 25
-          Caption = 'F&TP Proxy'
+          Caption = 'F&TP Proxy...'
           TabOrder = 2
           OnClick = btnFTPProxySettingsClick
         end
