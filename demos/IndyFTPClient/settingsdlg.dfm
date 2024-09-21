@@ -295,6 +295,14 @@ object frmSettings: TfrmSettings
           Caption = 'Log Debug Output (This will be Extremely Verbose)'
           TabOrder = 0
         end
+        object chkDirOutput: TCheckBox
+          Left = 97
+          Top = 47
+          Width = 280
+          Height = 17
+          Caption = 'Log Directory Output'
+          TabOrder = 1
+        end
       end
     end
   end

@@ -47,6 +47,7 @@ type
     btnNATSettings: TButton;
     btnTransparentProxy: TButton;
     btnFTPProxySettings: TButton;
+    chkDirOutput: TCheckBox;
     procedure btnFontSelectClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure chklbAdvancedOptionsClickCheck(Sender: TObject);

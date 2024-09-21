@@ -166,6 +166,7 @@ type
     FDebugForeground: TColor;
     FDebugBackground: TColor;
     FLogDebugOutput: Boolean;
+    FLogDirOutput: Boolean;
     procedure InitLog;
     // Thread procedure starts
     procedure ConnectFTP;
@@ -717,11 +718,15 @@ begin
       LFrm.FTPProxyType := Ord(IdFTPClient.ProxySettings.ProxyType);
       LFrm.FTPProxyHost := IdFTPClient.ProxySettings.Host;
       LFrm.FTPProxyPort := IdFTPClient.ProxySettings.Port;
-      LFrm.FTPProxyUsername := IdFTPClient.ProxySettings.UserName;
+      LFrm.FTPProxyUsername := IdFTPClient.ProxySettings.Username;
       LFrm.FTPProxyPassword := IdFTPClient.ProxySettings.Password;
       LFrm.Connected := IdFTPClient.Connected;
+      LFrm.chkLogDebug.Checked := FLogDebugOutput;
+      LFrm.chkDirOutput.Checked := FLogDirOutput;
       if LFrm.ShowModal = mrOk then
       begin
+        FLogDebugOutput := LFrm.chkLogDebug.Checked;
+        FLogDirOutput := LFrm.chkDirOutput.Checked;
         FErrorForeground := LFrm.ErrorForeground;
         FErrorBackground := LFrm.ErrorBackground;
         FSSLMessageForeground := LFrm.SSLMessageForeground;
@@ -761,6 +766,7 @@ begin
           LFrm.chklbAdvancedOptions.Checked[1]);
         IdFTPClient.Passive := not LFrm.UsePortTransferType;
         LIni.WriteBool('Debug', 'Log_Debug_Output', FLogDebugOutput);
+        LIni.WriteBool('Debug', 'Log_Directory_Output', FLogDirOutput);
         redtLog.Font := LFrm.redtLog.Font;
         LIni.WriteString('Log_Font', 'Name', redtLog.Font.Name);
         LIni.WriteInteger('Log_Font', 'Size', redtLog.Font.Size);
@@ -800,18 +806,18 @@ begin
         LIni.WriteString('Proxy', 'Server_Name', SocksInfo.Host);
         LIni.WriteString('Proxy', 'User_Name', SocksInfo.Username);
         LIni.WriteString('Proxy', 'Password', SocksInfo.Password);
-        LIni.WriteInteger('Proxy','Port',SocksInfo.Port);
-        IdFTPClient.ProxySettings.ProxyType := TIdFtpProxyType( LFrm.FTPProxyType );
+        LIni.WriteInteger('Proxy', 'Port', SocksInfo.Port);
+        IdFTPClient.ProxySettings.ProxyType :=
+          TIdFtpProxyType(LFrm.FTPProxyType);
         IdFTPClient.ProxySettings.Host := LFrm.FTPProxyHost;
         IdFTPClient.ProxySettings.Port := LFrm.FTPProxyPort;
-        IdFTPClient.ProxySettings.UserName := LFrm.FTPProxyUsername;
+        IdFTPClient.ProxySettings.Username := LFrm.FTPProxyUsername;
         IdFTPClient.ProxySettings.Password := LFrm.FTPProxyPassword;
         LIni.WriteInteger('FTP_Proxy', 'Type', LFrm.FTPProxyType);
         LIni.WriteString('FTP_Proxy', 'Server_Name', SocksInfo.Host);
         LIni.WriteString('FTP_Proxy', 'User_Name', SocksInfo.Username);
         LIni.WriteString('FTP_Proxy', 'Password', SocksInfo.Password);
-        LIni.WriteInteger('FTP_Proxy','Port',SocksInfo.Port);
-
+        LIni.WriteInteger('FTP_Proxy', 'Port', SocksInfo.Port);
       end;
     finally
       FreeAndNil(LIni);
@@ -947,6 +953,7 @@ begin
     IdFTPClient.Passive := not LIni.ReadBool('Transfers',
       'Use_PORT_Transfers', False);
     FLogDebugOutput := LIni.ReadBool('Debug', 'Log_Debug_Output', False);
+    FLogDirOutput := LIni.ReadBool('Debug', 'Log_Directory_Output', False);
     redtLog.Font.Name := LIni.ReadString('Log_Font', 'Name', redtLog.Font.Name);
     redtLog.Font.Charset := LIni.ReadInteger('Log_Font', 'CharSet',
       redtLog.Font.Charset);
@@ -989,15 +996,19 @@ begin
     SocksInfo.Host := LIni.ReadString('Proxy', 'Server_Name', '');
     SocksInfo.Username := LIni.ReadString('Proxy', 'User_Name', '');
     SocksInfo.Password := LIni.ReadString('Proxy', 'Password', '');
-    SocksInfo.Port := LIni.ReadInteger('Proxy','Port',1080);
+    SocksInfo.Port := LIni.ReadInteger('Proxy', 'Port', 1080);
     HTTPConnectThrough.Username := SocksInfo.Username;
     HTTPConnectThrough.Password := SocksInfo.Password;
     HTTPConnectThrough.Port := SocksInfo.Port;
-    IdFTPClient.ProxySettings.ProxyType := TIdFtpProxyType( LIni.ReadInteger('FTP_Proxy', 'Type', 0));
-    IdFTPClient.ProxySettings.Host := LIni.ReadString('FTP_Proxy', 'Server_Name', '');
-    IdFTPClient.ProxySettings.UserName := LIni.ReadString('FTP_Proxy', 'User_Name', '');
-    IdFTPClient.ProxySettings.Password := LIni.ReadString('FTP_Proxy', 'Password', '');
-    IdFTPClient.ProxySettings.Port := LIni.ReadInteger('FTP_Proxy','Port',0);
+    IdFTPClient.ProxySettings.ProxyType :=
+      TIdFtpProxyType(LIni.ReadInteger('FTP_Proxy', 'Type', 0));
+    IdFTPClient.ProxySettings.Host := LIni.ReadString('FTP_Proxy',
+      'Server_Name', '');
+    IdFTPClient.ProxySettings.Username := LIni.ReadString('FTP_Proxy',
+      'User_Name', '');
+    IdFTPClient.ProxySettings.Password := LIni.ReadString('FTP_Proxy',
+      'Password', '');
+    IdFTPClient.ProxySettings.Port := LIni.ReadInteger('FTP_Proxy', 'Port', 0);
   finally
     FreeAndNil(LIni);
   end;
@@ -2037,20 +2048,23 @@ procedure TLogDirListingEvent.DoNotify;
 var
   i: Integer;
 begin
-  frmMainForm.redtLog.Lines.BeginUpdate;
-  try
-    for i := 0 to FDirListing.Count - 1 do
-    begin
-      frmMainForm.redtLog.SelAttributes.Color :=
-        frmMainForm.FDirOutputForeground;
-      frmMainForm.redtLog.SelAttributes.BackColor :=
-        frmMainForm.FDirOutputBackground;
-      frmMainForm.redtLog.Lines.Add(FDirListing[i]);
+  if frmMainForm.FLogDirOutput then
+  begin
+    frmMainForm.redtLog.Lines.BeginUpdate;
+    try
+      for i := 0 to FDirListing.Count - 1 do
+      begin
+        frmMainForm.redtLog.SelAttributes.Color :=
+          frmMainForm.FDirOutputForeground;
+        frmMainForm.redtLog.SelAttributes.BackColor :=
+          frmMainForm.FDirOutputBackground;
+        frmMainForm.redtLog.Lines.Add(FDirListing[i]);
+      end;
+    finally
+      frmMainForm.redtLog.Lines.EndUpdate;
     end;
-  finally
-    frmMainForm.redtLog.Lines.EndUpdate;
+    ScrollToEnd(frmMainForm.redtLog);
   end;
-  ScrollToEnd(frmMainForm.redtLog);
 end;
 
 class procedure TLogDirListingEvent.LogDirListing(AStrings: TStrings);
