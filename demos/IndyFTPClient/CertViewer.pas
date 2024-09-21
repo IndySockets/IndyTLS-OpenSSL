@@ -427,6 +427,7 @@ end;
 procedure TfrmCertViewer.SetError(const Value: Integer);
 begin
   FError := Value;
+  Caption := string(X509_verify_cert_error_string(FError));
   lblErrorMessage.Caption := ProgUtils.CertErrorToStr(Value);
 end;
 
