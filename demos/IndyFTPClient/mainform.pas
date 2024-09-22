@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
+  Vcl.ImageCollection, frmProgress, System.ImageList, Vcl.ImgList,
+  Vcl.VirtualImageList,
   System.Actions, Vcl.ActnList, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ToolWin, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
   IdExplicitTLSClientServerBase, IdFTP, IdCTypes, IdOpenSSLHeaders_ossl_typ,
@@ -167,6 +168,8 @@ type
     FDebugBackground: TColor;
     FLogDebugOutput: Boolean;
     FLogDirOutput: Boolean;
+
+    FProgressIndicator: TfrmFileProgress;
     procedure InitLog;
     // Thread procedure starts
     procedure ConnectFTP;
@@ -188,6 +191,11 @@ type
     procedure LocalMakeDir(const ADir: String);
     procedure RemoteMakeDir(const ADir: String);
     procedure SetProxyType(const AType: Integer);
+    procedure SetupPRogressIndicator(const AFileName: String;
+      const AWorkMode: TWorkMode; const AWorkCount, AWorkMax: Int64);
+    procedure UpdateProgressIndicator(const AFileName: String;
+      const AWorkMode: TWorkMode; const AWorkCount, AWorkMax: Int64);
+    procedure CloseProgressIndicator;
   public
     { Public declarations }
   end;
@@ -223,16 +231,25 @@ type
   TFileThread = class(TFTPThread)
   protected
     FFile: String;
+    FSize: Integer;
   public
     constructor Create(AFTP: TIdFTP; AFile: String); reintroduce;
   end;
 
-  TDownloadFileThread = class(TFileThread)
+  TFileOnWorkThread = class(TFileThread)
+  protected
+    procedure OnWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+      AWorkCountMax: Int64);
+    procedure OnWork(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
+    procedure OnWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
+  end;
+
+  TDownloadFileThread = class(TFileOnWorkThread)
   public
     procedure Execute(); override;
   end;
 
-  TUploadFileThread = class(TFileThread)
+  TUploadFileThread = class(TFileOnWorkThread)
   public
     procedure Execute(); override;
   end;
@@ -334,6 +351,39 @@ type
     class procedure EndThread;
   end;
 
+  TWorkEventNotify = class(TIdNotify)
+  protected
+    FFileName: String;
+    FWorkMode: TWorkMode;
+    FWorkCount: Int64;
+    FWorkCountMax: Int64;
+  public
+  end;
+
+  TOnWorkNotify = class(TWorkEventNotify)
+  protected
+    procedure DoNotify; override;
+  public
+    class procedure WorkNotify(const AFileName: String;
+      const AWorkMode: TWorkMode; AWorkCount, AWorkCountMax: Int64);
+  end;
+
+  TOnWorkNotifyBegin = class(TWorkEventNotify)
+  protected
+    procedure DoNotify; override;
+  public
+    class procedure WorkNotify(const AFileName: String;
+      const AWorkMode: TWorkMode; AWorkCount, AWorkCountMax: Int64);
+  end;
+
+  TOnWorkNotifyEnd = class(TWorkEventNotify)
+  protected
+    procedure DoNotify; override;
+  public
+    class procedure WorkNotify(const AWorkMode: TWorkMode;
+      AWorkCount, AWorkCountMax: Int64);
+  end;
+
 var
   frmMainForm: TfrmMainForm;
 
@@ -343,7 +393,7 @@ uses dkgFTPConnect, settingsdlg, frmAbout, frmBookmarks, CertViewer,
   IdException,
   IdAllFTPListParsers,
   IdFTPCommon,
-  IdFTPList, IdGlobal, IdReplyRFC, IdSSLOpenSSLLoader,
+  IdFTPList, IdGlobal, IdGlobalProtocols, IdReplyRFC, IdSSLOpenSSLLoader,
   System.IOUtils, System.IniFiles, System.UITypes,
   Winapi.CommCtrl, ProgUtils, AcceptableCerts;
 
@@ -1643,6 +1693,36 @@ begin
   end;
 end;
 
+procedure TfrmMainForm.SetupPRogressIndicator(const AFileName: String;
+  const AWorkMode: TWorkMode; const AWorkCount, AWorkMax: Int64);
+begin
+  if not Assigned(FProgressIndicator) then
+  begin
+    FProgressIndicator := TfrmFileProgress.Create(Application);
+  end;
+  FProgressIndicator.UpdateProgressIndicator(AFileName,AWorkMode, AWorkCount, AWorkMax);
+  FProgressIndicator.Show;
+  FProgressIndicator.Repaint;
+  Application.ProcessMessages;
+end;
+
+procedure TfrmMainForm.UpdateProgressIndicator(const AFileName: String;
+  const AWorkMode: TWorkMode; const AWorkCount, AWorkMax: Int64);
+begin
+  if not Assigned(FProgressIndicator) then
+  begin
+    FProgressIndicator := TfrmFileProgress.Create(Application);
+  end;
+  FProgressIndicator.UpdateProgressIndicator(AFileName,AWorkMode, AWorkCount, AWorkMax);
+  FProgressIndicator.Show;
+  FProgressIndicator.Repaint;
+end;
+
+procedure TfrmMainForm.CloseProgressIndicator;
+begin
+  FreeAndNil(FProgressIndicator);
+end;
+
 { TFTPThread }
 
 constructor TFTPThread.Create(AFTP: TIdFTP);
@@ -1769,6 +1849,26 @@ begin
   FFile := AFile;
 end;
 
+{ TFileOnWorkThread }
+
+procedure TFileOnWorkThread.OnWork(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
+begin
+  TOnWorkNotify.WorkNotify(FFile, AWorkMode, AWorkCount, FSize);
+end;
+
+procedure TFileOnWorkThread.OnWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCountMax: Int64);
+begin
+
+  TOnWorkNotifyBegin.WorkNotify(FFile, AWorkMode, 0, FSize);
+end;
+
+procedure TFileOnWorkThread.OnWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
+begin
+  TOnWorkNotifyEnd.WorkNotify(AWorkMode, FSize, FSize);
+end;
+
 { TDownloadFileThread }
 
 procedure TDownloadFileThread.Execute;
@@ -1777,6 +1877,10 @@ var
 begin
   try
     TThreadStartNotify.StartThread;
+    FSize := FFTP.Size(FFile);
+    FFTP.OnWorkBegin := Self.OnWorkBegin;
+    FFTP.OnWork := Self.OnWork;
+    FFTP.OnWorkEnd := Self.OnWorkEnd;
     LFile := TFileStream.Create(FFile, fmCreate);
     try
       FFTP.TransferType := ftBinary;
@@ -1794,6 +1898,9 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  FFTP.OnWorkBegin := nil;
+  FFTP.OnWork := nil;
+  FFTP.OnWorkEnd := nil;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -1805,6 +1912,10 @@ var
   LCurDir: String;
 begin
   try
+    FSize := IdGlobalProtocols.FileSizeByName(FFile);
+    FFTP.OnWorkBegin := Self.OnWorkBegin;
+    FFTP.OnWork := Self.OnWork;
+    FFTP.OnWorkEnd := Self.OnWorkEnd;
     TThreadStartNotify.StartThread;
     LFile := TFileStream.Create(FFile, fmOpenRead);
     try
@@ -1826,6 +1937,9 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  FFTP.OnWorkBegin := nil;
+  FFTP.OnWork := nil;
+  FFTP.OnWorkEnd := nil;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -2119,6 +2233,68 @@ var
 begin
   LNotify := TPopulateLocalListNotify.Create;
   LNotify.Notify;
+end;
+
+{ TOnWorkNotify }
+
+procedure TOnWorkNotify.DoNotify;
+begin
+  frmMainForm.UpdateProgressIndicator(FFileName, FWorkMode, FWorkCount,
+    FWorkCountMax);
+end;
+
+class procedure TOnWorkNotify.WorkNotify(const AFileName: String;
+  const AWorkMode: TWorkMode; AWorkCount, AWorkCountMax: Int64);
+var
+  LW: TOnWorkNotify;
+
+begin
+  LW := TOnWorkNotify.Create;
+  LW.FFileName := AFileName;
+  LW.FWorkMode := AWorkMode;
+  LW.FWorkCount := AWorkCount;
+  LW.FWorkCountMax := AWorkCountMax;
+  LW.Notify;
+end;
+
+{ TOnWorkNotifyBegin }
+
+procedure TOnWorkNotifyBegin.DoNotify;
+begin
+  frmMainForm.SetupPRogressIndicator(FFileName, FWorkMode, FWorkCount,
+    FWorkCountMax);
+end;
+
+class procedure TOnWorkNotifyBegin.WorkNotify(const AFileName: String;
+  const AWorkMode: TWorkMode; AWorkCount, AWorkCountMax: Int64);
+var
+  LW: TOnWorkNotifyBegin;
+begin
+  LW := TOnWorkNotifyBegin.Create;
+  LW.FFileName := AFileName;
+  LW.FWorkMode := AWorkMode;
+  LW.FWorkCount := AWorkCount;
+  LW.FWorkCountMax := AWorkCountMax;
+  LW.Notify;
+end;
+
+{ TOnWorkNotifyEnd }
+
+procedure TOnWorkNotifyEnd.DoNotify;
+begin
+  frmMainForm.CloseProgressIndicator;
+end;
+
+class procedure TOnWorkNotifyEnd.WorkNotify(const AWorkMode: TWorkMode;
+  AWorkCount, AWorkCountMax: Int64);
+var
+  LW: TOnWorkNotifyEnd;
+begin
+  LW := TOnWorkNotifyEnd.Create;
+  LW.FWorkMode := AWorkMode;
+  LW.FWorkCount := AWorkCount;
+  LW.FWorkCountMax := AWorkCountMax;
+  LW.Notify;
 end;
 
 initialization

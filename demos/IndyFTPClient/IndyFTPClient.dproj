@@ -172,6 +172,10 @@
             <Form>frmProxySettings</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="frmProgress.pas">
+            <Form>frmFileProgress</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -12,7 +12,8 @@ uses
   AcceptableCerts in 'AcceptableCerts.pas',
   dlgFTPProxySettings in 'dlgFTPProxySettings.pas' {frmFTPProxySettings},
   dlgNATSettings in 'dlgNATSettings.pas' {frmNATSettings},
-  dlgProxySettings in 'dlgProxySettings.pas' {frmProxySettings};
+  dlgProxySettings in 'dlgProxySettings.pas' {frmProxySettings},
+  frmProgress in 'frmProgress.pas' {frmFileProgress};
 
 {$R *.res}
 
