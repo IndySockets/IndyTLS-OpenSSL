@@ -231,7 +231,7 @@ type
   TFileThread = class(TFTPThread)
   protected
     FFile: String;
-    FSize: Integer;
+    FSize: Int64;
   public
     constructor Create(AFTP: TIdFTP; AFile: String); reintroduce;
   end;
