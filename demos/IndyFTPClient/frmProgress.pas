@@ -44,6 +44,7 @@ begin
   begin
     LStr := 'Uploading '+AFileName+'...';
   end;
+  lblAction.Caption := LStr;
   if AWorkCountMax >= 0 then
   begin
     LPerc := Round((AWorkcount / AWorkCountMax) * 100);
