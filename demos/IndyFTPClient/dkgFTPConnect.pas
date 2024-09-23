@@ -5,7 +5,8 @@ interface
 uses Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, Vcl.Forms,
   Vcl.Controls, Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,
   System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, IdExplicitTLSClientServerBase, Vcl.Samples.Spin;
+  Vcl.ImageCollection, IdExplicitTLSClientServerBase, Vcl.Samples.Spin,
+  Vcl.Dialogs;
 
 type
   TfrmConnect = class(TForm)
@@ -35,12 +36,28 @@ type
     lblAccount: TLabel;
     spnedtPort: TSpinEdit;
     lblPort: TLabel;
+    odlgPublicCertificate: TOpenDialog;
+    odlgPrivateKey: TOpenDialog;
+    TabSheet3: TTabSheet;
+    lblPrivateKeyFile: TLabel;
+    lblPublicKey: TLabel;
+    edtPublicKey: TEdit;
+    edtPrivateKeyFile: TEdit;
+    spdbtnPrivateKeyFile: TSpeedButton;
+    spdbtnPublicKey: TSpeedButton;
+    spdbtnCAKey: TSpeedButton;
+    edtCAKey: TEdit;
+    lblCAKey: TLabel;
+    odlgCAKey: TOpenDialog;
     procedure chkAnonymousFTPClick(Sender: TObject);
     procedure edtProfileNameChange(Sender: TObject);
     procedure edtHostnameChange(Sender: TObject);
     procedure edtUsernameChange(Sender: TObject);
     procedure edtPasswordChange(Sender: TObject);
     procedure cboConnectionTypeChange(Sender: TObject);
+    procedure spdbtnPrivateKeyFileClick(Sender: TObject);
+    procedure spdbtnPublicKeyClick(Sender: TObject);
+    procedure spdbtnCAKeyClick(Sender: TObject);
   private
     FQuickConnect: Boolean;
     function GetHost: String;
@@ -294,6 +311,30 @@ begin
       cboConnectionType.ItemIndex := 2;
     utUseImplicitTLS:
       cboConnectionType.ItemIndex := 3;
+  end;
+end;
+
+procedure TfrmConnect.spdbtnPrivateKeyFileClick(Sender: TObject);
+begin
+  if odlgPrivateKey.Execute then
+  begin
+     Self.edtPrivateKeyFile.Text := odlgPrivateKey.FileName;
+  end;
+end;
+
+procedure TfrmConnect.spdbtnPublicKeyClick(Sender: TObject);
+begin
+  if odlgPublicCertificate.Execute then
+  begin
+    Self.edtPublicKey.Text := odlgPublicCertificate.FileName;
+  end;
+end;
+
+procedure TfrmConnect.spdbtnCAKeyClick(Sender: TObject);
+begin
+  if odlgCAKey.Execute then
+  begin
+    Self.edtCAKey.Text := odlgCAKey.FileName;
   end;
 end;
 

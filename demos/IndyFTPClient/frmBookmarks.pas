@@ -22,6 +22,9 @@ type
     FFTPPRotocol: Integer;
     FTransferMode: Integer;
     FPort : Integer;
+    FPrivateKey : String;
+    FPublicKey : String;
+    FCAKey : String;
   public
     constructor Create(const AName: String); overload;
     constructor Create(const AName: String; AIni: TIniFile); overload;
@@ -35,6 +38,9 @@ type
     property FTPPRotocol: Integer read FFTPPRotocol write FFTPPRotocol;
     property TransferMode: Integer read FTransferMode write FTransferMode;
     property Port : Integer read FPort write FPort;
+    property PrivateKey : String read FPrivateKey write FPrivateKey;
+    property PublicKey : String read FPublicKey write FPublicKey;
+    property CAKey : String read FCAKey write FCAKey;
   end;
 
   TfrmFTPSites = class(TForm)
@@ -119,6 +125,9 @@ begin
     LFrm.cboConnectionType.ItemIndex := LFTP.FTPPRotocol;
     LFrm.cboTransferTypes.ItemIndex := LFTP.TransferMode;
     LFrm.spnedtPort.Value := LFTP.Port;
+    LFrm.edtPrivateKeyFile.Text := LFTP.PrivateKey;
+    LFrm.edtPublicKey.Text := LFTP.PublicKey;
+    LFrm.edtCAKey.Text := LFTP.CAKey;
     if LFrm.ShowModal = mrOk then
     begin
       LFTP.SiteName := LFrm.edtProfileName.Text;
@@ -130,6 +139,9 @@ begin
       LFTP.FTPPRotocol := LFrm.cboConnectionType.ItemIndex;
       LFTP.TransferMode := LFrm.cboTransferTypes.ItemIndex;
       LFTP.Port := LFrm.spnedtPort.Value;
+      LFTP.PrivateKey := LFrm.edtPrivateKeyFile.Text;
+      LFTP.PublicKey := LFrm.edtPublicKey.Text;
+      LFTP.CAKey := LFrm.edtCAKey.Text;
     end;
   finally
     FreeAndNil(LFrm);
@@ -162,6 +174,9 @@ begin
       LFTP.FTPPRotocol := LFrm.cboConnectionType.ItemIndex;
       LFTP.TransferMode := LFrm.cboTransferTypes.ItemIndex;
       LFTP.Port := LFrm.spnedtPort.Value;
+      LFTP.PrivateKey := LFrm.edtPrivateKeyFile.Text;
+      LFTP.PublicKey := LFrm.edtPublicKey.Text;
+      LFTP.CAKey := LFrm.edtCAKey.Text;
       FFTPSites.Add(LFTP);
     end;
   finally
@@ -225,6 +240,9 @@ begin
   FFTPPRotocol := AIni.ReadInteger(AName, 'Protocol', 0);
   FTransferMode := AIni.ReadInteger(AName, 'Transfer_Mode', 0);
   FPort := AIni.ReadInteger(AName, 'Port',21);
+  FPrivateKey := AIni.ReadString(AName, 'Private_Key', '');
+  FPublicKey := AIni.ReadString(AName,'Public_Key','');
+  FCAKey := AIni.ReadString(AName,'Certificate_Authority_Key','');
 end;
 
 procedure TFTPSite.Save(AIni: TIniFile);
@@ -237,6 +255,9 @@ begin
   AIni.WriteInteger(FSiteName, 'Protocol', FFTPPRotocol);
   AIni.WriteInteger(FSiteName, 'Transfer_Mode', FTransferMode);
   AIni.WriteInteger(FSiteName, 'Port', FPort);
+  AIni.WriteString(FSiteName, 'Private_Key', FPrivateKey);
+  AIni.WriteString(FSiteName,'Public_Key',FPublicKey);
+  AIni.WriteString(FSiteName,'Certificate_Authority_Key',FCAKey);
 end;
 
 constructor TFTPSite.Create(const AName: String);

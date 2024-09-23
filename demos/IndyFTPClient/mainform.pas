@@ -203,11 +203,15 @@ type
   TFTPThread = class(TThread)
   protected
     FVerifyResult: Boolean;
+    FKeyPassword: String;
     FError: Integer;
     FDepth: Integer;
     FX509: TIdX509;
     FFTP: TIdFTP;
     procedure PromptVerifyCert;
+    procedure PromptPassword;
+    procedure DoPasswordEx(ASender: TObject; var VPassword: String;
+      const AIsWrite: Boolean);
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean;
       ADepth, AError: Integer): Boolean;
   public
@@ -476,7 +480,9 @@ begin
           2:
             IdFTPClient.Passive := False;
         end;
-
+        Self.iosslFTP.SSLOptions.CertFile := LFTPSite.PublicKey;
+        Self.iosslFTP.SSLOptions.KeyFile := LFTPSite.PrivateKey;
+        Self.iosslFTP.SSLOptions.RootCertFile := LFTPSite.CAKey;
         ConnectFTP;
       end;
     end;
@@ -951,6 +957,9 @@ begin
       IdFTPClient.IOHandler := iosslFTP;
       IdFTPClient.Passive := not LFrm.UsePortTransferType;
       IdFTPClient.UseTLS := LFrm.UseTLS;
+      iosslFTP.SSLOptions.KeyFile := LFrm.edtPrivateKeyFile.Text;
+      iosslFTP.SSLOptions.CertFile := LFrm.edtPublicKey.Text;
+      iosslFTP.SSLOptions.RootCertFile := LFrm.edtCAKey.Text;
       ConnectFTP;
     end;
   finally
@@ -1700,7 +1709,8 @@ begin
   begin
     FProgressIndicator := TfrmFileProgress.Create(Application);
   end;
-  FProgressIndicator.UpdateProgressIndicator(AFileName,AWorkMode, AWorkCount, AWorkMax);
+  FProgressIndicator.UpdateProgressIndicator(AFileName, AWorkMode, AWorkCount,
+    AWorkMax);
   FProgressIndicator.Show;
   FProgressIndicator.Repaint;
   Application.ProcessMessages;
@@ -1713,7 +1723,8 @@ begin
   begin
     FProgressIndicator := TfrmFileProgress.Create(Application);
   end;
-  FProgressIndicator.UpdateProgressIndicator(AFileName,AWorkMode, AWorkCount, AWorkMax);
+  FProgressIndicator.UpdateProgressIndicator(AFileName, AWorkMode, AWorkCount,
+    AWorkMax);
   FProgressIndicator.Show;
   FProgressIndicator.Repaint;
 end;
@@ -1738,6 +1749,13 @@ begin
   inherited;
 end;
 
+procedure TFTPThread.DoPasswordEx(ASender: TObject; var VPassword: String;
+  const AIsWrite: Boolean);
+begin
+  Synchronize(Self, PromptPassword);
+  VPassword := FKeyPassword;
+end;
+
 function TFTPThread.DoVerifyPeer(Certificate: TIdX509; AOk: Boolean;
   ADepth, AError: Integer): Boolean;
 begin
@@ -1746,6 +1764,11 @@ begin
   FDepth := ADepth;
   Synchronize(Self, PromptVerifyCert);
   Result := FVerifyResult;
+end;
+
+procedure TFTPThread.PromptPassword;
+begin
+  InputQuery('Key Password', 'Enter Key Password:', FKeyPassword);
 end;
 
 procedure TFTPThread.PromptVerifyCert;
@@ -1791,6 +1814,8 @@ begin
     TThreadStartNotify.StartThread;
     (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnVerifyPeer :=
       DoVerifyPeer;
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     FFTP.Connect;
     if FFTP.IsCompressionSupported then
     begin
@@ -1808,6 +1833,7 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -1824,6 +1850,8 @@ var
   LCurDir: String;
 begin
   try
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     TThreadStartNotify.StartThread;
     FFTP.ChangeDir(FNewDir);
     LCurDir := FFTP.RetrieveCurrentDir;
@@ -1839,6 +1867,7 @@ begin
       TLogFTPError.NotifyString(E.Message);
   end;
   TThreadFinishedNotify.EndThread;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
 end;
 
 { TFileThread }
@@ -1875,6 +1904,8 @@ procedure TDownloadFileThread.Execute;
 var
   LFile: TStream;
 begin
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+    DoPasswordEx;
   try
     TThreadStartNotify.StartThread;
     FSize := FFTP.Size(FFile);
@@ -1901,6 +1932,7 @@ begin
   FFTP.OnWorkBegin := nil;
   FFTP.OnWork := nil;
   FFTP.OnWorkEnd := nil;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -1913,6 +1945,8 @@ var
 begin
   try
     FSize := IdGlobalProtocols.FileSizeByName(FFile);
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     FFTP.OnWorkBegin := Self.OnWorkBegin;
     FFTP.OnWork := Self.OnWork;
     FFTP.OnWorkEnd := Self.OnWorkEnd;
@@ -1940,6 +1974,7 @@ begin
   FFTP.OnWorkBegin := nil;
   FFTP.OnWork := nil;
   FFTP.OnWorkEnd := nil;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -1950,6 +1985,8 @@ var
   LCurDir: String;
 begin
   try
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     TThreadStartNotify.StartThread;
     FFTP.Delete(FFile);
     LCurDir := FFTP.RetrieveCurrentDir;
@@ -1964,6 +2001,7 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -1974,6 +2012,8 @@ var
   LCurDir: String;
 begin
   try
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     TThreadStartNotify.StartThread;
     FFTP.RemoveDir(FFile);
     LCurDir := FFTP.RetrieveCurrentDir;
@@ -1988,6 +2028,8 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+    DoPasswordEx;
   TThreadFinishedNotify.EndThread;
 end;
 
@@ -2005,6 +2047,8 @@ var
   LCurDir: String;
 begin
   try
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     TThreadStartNotify.StartThread;
     FFTP.Rename(FFile, FNewName);
     LCurDir := FFTP.RetrieveCurrentDir;
@@ -2019,6 +2063,7 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
   TThreadFinishedNotify.EndThread;
 
 end;
@@ -2030,6 +2075,8 @@ var
   LCurDir: String;
 begin
   try
+    (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx :=
+      DoPasswordEx;
     TThreadStartNotify.StartThread;
     FFTP.MakeDir(FFile);
     LCurDir := FFTP.RetrieveCurrentDir;
@@ -2044,8 +2091,8 @@ begin
     on E: Exception do
       TLogFTPError.NotifyString(E.Message);
   end;
+  (FFTP.IOHandler as TIdSSLIOHandlerSocketOpenSSL).OnGetPasswordEx := nil;
   TThreadFinishedNotify.EndThread;
-
 end;
 
 { TLogEventNotify }
