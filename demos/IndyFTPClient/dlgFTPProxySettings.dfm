@@ -105,7 +105,7 @@ object frmFTPProxySettings: TfrmFTPProxySettings
     Enabled = False
     MaxValue = 65535
     MinValue = 1
-    TabOrder = 1
+    TabOrder = 5
     Value = 1
   end
   object edtProxyServerPassword: TEdit
@@ -115,7 +115,7 @@ object frmFTPProxySettings: TfrmFTPProxySettings
     Height = 23
     Enabled = False
     PasswordChar = '*'
-    TabOrder = 2
+    TabOrder = 4
   end
   object edtProxyServerUserName: TEdit
     Left = 95
@@ -131,7 +131,7 @@ object frmFTPProxySettings: TfrmFTPProxySettings
     Width = 369
     Height = 23
     Enabled = False
-    TabOrder = 4
+    TabOrder = 2
   end
   object cboProxyType: TComboBox
     Left = 97
@@ -139,7 +139,7 @@ object frmFTPProxySettings: TfrmFTPProxySettings
     Width = 369
     Height = 23
     Style = csDropDownList
-    TabOrder = 5
+    TabOrder = 1
     OnChange = cboProxyTypeChange
     Items.Strings = (
       'None'

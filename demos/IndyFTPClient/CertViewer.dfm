@@ -104,6 +104,8 @@ object frmCertViewer: TfrmCertViewer
     Height = 17
     Anchors = [akLeft, akRight, akBottom]
     Caption = '&Accept Certificate Only Once'
+    Checked = True
+    State = cbChecked
     TabOrder = 2
   end
 end

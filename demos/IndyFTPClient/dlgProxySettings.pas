@@ -26,6 +26,7 @@ type
     procedure edtExternalIPAddressChange(Sender: TObject);
     procedure spnedtPortMinimumChange(Sender: TObject);
     procedure spnedtPortMaximumChange(Sender: TObject);
+    procedure cboProxyTypeChange(Sender: TObject);
   private
     { Private declarations }
     procedure ValidateFeilds;
@@ -42,6 +43,11 @@ uses IdIPAddress, ProgUtils;
 
 {$R *.dfm}
 { TfrmNATSettings }
+
+procedure TfrmProxySettings.cboProxyTypeChange(Sender: TObject);
+begin
+  ValidateFeilds;
+end;
 
 procedure TfrmProxySettings.edtExternalIPAddressChange(Sender: TObject);
 begin
@@ -65,6 +71,10 @@ begin
     if cboProxyType.ItemIndex > 0 then
     begin
       OKBtn.Enabled := (edtProxyServerName.Text <> '');
+    end
+    else
+    begin
+      OkBtn.Enabled := True;
     end;
   //validate proxy/host feilds - enable or disable appropriately
   LBool := cboProxyType.ItemIndex > 0;

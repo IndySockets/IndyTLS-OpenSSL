@@ -70,7 +70,7 @@ object frmProxySettings: TfrmProxySettings
     Font.Style = []
     ParentColor = True
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 5
     DesignSize = (
       472
       34)
@@ -105,7 +105,7 @@ object frmProxySettings: TfrmProxySettings
     Enabled = False
     MaxValue = 65535
     MinValue = 1
-    TabOrder = 1
+    TabOrder = 4
     Value = 1
   end
   object edtProxyServerPassword: TEdit
@@ -115,7 +115,7 @@ object frmProxySettings: TfrmProxySettings
     Height = 23
     Enabled = False
     PasswordChar = '*'
-    TabOrder = 2
+    TabOrder = 3
   end
   object edtProxyServerUserName: TEdit
     Left = 95
@@ -123,7 +123,7 @@ object frmProxySettings: TfrmProxySettings
     Width = 369
     Height = 23
     Enabled = False
-    TabOrder = 3
+    TabOrder = 2
   end
   object edtProxyServerName: TEdit
     Left = 97
@@ -131,7 +131,7 @@ object frmProxySettings: TfrmProxySettings
     Width = 369
     Height = 23
     Enabled = False
-    TabOrder = 4
+    TabOrder = 1
   end
   object cboProxyType: TComboBox
     Left = 97
@@ -140,8 +140,9 @@ object frmProxySettings: TfrmProxySettings
     Height = 23
     Style = csDropDownList
     ItemIndex = 0
-    TabOrder = 5
+    TabOrder = 0
     Text = 'None'
+    OnChange = cboProxyTypeChange
     Items.Strings = (
       'None'
       ' HTTP CONNECT proxy'

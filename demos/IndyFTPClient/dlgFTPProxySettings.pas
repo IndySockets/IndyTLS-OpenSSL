@@ -71,6 +71,10 @@ begin
     if cboProxyType.ItemIndex > 0 then
     begin
       OKBtn.Enabled := (edtProxyServerName.Text <> '');
+    end
+    else
+    begin
+      OkBtn.Enabled := True;
     end;
   //validate proxy/host feilds - enable or disable appropriately
   LBool := cboProxyType.ItemIndex > 0;
