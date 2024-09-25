@@ -42,6 +42,7 @@ implementation
 procedure TfrmFileProgress.CancelBtnClick(Sender: TObject);
 begin
    FCancelPressed.Value := True;
+   CancelBtn.Enabled := False;
 end;
 
 constructor TfrmFileProgress.Create(AOwner: TComponent);
