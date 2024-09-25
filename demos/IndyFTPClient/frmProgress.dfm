@@ -55,8 +55,10 @@ object frmFileProgress: TfrmFileProgress
       Anchors = [akTop, akRight]
       Cancel = True
       Caption = 'Cancel'
+      Default = True
       ModalResult = 2
       TabOrder = 0
+      OnClick = CancelBtnClick
     end
   end
   object prgbrDownloadUpload: TProgressBar

@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, IdComponent,
-  Vcl.ComCtrls;
+  Vcl.ComCtrls, IdThreadSafe;
 
 type
   TfrmFileProgress = class(TForm)
@@ -14,12 +14,20 @@ type
     lblAction: TLabel;
     prgbrDownloadUpload: TProgressBar;
     lblProgress: TLabel;
+    procedure CancelBtnClick(Sender: TObject);
   private
+    function GetCancelPressed: Boolean;
+    procedure SetCancelPressed(const Value: Boolean);
     { Private declarations }
+  protected
+    FCancelPressed : TIdThreadSafeBoolean;
   public
     { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure UpdateProgressIndicator(const AFileName : String;
       const AWorkMode : TWorkMode; const AWorkCount, AWorkCountMax : Int64);
+    property CancelPressed : Boolean read GetCancelPressed write SetCancelPressed;
   end;
 
 var
@@ -30,6 +38,34 @@ implementation
 {$R *.dfm}
 
 { TfrmFileProgress }
+
+procedure TfrmFileProgress.CancelBtnClick(Sender: TObject);
+begin
+   FCancelPressed.Value := True;
+end;
+
+constructor TfrmFileProgress.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Self.FCancelPressed := TIdThreadSafeBoolean.Create;
+  FCancelPressed.Value := False;
+end;
+
+destructor TfrmFileProgress.Destroy;
+begin
+  FreeAndNil(FCancelPressed);
+  inherited Destroy;
+end;
+
+function TfrmFileProgress.GetCancelPressed: Boolean;
+begin
+  Result := FCancelPressed.Value;
+end;
+
+procedure TfrmFileProgress.SetCancelPressed(const Value: Boolean);
+begin
+  FCancelPressed.Value := Value;
+end;
 
 procedure TfrmFileProgress.UpdateProgressIndicator(const AFileName: String;
   const AWorkMode: TWorkMode; const AWorkCount, AWorkCountMax: Int64);

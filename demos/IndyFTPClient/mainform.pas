@@ -1884,6 +1884,14 @@ procedure TFileOnWorkThread.OnWork(ASender: TObject; AWorkMode: TWorkMode;
   AWorkCount: Int64);
 begin
   TOnWorkNotify.WorkNotify(FFile, AWorkMode, AWorkCount, FSize);
+  if Assigned(frmMainForm.FProgressIndicator) then
+  begin
+    if frmMainForm.FProgressIndicator.CancelPressed then
+    begin
+      Self.FFTP.Abort;
+      frmMainForm.FProgressIndicator.CancelPressed := False;
+    end;
+  end;
 end;
 
 procedure TFileOnWorkThread.OnWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
