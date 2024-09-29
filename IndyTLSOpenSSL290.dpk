@@ -124,6 +124,7 @@ contains
   IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
   IdSSLOpenSSLFIPS in 'IdSSLOpenSSLFIPS.pas',
   IdSSLOpenSSL_X509 in 'IdSSLOpenSSL_X509.pas',
-  IdSSLOpenSSL_Utils in 'IdSSLOpenSSL_Utils.pas';
+  IdSSLOpenSSL_Utils in 'IdSSLOpenSSL_Utils.pas',
+  IdSSLOpenSSL_Files in 'IdSSLOpenSSL_Files.pas';
 
 end.
