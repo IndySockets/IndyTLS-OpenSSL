@@ -68,6 +68,7 @@ begin
   //for new callback event
   Proc('IdCTypes'); {Do not localize}
   Proc('IdOpenSSLHeaders_ossl_typ'); {Do not localize}
+  Proc('IdSSLOpenSSL_X509');
 end;
 
 {$ENDIF}
