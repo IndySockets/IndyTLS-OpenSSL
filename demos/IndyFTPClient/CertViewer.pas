@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ComCtrls,
-  IdSSLOpenSSL;
+  IdSSLOpenSSL_X509;
 
 type
   TfrmCertViewer = class(TForm)

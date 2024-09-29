@@ -13,7 +13,9 @@ uses
   dlgFTPProxySettings in 'dlgFTPProxySettings.pas' {frmFTPProxySettings},
   dlgNATSettings in 'dlgNATSettings.pas' {frmNATSettings},
   dlgProxySettings in 'dlgProxySettings.pas' {frmProxySettings},
-  frmProgress in 'frmProgress.pas' {frmFileProgress};
+  frmProgress in 'frmProgress.pas' {frmFileProgress},
+  IdSSLOpenSSL_X509 in '..\..\IdSSLOpenSSL_X509.pas',
+  IdSSLOpenSSL_Utils in '..\..\IdSSLOpenSSL_Utils.pas';
 
 {$R *.res}
 

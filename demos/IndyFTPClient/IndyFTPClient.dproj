@@ -71,7 +71,7 @@
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>IndyFTPClient</SanitizedProjectName>
-        <DCC_UnitSearchPath>C:\msys64\home\jpmugaas\IndyTLS-OpenSSL;C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\System;C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\Core;C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\Protocols;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>C:\msys64\home\jpmugaas\IndyTLS-OpenSSL\$(Platform)\$(Config);C:\msys64\home\jpmugaas\IndyTLS-OpenSSL;C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\System\$(Platform)\$(Config);C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\System;C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\Core\$(Platform)\$(Config);C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\Core;C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\Protocols\$(Platform)\$(Config);C:\msys64\home\jpmugaas\Indy\Indy-Indy-10.6.3.4\Lib\Protocols;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=Indy Pitt Crew;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=Copyright (c) 2024 Indy Pitt Crew;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -126,6 +126,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_Keys>CompanyName=Indy Pitt Crew;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=Copyright (c) 2024 Indy Pitt Crew;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName);ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Icon_MainIcon>IndyFTPClient_Icon1.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -168,6 +170,8 @@
         <DCCReference Include="frmProgress.pas">
             <Form>frmFileProgress</Form>
         </DCCReference>
+        <DCCReference Include="..\..\IdSSLOpenSSL_X509.pas"/>
+        <DCCReference Include="..\..\IdSSLOpenSSL_Utils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

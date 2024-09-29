@@ -14,7 +14,7 @@ uses
   IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL,
   IdIntercept, IdLogBase, IdLogEvent, Vcl.Menus, Vcl.StdActns,
   IdZLibCompressorBase, IdCompressorZLib, IdSync, IdConnectThroughHttpProxy,
-  IdCustomTransparentProxy, IdSocks;
+  IdCustomTransparentProxy, IdSocks, IdSSLOpenSSL_X509;
 
 type
   TfrmMainForm = class(TForm)
