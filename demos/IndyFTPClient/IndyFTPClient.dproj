@@ -170,8 +170,6 @@
         <DCCReference Include="frmProgress.pas">
             <Form>frmFileProgress</Form>
         </DCCReference>
-        <DCCReference Include="..\..\IdSSLOpenSSL_X509.pas"/>
-        <DCCReference Include="..\..\IdSSLOpenSSL_Utils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
