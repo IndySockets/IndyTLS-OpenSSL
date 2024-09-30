@@ -791,45 +791,6 @@ begin
       VMsg := String( SSL_state_string_long(sslSocket) );
     end;
   end;
-{var LW : TIdC_INT;
-begin
-  VMsg := '';
-  LW := Awhere and (not SSL_ST_MASK);
-  if (LW and SSL_ST_CONNECT) > 0 then begin
-    VWhereStr :=   'SSL_connect:';
-  end else begin
-    if (LW and SSL_ST_ACCEPT) > 0 then begin
-      VWhereStr := ' SSL_accept:';
-    end else begin
-      VWhereStr := '  undefined:';
-    end;
-  end;
-//  IdSslStateStringLong
-  if (Awhere and SSL_CB_LOOP) > 0 then begin
-       VMsg := IdSslStateStringLong(sslSocket);
-  end else begin
-    if (Awhere and SSL_CB_ALERT) > 0 then begin
-       if (Awhere and SSL_CB_READ > 0) then begin
-         VWhereStr := VWhereStr + ' read:'+ IdSslAlertTypeStringLong(Aret);
-       end else begin
-         VWhereStr := VWhereStr + 'write:'+ IdSslAlertTypeStringLong(Aret);
-       end;;
-       VMsg := IdSslAlertDescStringLong(Aret);
-    end else begin
-       if (Awhere and SSL_CB_EXIT) > 0 then begin
-         if ARet = 0 then begin
-
-          VWhereStr := VWhereStr +'failed';
-          VMsg := IdSslStateStringLong(sslSocket);
-         end else begin
-           if ARet < 0  then  begin
-               VWhereStr := VWhereStr +'error';
-               VMsg := IdSslStateStringLong(sslSocket);
-           end;
-         end;
-       end;
-    end;
-  end;          }
 end;
 
 function PasswordCallback(buf: PIdAnsiChar; size: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl;
@@ -990,14 +951,6 @@ begin
     LockVerifyCB.Leave;
   end;
 end;
-
-////////////////////////////////////////////////
-
-function xname_cmp(const a, b: PPX509_NAME): TIdC_INT; cdecl;
-begin
-  Result := X509_NAME_cmp(a^, b^);
-end;
-
 
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
 
