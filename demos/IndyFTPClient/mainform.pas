@@ -1089,10 +1089,13 @@ begin
   redtLog.Lines.Add('    Compiled For: Win32');
 {$ENDIF}
   redtLog.Lines.Add(' OpenSSL Version: ' + IdSSLOpenSSL.OpenSSLVersion);
-  redtLog.Lines.Add('  Failed To Load: ');
-  for i := 0 to GetOpenSSLLoader.GetFailedToLoad.Count - 1 do
+  if GetOpenSSLLoader.GetFailedToLoad.Count > 0 then
   begin
-    redtLog.Lines.Add(GetOpenSSLLoader.GetFailedToLoad[i]);
+    redtLog.Lines.Add('  Failed To Load: ');
+    for i := 0 to GetOpenSSLLoader.GetFailedToLoad.Count - 1 do
+    begin
+      redtLog.Lines.Add(GetOpenSSLLoader.GetFailedToLoad[i]);
+    end;
   end;
   ScrollToEnd(redtLog);
 end;
