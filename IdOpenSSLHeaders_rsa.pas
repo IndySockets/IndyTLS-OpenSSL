@@ -323,8 +323,8 @@ type
   {$EXTERNALSYM RSA_padding_check_PKCS1_OAEP}
   {$EXTERNALSYM RSA_padding_add_PKCS1_OAEP_mgf1}
   {$EXTERNALSYM RSA_padding_check_PKCS1_OAEP_mgf1}
-  {$EXTERNALSYM RSA_padding_add_SSLv23}
-  {$EXTERNALSYM RSA_padding_check_SSLv23}
+//  {$EXTERNALSYM RSA_padding_add_SSLv23}
+//  {$EXTERNALSYM RSA_padding_check_SSLv23}
   {$EXTERNALSYM RSA_padding_add_none}
   {$EXTERNALSYM RSA_padding_check_none}
   {$EXTERNALSYM RSA_padding_add_X931}
@@ -453,8 +453,8 @@ var
   RSA_padding_check_PKCS1_OAEP: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT; cdecl = nil;
   RSA_padding_add_PKCS1_OAEP_mgf1: function (to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT; cdecl = nil;
   RSA_padding_check_PKCS1_OAEP_mgf1: function (to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; num: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT; cdecl = nil;
-  RSA_padding_add_SSLv23: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_SSLv23: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
+//  RSA_padding_add_SSLv23: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;  //Discontinued in OpenSSL 3.x
+//  RSA_padding_check_SSLv23: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;  //Discontinued in OpenSSL 3.x
   RSA_padding_add_none: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
   RSA_padding_check_none: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
   RSA_padding_add_X931: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
@@ -634,8 +634,8 @@ var
   function RSA_padding_check_PKCS1_OAEP(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function RSA_padding_add_PKCS1_OAEP_mgf1(to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT cdecl; external CLibCrypto;
   function RSA_padding_check_PKCS1_OAEP_mgf1(to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; num: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_padding_add_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_padding_check_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+//  function RSA_padding_add_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+//  function RSA_padding_check_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function RSA_padding_add_none(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function RSA_padding_check_none(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function RSA_padding_add_X931(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
@@ -829,8 +829,8 @@ const
   RSA_padding_check_PKCS1_OAEP_procname = 'RSA_padding_check_PKCS1_OAEP';
   RSA_padding_add_PKCS1_OAEP_mgf1_procname = 'RSA_padding_add_PKCS1_OAEP_mgf1';
   RSA_padding_check_PKCS1_OAEP_mgf1_procname = 'RSA_padding_check_PKCS1_OAEP_mgf1';
-  RSA_padding_add_SSLv23_procname = 'RSA_padding_add_SSLv23';
-  RSA_padding_check_SSLv23_procname = 'RSA_padding_check_SSLv23';
+//  RSA_padding_add_SSLv23_procname = 'RSA_padding_add_SSLv23';
+//  RSA_padding_check_SSLv23_procname = 'RSA_padding_check_SSLv23';
   RSA_padding_add_none_procname = 'RSA_padding_add_none';
   RSA_padding_check_none_procname = 'RSA_padding_check_none';
   RSA_padding_add_X931_procname = 'RSA_padding_add_X931';
@@ -1320,17 +1320,17 @@ begin
   EIdAPIFunctionNotPresent.RaiseException(RSA_padding_check_PKCS1_OAEP_mgf1_procname);
 end;
 
-
-function  ERR_RSA_padding_add_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; 
+{
+function  ERR_RSA_padding_add_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
 begin
   EIdAPIFunctionNotPresent.RaiseException(RSA_padding_add_SSLv23_procname);
 end;
-
-
-function  ERR_RSA_padding_check_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; 
+}
+{
+function  ERR_RSA_padding_check_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
 begin
   EIdAPIFunctionNotPresent.RaiseException(RSA_padding_check_SSLv23_procname);
-end;
+end; }
 
 
 function  ERR_RSA_padding_add_none(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; 
@@ -3563,68 +3563,68 @@ begin
   end;
 
 
-  RSA_padding_add_SSLv23 := LoadLibFunction(ADllHandle, RSA_padding_add_SSLv23_procname);
-  FuncLoadError := not assigned(RSA_padding_add_SSLv23);
-  if FuncLoadError then
-  begin
-    {$if not defined(RSA_padding_add_SSLv23_allownil)}
-    RSA_padding_add_SSLv23 := @ERR_RSA_padding_add_SSLv23;
-    {$ifend}
-    {$if declared(RSA_padding_add_SSLv23_introduced)}
-    if LibVersion < RSA_padding_add_SSLv23_introduced then
-    begin
-      {$if declared(FC_RSA_padding_add_SSLv23)}
-      RSA_padding_add_SSLv23 := @FC_RSA_padding_add_SSLv23;
-      {$ifend}
-      FuncLoadError := false;
-    end;
-    {$ifend}
-    {$if declared(RSA_padding_add_SSLv23_removed)}
-    if RSA_padding_add_SSLv23_removed <= LibVersion then
-    begin
-      {$if declared(_RSA_padding_add_SSLv23)}
-      RSA_padding_add_SSLv23 := @_RSA_padding_add_SSLv23;
-      {$ifend}
-      FuncLoadError := false;
-    end;
-    {$ifend}
-    {$if not defined(RSA_padding_add_SSLv23_allownil)}
-    if FuncLoadError then
-      AFailed.Add('RSA_padding_add_SSLv23');
-    {$ifend}
-  end;
+//  RSA_padding_add_SSLv23 := LoadLibFunction(ADllHandle, RSA_padding_add_SSLv23_procname);
+//  FuncLoadError := not assigned(RSA_padding_add_SSLv23);
+//  if FuncLoadError then
+//  begin
+//    {$if not defined(RSA_padding_add_SSLv23_allownil)}
+//    RSA_padding_add_SSLv23 := @ERR_RSA_padding_add_SSLv23;
+//    {$ifend}
+//    {$if declared(RSA_padding_add_SSLv23_introduced)}
+//    if LibVersion < RSA_padding_add_SSLv23_introduced then
+//    begin
+//      {$if declared(FC_RSA_padding_add_SSLv23)}
+//      RSA_padding_add_SSLv23 := @FC_RSA_padding_add_SSLv23;
+//      {$ifend}
+//      FuncLoadError := false;
+//    end;
+//    {$ifend}
+//    {$if declared(RSA_padding_add_SSLv23_removed)}
+//    if RSA_padding_add_SSLv23_removed <= LibVersion then
+//    begin
+//      {$if declared(_RSA_padding_add_SSLv23)}
+//      RSA_padding_add_SSLv23 := @_RSA_padding_add_SSLv23;
+//      {$ifend}
+//      FuncLoadError := false;
+//    end;
+//    {$ifend}
+//    {$if not defined(RSA_padding_add_SSLv23_allownil)}
+//    if FuncLoadError then
+//      AFailed.Add('RSA_padding_add_SSLv23');
+//    {$ifend}
+//  end;
 
 
-  RSA_padding_check_SSLv23 := LoadLibFunction(ADllHandle, RSA_padding_check_SSLv23_procname);
-  FuncLoadError := not assigned(RSA_padding_check_SSLv23);
-  if FuncLoadError then
-  begin
-    {$if not defined(RSA_padding_check_SSLv23_allownil)}
-    RSA_padding_check_SSLv23 := @ERR_RSA_padding_check_SSLv23;
-    {$ifend}
-    {$if declared(RSA_padding_check_SSLv23_introduced)}
-    if LibVersion < RSA_padding_check_SSLv23_introduced then
-    begin
-      {$if declared(FC_RSA_padding_check_SSLv23)}
-      RSA_padding_check_SSLv23 := @FC_RSA_padding_check_SSLv23;
-      {$ifend}
-      FuncLoadError := false;
-    end;
-    {$ifend}
-    {$if declared(RSA_padding_check_SSLv23_removed)}
-    if RSA_padding_check_SSLv23_removed <= LibVersion then
-    begin
-      {$if declared(_RSA_padding_check_SSLv23)}
-      RSA_padding_check_SSLv23 := @_RSA_padding_check_SSLv23;
-      {$ifend}
-      FuncLoadError := false;
-    end;
-    {$ifend}
-    {$if not defined(RSA_padding_check_SSLv23_allownil)}
-    if FuncLoadError then
-      AFailed.Add('RSA_padding_check_SSLv23');
-    {$ifend}
-  end;
+//  RSA_padding_check_SSLv23 := LoadLibFunction(ADllHandle, RSA_padding_check_SSLv23_procname);
+//  FuncLoadError := not assigned(RSA_padding_check_SSLv23);
+//  if FuncLoadError then
+//  begin
+//    {$if not defined(RSA_padding_check_SSLv23_allownil)}
+//    RSA_padding_check_SSLv23 := @ERR_RSA_padding_check_SSLv23;
+//    {$ifend}
+//    {$if declared(RSA_padding_check_SSLv23_introduced)}
+//    if LibVersion < RSA_padding_check_SSLv23_introduced then
+//    begin
+//      {$if declared(FC_RSA_padding_check_SSLv23)}
+//      RSA_padding_check_SSLv23 := @FC_RSA_padding_check_SSLv23;
+//      {$ifend}
+//      FuncLoadError := false;
+//    end;
+//    {$ifend}
+//    {$if declared(RSA_padding_check_SSLv23_removed)}
+//    if RSA_padding_check_SSLv23_removed <= LibVersion then
+//    begin
+//      {$if declared(_RSA_padding_check_SSLv23)}
+//      RSA_padding_check_SSLv23 := @_RSA_padding_check_SSLv23;
+//      {$ifend}
+//      FuncLoadError := false;
+//    end;
+//    {$ifend}
+//    {$if not defined(RSA_padding_check_SSLv23_allownil)}
+//    if FuncLoadError then
+//      AFailed.Add('RSA_padding_check_SSLv23');
+//    {$ifend}
+//  end;
 
 
   RSA_padding_add_none := LoadLibFunction(ADllHandle, RSA_padding_add_none_procname);
