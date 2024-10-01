@@ -4,8 +4,8 @@
      Distribution.
    *)
    
-{$i IdCompilerDefines.inc} 
-{$i IdSSLOpenSSLDefines.inc} 
+{$i IdCompilerDefines.inc}
+{$i IdSSLOpenSSLDefines.inc}
 {$IFNDEF USE_OPENSSL}
   { error Should not compile if USE_OPENSSL is not defined!!!}
 {$ENDIF}
@@ -45,6 +45,7 @@ uses
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_asn1t,
+  IdOpenSSLHeaders_safestack,
   IdOpenSSLHeaders_stack,
   IdOpenSSLHeaders_x509;
 
@@ -755,6 +756,10 @@ type
   {$EXTERNALSYM X509_PURPOSE_get_trust}
   {$EXTERNALSYM X509_PURPOSE_cleanup}
   {$EXTERNALSYM X509_PURPOSE_get_id}
+  {$EXTERNALSYM X509_email_free}
+  {$EXTERNALSYM X509_get1_email}
+  {$EXTERNALSYM X509_REQ_get1_email}
+  {$EXTERNALSYM X509_get1_ocsp}
   {$EXTERNALSYM X509_check_host}
   {$EXTERNALSYM X509_check_email}
   {$EXTERNALSYM X509_check_ip}
@@ -944,10 +949,10 @@ var
   X509_PURPOSE_cleanup: procedure ; cdecl = nil;
   X509_PURPOSE_get_id: function (const v1: PX509_PURPOSE): TIdC_INT; cdecl = nil;
 
-//  STACK_OF(OPENSSL_STRING) *X509_get1_email(x: PX509);
-//  STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x);
-//  void X509_email_free(STACK_OF(OPENSSL_STRING) *sk);
-//  STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(x: PX509);
+  X509_get1_email : function (x: PX509) : PSTACK_OF_OPENSSL_STRING;
+  X509_REQ_get1_email : function( x : PX509_REQ) : PSTACK_OF_OPENSSL_STRING;
+  X509_email_free : procedure(sk : PSTACK_OF_OPENSSL_STRING);
+  X509_get1_ocsp : function(x: PX509) : PSTACK_OF_OPENSSL_STRING;
 
   X509_check_host: function (x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT; peername: PPIdAnsiChar): TIdC_INT; cdecl = nil;
   X509_check_email: function (x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
@@ -1191,10 +1196,10 @@ var
   procedure X509_PURPOSE_cleanup cdecl; external CLibCrypto;
   function X509_PURPOSE_get_id(const v1: PX509_PURPOSE): TIdC_INT cdecl; external CLibCrypto;
 
-//  STACK_OF(OPENSSL_STRING) *X509_get1_email(x: PX509);
-//  STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x);
-//  void X509_email_free(STACK_OF(OPENSSL_STRING) *sk);
-//  STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(x: PX509);
+  function X509_get1_email(x: PX509) : PSTACK_OF_OPENSSL_STRING; cdecl; external CLibCrypto;
+  function X509_REQ_get1_email( x : PX509_REQ) : PSTACK_OF_OPENSSL_STRING;  cdecl; external CLibCrypto;
+  procedure X509_email_free(sk : PSTACK_OF_OPENSSL_STRING);  cdecl; external CLibCrypto;
+  function X509_get1_ocsp(x: PX509) : PSTACK_OF_OPENSSL_STRING;  cdecl; external CLibCrypto;
 
   function X509_check_host(x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT; peername: PPIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
   function X509_check_email(x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
@@ -1475,10 +1480,10 @@ const
   X509_PURPOSE_cleanup_procname = 'X509_PURPOSE_cleanup';
   X509_PURPOSE_get_id_procname = 'X509_PURPOSE_get_id';
 
-//  STACK_OF(OPENSSL_STRING) *X509_get1_email(x: PX509);
-//  STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x);
-//  void X509_email_free(STACK_OF(OPENSSL_STRING) *sk);
-//  STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(x: PX509);
+  X509_get1_email_procname = 'X509_get1_email';
+  X509_REQ_get1_email_procname = 'X509_REQ_get1_email';
+  X509_email_free_procname = 'X509_email_free';
+  X509_get1_ocsp_procname = 'X509_get1_ocsp';
 
   X509_check_host_procname = 'X509_check_host';
   X509_check_email_procname = 'X509_check_email';
@@ -2005,17 +2010,30 @@ begin
 end;
 
 
-function  ERR_X509_PURPOSE_get_id(const v1: PX509_PURPOSE): TIdC_INT; 
+function  ERR_X509_PURPOSE_get_id(const v1: PX509_PURPOSE): TIdC_INT;
 begin
   EIdAPIFunctionNotPresent.RaiseException(X509_PURPOSE_get_id_procname);
 end;
 
+function ERR_X509_get1_email(x: PX509) : PSTACK_OF_OPENSSL_STRING;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(X509_get1_email_procname);
+end;
 
+function ERR_X509_REQ_get1_email( x : PX509_REQ) : PSTACK_OF_OPENSSL_STRING;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(X509_REQ_get1_email_procname);
+end;
 
-//  STACK_OF(OPENSSL_STRING) *X509_get1_email(x: PX509);
-//  STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x);
-//  void X509_email_free(STACK_OF(OPENSSL_STRING) *sk);
-//  STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(x: PX509);
+procedure ERR_X509_email_free(sk : PSTACK_OF_OPENSSL_STRING);
+begin
+  EIdAPIFunctionNotPresent.RaiseException(X509_email_free_procname);
+end;
+
+function ERR_X509_get1_ocsp(x: PX509) : PSTACK_OF_OPENSSL_STRING;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(X509_get1_ocsp_procname);
+end;
 
 function  ERR_X509_check_host(x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT; peername: PPIdAnsiChar): TIdC_INT; 
 begin
@@ -4134,6 +4152,134 @@ begin
   end;
 
 
+  X509_get1_email := LoadLibFunction(ADllHandle, X509_get1_email_procname);
+  FuncLoadError := not assigned(X509_PURPOSE_get_id);
+  if FuncLoadError then
+  begin
+    {$if not defined(X509_PURPOSE_get_id_allownil)}
+    X509_get1_email := @ERR_X509_get1_email;
+    {$ifend}
+    {$if declared(X509_get1_email_introduced)}
+    if LibVersion < X509_get1_email_introduced then
+    begin
+      {$if declared(FC_X509_get1_email)}
+      X509_get1_email := @FC_X509_get1_email;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(X509_get1_email_removed)}
+    if X509_get1_email_removed <= LibVersion then
+    begin
+      {$if declared(_X509_PURPOSE_get_id)}
+      X509_get1_email := @_X509_get1_email;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(X509_get1_email_allownil)}
+    if FuncLoadError then
+      AFailed.Add('X509_get1_email');
+    {$ifend}
+  end;
+
+
+  X509_REQ_get1_email := LoadLibFunction(ADllHandle,  X509_REQ_get1_email_procname);
+  FuncLoadError := not assigned(X509_get1_email);
+  if FuncLoadError then
+  begin
+    {$if not defined(X509_REQ_get1_email_allownil)}
+    X509_REQ_get1_email := @ERR_X509_REQ_get1_email;
+    {$ifend}
+    {$if declared(X509_REQ_get1_email_introduced)}
+    if LibVersion < X509_REQ_get1_email_introduced then
+    begin
+      {$if declared(FC_X509_REQ_get1_email)}
+      X509_REQ_get1_email := @FC_X509_REQ_get1_email;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(X509_REQ_get1_email_removed)}
+    if X509_REQ_get1_email_removed <= LibVersion then
+    begin
+      {$if declared(_X509_get1_email)}
+      X509_REQ_get1_email := @_X509_REQ_get1_email;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(X509_REQ_get1_email_allownil)}
+    if FuncLoadError then
+      AFailed.Add('X509_REQ_get1_email');
+    {$ifend}
+  end;
+
+
+  X509_email_free := LoadLibFunction(ADllHandle, X509_email_free_procname);
+  FuncLoadError := not assigned(X509_email_free);
+  if FuncLoadError then
+  begin
+    {$if not defined(X509_email_free_allownil)}
+    X509_email_free := @ERR_X509_email_free;
+    {$ifend}
+    {$if declared(X509_email_free_introduced)}
+    if LibVersion < X509_email_free_introduced then
+    begin
+      {$if declared(FC_X509_email_free)}
+      X509_email_free := @FC_X509_email_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(X509_email_free_removed)}
+    if X509_email_free_removed <= LibVersion then
+    begin
+      {$if declared(_X509_get1_email)}
+      X509_email_free := @_X509_email_free;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(X509_email_free_allownil)}
+    if FuncLoadError then
+      AFailed.Add('X509_email_free');
+    {$ifend}
+  end;
+
+
+  X509_get1_ocsp := LoadLibFunction(ADllHandle, X509_get1_ocsp_procname);
+  FuncLoadError := not assigned(X509_get1_ocsp);
+  if FuncLoadError then
+  begin
+    {$if not defined(X509_get1_ocsp_allownil)}
+    X509_get1_ocsp := @ERR_X509_get1_ocsp;
+    {$ifend}
+    {$if declared(X509_get1_ocsp_introduced)}
+    if LibVersion < X509_get1_ocsp_introduced then
+    begin
+      {$if declared(FC_X509_get1_ocsp)}
+      X509_get1_ocsp := @FC_X509_get1_ocsp;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if declared(X509_get1_ocsp_removed)}
+    if X509_get1_ocsp_removed <= LibVersion then
+    begin
+      {$if declared(_X509_get1_email)}
+      X509_get1_ocsp := @_X509_get1_ocsp;
+      {$ifend}
+      FuncLoadError := false;
+    end;
+    {$ifend}
+    {$if not defined(X509_get1_ocsp_allownil)}
+    if FuncLoadError then
+      AFailed.Add('X509_get1_ocsp');
+    {$ifend}
+  end;
+
+
   X509_check_host := LoadLibFunction(ADllHandle, X509_check_host_procname);
   FuncLoadError := not assigned(X509_check_host);
   if FuncLoadError then
@@ -5092,6 +5238,10 @@ begin
   X509_PURPOSE_get_trust := nil;
   X509_PURPOSE_cleanup := nil;
   X509_PURPOSE_get_id := nil;
+  X509_get1_email := nil;
+  X509_REQ_get1_email := nil;
+  X509_email_free := nil;
+  X509_get1_ocsp := nil;
   X509_check_host := nil;
   X509_check_email := nil;
   X509_check_ip := nil;

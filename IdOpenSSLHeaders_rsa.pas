@@ -4685,8 +4685,8 @@ begin
   RSA_padding_check_PKCS1_OAEP := nil;
   RSA_padding_add_PKCS1_OAEP_mgf1 := nil;
   RSA_padding_check_PKCS1_OAEP_mgf1 := nil;
-  RSA_padding_add_SSLv23 := nil;
-  RSA_padding_check_SSLv23 := nil;
+//  RSA_padding_add_SSLv23 := nil;
+//  RSA_padding_check_SSLv23 := nil;
   RSA_padding_add_none := nil;
   RSA_padding_check_none := nil;
   RSA_padding_add_X931 := nil;

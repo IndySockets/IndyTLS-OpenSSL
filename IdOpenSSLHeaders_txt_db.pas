@@ -42,6 +42,7 @@ uses
   IdCTypes,
   IdGlobal,
   IdSSLOpenSSLConsts,
+  IdOpenSSLHeaders_safestack,
   IdOpenSSLHeaders_ossl_typ;
 
 const
@@ -54,8 +55,6 @@ const
   DB_ERROR_WRONG_NUM_FIELDS = 6;
 
 type
-  OPENSSL_STRING = type Pointer;
-  POPENSSL_STRING = ^OPENSSL_STRING;
 // DEFINE_SPECIAL_STACK_OF(OPENSSL_PSTRING, OPENSSL_STRING)
 
   qual_func =  function (v1: POPENSSL_STRING): TIdC_INT;
