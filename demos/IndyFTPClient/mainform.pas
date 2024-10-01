@@ -147,7 +147,7 @@ type
     procedure actFileRemoteMakeDirectoryUpdate(Sender: TObject);
     procedure actFileLocalMakeDirectoryExecute(Sender: TObject);
     procedure actFileLocalMakeDirectoryUpdate(Sender: TObject);
-  private
+  strict protected
     { Private declarations }
     LocalColumnToSort: Integer;
     LocalAscending: Boolean;
@@ -176,8 +176,7 @@ type
     procedure ChangeLocalDir(const ADir: String);
     procedure ChangeRemoteDir(const ADir: String);
     //
-    procedure PopulateLocalFiles;
-    procedure PopulateRemoteFiles(const ACurDir: String);
+
     procedure RemoteLvClearArrows;
     procedure LocalClearArrows;
     procedure DownloadFile(const AFile: String);
@@ -191,13 +190,37 @@ type
     procedure LocalMakeDir(const ADir: String);
     procedure RemoteMakeDir(const ADir: String);
     procedure SetProxyType(const AType: Integer);
+  public
+    { Public declarations }
+    procedure PopulateLocalFiles;
+    procedure PopulateRemoteFiles(const ACurDir: String);
     procedure SetupPRogressIndicator(const AFileName: String;
       const AWorkMode: TWorkMode; const AWorkCount, AWorkMax: Int64);
     procedure UpdateProgressIndicator(const AFileName: String;
       const AWorkMode: TWorkMode; const AWorkCount, AWorkMax: Int64);
     procedure CloseProgressIndicator;
-  public
-    { Public declarations }
+
+    property LogDirOutput: Boolean read FLogDirOutput write FLogDirOutput;
+    property LogDebugOutput: Boolean read FLogDebugOutput write FLogDebugOutput;
+    property ThreadRunning : Boolean read FThreadRunning write FThreadRunning;
+    property ErrorForeground: TColor read FErrorForeground
+      write FErrorForeground;
+    property ErrorBackground: TColor read FErrorBackground
+      write FErrorBackground;
+    property DirOutputForeground: TColor read FDirOutputForeground
+      write FDirOutputForeground;
+    property DirOutputBackground: TColor read FDirOutputBackground
+      write FDirOutputBackground;
+    property DebugForeground: TColor read FDebugForeground
+      write FDebugForeground;
+    property DebugBackground: TColor read FDebugBackground
+      write FDebugBackground;
+    property SSLMessageForeground: TColor read FSSLMessageForeground
+      write FSSLMessageForeground;
+    property SSLMessageBackground: TColor read FSSLMessageBackground
+      write FSSLMessageBackground;
+    property ProgressIndicator: TfrmFileProgress read FProgressIndicator
+      write FProgressIndicator;
   end;
 
   TFTPThread = class(TThread)
@@ -1784,8 +1807,8 @@ begin
     begin
       LFrm := TfrmCertViewer.Create(nil);
       try
-        LFrm.ErrorForeground := frmMainForm.FErrorForeground;
-        LFrm.ErrorBackground := frmMainForm.FErrorBackground;
+        LFrm.ErrorForeground := frmMainForm.ErrorForeground;
+        LFrm.ErrorBackground := frmMainForm.ErrorBackground;
         LFrm.X509 := FX509;
         LFrm.Error := FError;
         FVerifyResult := LFrm.ShowModal = mrYes;
@@ -1887,12 +1910,12 @@ procedure TFileOnWorkThread.OnWork(ASender: TObject; AWorkMode: TWorkMode;
   AWorkCount: Int64);
 begin
   TOnWorkNotify.WorkNotify(FFile, AWorkMode, AWorkCount, FSize);
-  if Assigned(frmMainForm.FProgressIndicator) then
+  if Assigned(frmMainForm.ProgressIndicator) then
   begin
-    if frmMainForm.FProgressIndicator.CancelPressed then
+    if frmMainForm.ProgressIndicator.CancelPressed then
     begin
       Self.FFTP.Abort;
-      frmMainForm.FProgressIndicator.CancelPressed := False;
+      frmMainForm.ProgressIndicator.CancelPressed := False;
     end;
   end;
 end;
@@ -2127,8 +2150,8 @@ end;
 
 procedure TLogFTPError.DoNotify;
 begin
-  frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FErrorForeground;
-  frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.FErrorBackground;
+  frmMainForm.redtLog.SelAttributes.Color := frmMainForm.ErrorForeground;
+  frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.ErrorBackground;
   inherited;
 end;
 
@@ -2145,10 +2168,10 @@ end;
 
 procedure TSSLEvent.DoNotify;
 begin
-  if frmMainForm.FLogDebugOutput then
+  if frmMainForm.LogDebugOutput then
   begin
-    frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FDebugForeground;
-    frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.FDebugBackground;
+    frmMainForm.redtLog.SelAttributes.Color := frmMainForm.DebugForeground;
+    frmMainForm.redtLog.SelAttributes.BackColor := frmMainForm.DebugBackground;
     inherited;
   end;
 end;
@@ -2166,9 +2189,9 @@ end;
 
 procedure TSSLCipherEvent.DoNotify;
 begin
-  frmMainForm.redtLog.SelAttributes.Color := frmMainForm.FSSLMessageForeground;
+  frmMainForm.redtLog.SelAttributes.Color := frmMainForm.SSLMessageForeground;
   frmMainForm.redtLog.SelAttributes.BackColor :=
-    frmMainForm.FSSLMessageBackground;
+    frmMainForm.SSLMessageBackground;
   inherited;
 end;
 
@@ -2220,16 +2243,16 @@ procedure TLogDirListingEvent.DoNotify;
 var
   i: Integer;
 begin
-  if frmMainForm.FLogDirOutput then
+  if frmMainForm.LogDirOutput then
   begin
     frmMainForm.redtLog.Lines.BeginUpdate;
     try
       for i := 0 to FDirListing.Count - 1 do
       begin
         frmMainForm.redtLog.SelAttributes.Color :=
-          frmMainForm.FDirOutputForeground;
+          frmMainForm.DirOutputForeground;
         frmMainForm.redtLog.SelAttributes.BackColor :=
-          frmMainForm.FDirOutputBackground;
+          frmMainForm.DirOutputBackground;
         frmMainForm.redtLog.Lines.Add(FDirListing[i]);
       end;
     finally
@@ -2252,7 +2275,7 @@ end;
 
 procedure TThreadFinishedNotify.DoNotify;
 begin
-  frmMainForm.FThreadRunning := False;
+  frmMainForm.ThreadRunning := False;
 end;
 
 class procedure TThreadFinishedNotify.EndThread;
@@ -2267,7 +2290,7 @@ end;
 
 procedure TThreadStartNotify.DoNotify;
 begin
-  frmMainForm.FThreadRunning := True;
+  frmMainForm.ThreadRunning := True;
 end;
 
 class procedure TThreadStartNotify.StartThread;

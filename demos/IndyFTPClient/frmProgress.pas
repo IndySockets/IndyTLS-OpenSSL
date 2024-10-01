@@ -15,12 +15,10 @@ type
     prgbrDownloadUpload: TProgressBar;
     lblProgress: TLabel;
     procedure CancelBtnClick(Sender: TObject);
-  private
+  strict protected
+    FCancelPressed : TIdThreadSafeBoolean;
     function GetCancelPressed: Boolean;
     procedure SetCancelPressed(const Value: Boolean);
-    { Private declarations }
-  protected
-    FCancelPressed : TIdThreadSafeBoolean;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
