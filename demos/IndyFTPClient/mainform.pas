@@ -228,7 +228,7 @@ type
   protected
     FNewDir: String;
   public
-    constructor Create(AFTP: TIdFTP; ANewDir: String); reintroduce;
+    constructor Create(AFTP: TIdFTP; const ANewDir: String); reintroduce;
     procedure Execute(); override;
   end;
 
@@ -237,7 +237,7 @@ type
     FFile: String;
     FSize: Int64;
   public
-    constructor Create(AFTP: TIdFTP; AFile: String); reintroduce;
+    constructor Create(AFTP: TIdFTP; const AFile: String); reintroduce;
   end;
 
   TFileOnWorkThread = class(TFileThread)
@@ -1842,7 +1842,7 @@ end;
 
 { TRemoteChangeDirThread }
 
-constructor TRemoteChangeDirThread.Create(AFTP: TIdFTP; ANewDir: String);
+constructor TRemoteChangeDirThread.Create(AFTP: TIdFTP; const ANewDir: String);
 begin
   inherited Create(AFTP);
   FNewDir := ANewDir;
@@ -1875,7 +1875,7 @@ end;
 
 { TFileThread }
 
-constructor TFileThread.Create(AFTP: TIdFTP; AFile: String);
+constructor TFileThread.Create(AFTP: TIdFTP; const AFile: String);
 begin
   inherited Create(AFTP);
   FFile := AFile;
