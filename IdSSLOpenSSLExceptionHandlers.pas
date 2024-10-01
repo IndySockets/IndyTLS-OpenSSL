@@ -69,7 +69,7 @@ type
 
   EIdAPIFunctionNotPresent = class(EIdOpenSSLError)
   public
-    class procedure RaiseException(functionName: string);
+    class procedure RaiseException(const functionName: string);
   end;
 
 implementation
@@ -107,7 +107,7 @@ end;
 
 { EIdAPIFunctionNotPresent }
 
-class procedure EIdAPIFunctionNotPresent.RaiseException(functionName: string);
+class procedure EIdAPIFunctionNotPresent.RaiseException(const functionName: string);
 begin
   raise EIdAPIFunctionNotPresent.CreateFmt(ROSSLAPIFunctionNotPresent,[functionName]);
 end;

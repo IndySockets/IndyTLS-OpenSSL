@@ -47,7 +47,7 @@ type
     function GetFailedToLoad: TStringList;
 
     function Load: Boolean;
-    procedure SetSSLLibVersions(AValue: string);
+    procedure SetSSLLibVersions(const AValue: string);
     procedure Unload;
 
     property SSLLibVersions: string read GetSSLLibVersions write SetSSLLibVersions;
@@ -61,7 +61,7 @@ type
 function GetOpenSSLLoader: IOpenSSLLoader;
 
 
-procedure Register_SSLLoader(LoadProc: TOpenSSLLoadProc; module_name: string);
+procedure Register_SSLLoader(LoadProc: TOpenSSLLoadProc; const module_name: string);
 procedure Register_SSLUnloader(UnloadProc: TOpenSSLUnloadProc);
 
 implementation
@@ -96,7 +96,7 @@ begin
   Result := GOpenSSLLoader;
 end;
 
-procedure Register_SSLLoader(LoadProc: TOpenSSLLoadProc; module_name: string);
+procedure Register_SSLLoader(LoadProc: TOpenSSLLoadProc; const module_name: string);
 begin
   if GLibCryptoLoadList = nil then
     GLibCryptoLoadList := TList.Create;
@@ -133,9 +133,9 @@ type
     FSSLLibVersions: string;
     FLibraryLoaded: TIdThreadSafeBoolean;
     FFailedToLoad: boolean;
-    function FindLibrary(LibName, LibVersions: string): TIdLibHandle;
+    function FindLibrary(const LibName, LibVersions: string): TIdLibHandle;
     function GetSSLLibVersions: string;
-    procedure SetSSLLibVersions(AValue: string);
+    procedure SetSSLLibVersions(const AValue: string);
     function GetOpenSSLPath: string;
     procedure SetOpenSSLPath(const Value: string);
     function GetFailedToLoad: TStringList;
@@ -170,9 +170,9 @@ begin
   inherited;
 end;
 
-function TOpenSSLLoader.FindLibrary(LibName, LibVersions: string): TIdLibHandle;
+function TOpenSSLLoader.FindLibrary(const LibName, LibVersions: string): TIdLibHandle;
 
-  function DoLoadLibrary(FullLibName: string): TIdLibHandle;
+  function DoLoadLibrary(const FullLibName: string): TIdLibHandle;
   begin
     Result := SafeLoadLibrary(FullLibName, {$IFDEF WINDOWS}SEM_FAILCRITICALERRORS {$ELSE} 0 {$ENDIF});
   end;
@@ -264,7 +264,7 @@ begin
   Result := FSSLLibVersions;
 end;
 
-procedure TOpenSSLLoader.SetSSLLibVersions(AValue: string);
+procedure TOpenSSLLoader.SetSSLLibVersions(const AValue: string);
 begin
   FSSLLibVersions := AValue;
 end;
