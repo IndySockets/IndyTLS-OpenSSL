@@ -75,8 +75,8 @@ type
 var
   app: TFTPServerApp;
 
-function SetFileLastAccessDateTime(FileName: String;
-  DateTime: TDateTime): Boolean;
+function SetFileLastAccessDateTime(const FileName: String;
+  DateTime: TDateTime): Boolean; inline;
 begin
   Result := (FileName <> '') and (FileExists(FileName) = True);
   if Result then
@@ -85,8 +85,8 @@ begin
   end;
 end;
 
-function SetFileLastModifiedDateTime(FileName: String;
-  DateTime: TDateTime): Boolean;
+function SetFileLastModifiedDateTime(const FileName: String;
+  DateTime: TDateTime): Boolean;  inline;
 begin
   Result := (FileName <> '') and (FileExists(FileName) = True);
   if Result then
@@ -95,8 +95,8 @@ begin
   end;
 end;
 
-function SetFileCreationDateTime(FileName: String; DateTime: TDateTime)
-  : Boolean;
+function SetFileCreationDateTime(const FileName: String; DateTime: TDateTime)
+  : Boolean; inline;
 begin
   Result := (FileName <> '') and (FileExists(FileName) = True);
   if Result then
@@ -106,7 +106,7 @@ begin
 end;
 
 // This is necessary because FileAge does not work with directories.
-function GetFileLastModifiedDateTime(FileName: String;
+function GetFileLastModifiedDateTime(const FileName: String;
   var VDateTime: TDateTime): Boolean;
 var
   F: TSearchRec;
