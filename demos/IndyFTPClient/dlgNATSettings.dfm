@@ -100,7 +100,7 @@ object frmNATSettings: TfrmNATSettings
   end
   object spnedtPortMinimum: TSpinEdit
     Left = 105
-    Top = 77
+    Top = 76
     Width = 75
     Height = 24
     MaxValue = 65535

@@ -44,7 +44,7 @@ object frmMainForm: TfrmMainForm
     Height = 91
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 2
     object redtLog: TRichEdit
       Left = 0
       Top = 0
@@ -75,7 +75,7 @@ object frmMainForm: TfrmMainForm
     Caption = 'Main Toolbar'
     GradientEndColor = 1182475
     Images = vimglstMainProgram
-    TabOrder = 2
+    TabOrder = 0
     object ToolButton5: TToolButton
       Left = 0
       Top = 0
@@ -127,7 +127,7 @@ object frmMainForm: TfrmMainForm
     Height = 198
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 1
     object Splitter1: TSplitter
       Left = 286
       Top = 0

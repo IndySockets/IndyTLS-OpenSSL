@@ -105,7 +105,7 @@ object frmConnect: TfrmConnect
         object edtUsername: TEdit
           Left = 96
           Top = 124
-          Width = 297
+          Width = 301
           Height = 23
           Anchors = [akLeft, akTop, akRight]
           Font.Charset = DEFAULT_CHARSET
@@ -120,7 +120,7 @@ object frmConnect: TfrmConnect
         object edtPassword: TEdit
           Left = 96
           Top = 161
-          Width = 297
+          Width = 301
           Height = 23
           Anchors = [akLeft, akTop, akRight]
           PasswordChar = '*'
@@ -130,7 +130,7 @@ object frmConnect: TfrmConnect
         object cboConnectionType: TComboBox
           Left = 96
           Top = 198
-          Width = 297
+          Width = 301
           Height = 23
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]

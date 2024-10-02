@@ -111,7 +111,7 @@ object frmFTPProxySettings: TfrmFTPProxySettings
   object edtProxyServerPassword: TEdit
     Left = 97
     Top = 100
-    Width = 370
+    Width = 369
     Height = 23
     Enabled = False
     PasswordChar = '*'

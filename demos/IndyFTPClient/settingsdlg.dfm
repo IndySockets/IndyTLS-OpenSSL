@@ -91,111 +91,111 @@ object frmSettings: TfrmSettings
           Top = 155
           Width = 296
           Height = 150
-          VertScrollBar.Position = 13
+          HorzScrollBar.Position = 46
           Anchors = [akLeft, akRight, akBottom]
           TabOrder = 3
           object lblErrors: TLabel
-            Left = 16
-            Top = 26
+            Left = -30
+            Top = 39
             Width = 28
             Height = 15
             Caption = 'Error:'
           end
           object lblTLSMessages: TLabel
-            Left = 16
-            Top = 54
+            Left = -30
+            Top = 67
             Width = 70
             Height = 15
             Caption = 'TLS Message:'
           end
           object lblDirOutput: TLabel
-            Left = 16
-            Top = 82
+            Left = -30
+            Top = 95
             Width = 59
             Height = 15
             Caption = 'Dir Output:'
           end
           object lblForeground: TLabel
-            Left = 92
-            Top = 3
+            Left = 46
+            Top = 16
             Width = 65
             Height = 15
             Caption = 'Foreground:'
           end
           object lblBackground: TLabel
-            Left = 208
-            Top = 3
+            Left = 162
+            Top = 16
             Width = 64
             Height = 15
             Caption = 'Background'
           end
           object lblDebugOutput: TLabel
-            Left = 16
-            Top = 110
+            Left = -30
+            Top = 123
             Width = 38
             Height = 15
             Caption = 'Debug:'
           end
           object cboErrorForeground: TColorBox
-            Left = 92
-            Top = 23
-            Width = 110
+            Left = 46
+            Top = 36
+            Width = 113
             Height = 22
             TabOrder = 0
             OnChange = cboErrorForegroundChange
           end
           object cboErrorBackground: TColorBox
-            Left = 208
-            Top = 23
+            Left = 162
+            Top = 36
             Width = 113
             Height = 22
             TabOrder = 1
             OnChange = cboErrorBackgroundChange
           end
           object cboTLSMessageForeground: TColorBox
-            Left = 89
-            Top = 51
+            Left = 43
+            Top = 64
             Width = 113
             Height = 22
             TabOrder = 2
             OnChange = cboTLSMessageForegroundChange
           end
           object cboTLSMessageBackground: TColorBox
-            Left = 208
-            Top = 51
+            Left = 162
+            Top = 64
             Width = 113
             Height = 22
             TabOrder = 3
             OnChange = cboTLSMessageBackgroundChange
           end
           object cboDirOutputForeground: TColorBox
-            Left = 89
-            Top = 79
+            Left = 43
+            Top = 92
             Width = 113
             Height = 22
             TabOrder = 4
             OnChange = cboDirOutputForegroundChange
           end
           object cboDirOutputBackground: TColorBox
-            Left = 208
-            Top = 79
+            Left = 162
+            Top = 92
             Width = 113
             Height = 22
             TabOrder = 5
             OnChange = cboDirOutputBackgroundChange
           end
           object cboDebugForeground: TColorBox
-            Left = 88
-            Top = 107
-            Width = 114
+            Left = 42
+            Top = 120
+            Width = 113
             Height = 22
             TabOrder = 6
             OnSelect = cboDebugForegroundSelect
           end
           object cboDebugBackground: TColorBox
-            Left = 208
-            Top = 107
-            Width = 110
+            Left = 162
+            Top = 120
+            Width = 113
             Height = 22
             TabOrder = 7
             OnSelect = cboDebugBackgroundSelect
@@ -267,7 +267,7 @@ object frmSettings: TfrmSettings
         object btnTransparentProxy: TButton
           Left = 104
           Top = 48
-          Width = 209
+          Width = 210
           Height = 25
           Caption = '&HTTP Connect or SOCKS Proxy...'
           TabOrder = 1
@@ -276,7 +276,7 @@ object frmSettings: TfrmSettings
         object btnFTPProxySettings: TButton
           Left = 103
           Top = 83
-          Width = 209
+          Width = 210
           Height = 25
           Caption = 'F&TP Proxy...'
           TabOrder = 2
