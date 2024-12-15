@@ -354,6 +354,20 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 13.0+ (?)
+  {$IFDEF CONDITIONALEXPRESSIONS}
+    {$IF CompilerVersion >= 37}
+      {$MESSAGE WARN 'Unknown compiler version detected! Assuming >= 13.x '}
+      {$DEFINE VCL_UNKNOWN_VERSION}
+      {$DEFINE VCL_13}
+      {$IFDEF CBUILDER}
+        {$DEFINE CBUILDER_13}
+      {$ELSE}
+        {$DEFINE DELPHI_13}
+      {$ENDIF}
+    {$IFEND}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -640,8 +654,16 @@
 
 // end FPC
 
-{$IFDEF VCL_12}
+{$IFDEF VCL_13}
+  {$DEFINE VCL_13_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_13_OR_ABOVE}
   {$DEFINE VCL_12_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_12}
+    {$DEFINE VCL_12_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_12_OR_ABOVE}

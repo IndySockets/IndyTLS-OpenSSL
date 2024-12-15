@@ -71,7 +71,6 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  IdBuffer,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -81,28 +80,23 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type
-  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2);
-  TIdSSLVersions = set of TIdSSLVersion;
-  TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
+  TIdSSLVersion = IdSSL.TIdSSLVersion;
+  TIdSSLVersions = IdSSL.TIdSSLVersions;
+  TIdSSLMode = IdSSL.TIdSSLMode;
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
   TIdSSLVerifyModeSet = set of TIdSSLVerifyMode;
-  TIdSSLCtxMode = (sslCtxClient, sslCtxServer);
-  TIdSSLAction = (sslRead, sslWrite);
+  TIdSSLCtxMode = IdSSL.TIdSSLCtxMode;
+  TIdSSLAction = IdSSL.TIdSSLAction;
 
 const
-  DEF_SSLVERSION = sslvTLSv1;
-  DEF_SSLVERSIONS = [sslvTLSv1];
+  DEF_SSLVERSION = IdSSL.sslvSSLv23;
+  DEF_SSLVERSIONS = [IdSSL.sslvTLSv1..IdSSL.sslvTLSv1_2];
   P12_FILETYPE = 3;
   MAX_SSL_PASSWORD_LENGTH = 128;
 
@@ -542,19 +536,32 @@ uses
   Posix.Unistd,
   {$ENDIF}
   IdFIPS,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack,
-  IdStackBSDBase,
-  IdAntiFreezeBase,
-  IdExceptionCore,
-  IdResourceStrings,
   IdThreadSafe,
-  IdCustomTransparentProxy,
-  IdURI,
   SysUtils,
   SyncObjs;
+
+// local aliases to simplify coding...
+const
+  sslvSSLv2 = IdSSL.sslvSSLv2;
+  sslvSSLv3 = IdSSL.sslvSSLv3;
+  sslvSSLv23 = IdSSL.sslvSSLv23;
+  sslvTLSv1 = IdSSL.sslvTLSv1;
+  sslvTLSv1_1 = IdSSL.sslvTLSv1_1;
+  sslvTLSv1_2 = IdSSL.sslvTLSv1_2;
+
+  sslmUnassigned = IdSSL.sslmUnassigned;
+  sslmClient = IdSSL.sslmClient;
+  sslmServer = IdSSL.sslmServer;
+  sslmBoth = IdSSL.sslmBoth;
+  
+  sslCtxClient = IdSSL.sslCtxClient;
+  sslCtxServer  = IdSSL.sslCtxServer;
+  
+  sslRead = IdSSL.sslRead;
+  sslWrite = IdSSL.sslWrite;
 
 type
   // TODO: TIdThreadSafeObjectList instead?
@@ -2857,48 +2864,6 @@ var
   LMode: TIdSSLMode;
   LHost: string;
 
-  // TODO: move the following to TIdSSLIOHandlerSocketBase...
-
-  function GetURIHost: string;
-  var
-    LURI: TIdURI;
-  begin
-    Result := '';
-    if URIToCheck <> '' then
-    begin
-      LURI := TIdURI.Create(URIToCheck);
-      try
-        Result := LURI.Host;
-      finally
-        LURI.Free;
-      end;
-    end;
-  end;
-
-  function GetProxyTargetHost: string;
-  var
-    // under ARC, convert a weak reference to a strong reference before working with it
-    LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
-  begin
-    Result := '';
-    // RLebeau: not reading from the property as it will create a
-    // default Proxy object if one is not already assigned...
-    LTransparentProxy := FTransparentProxy;
-    if Assigned(LTransparentProxy) then
-    begin
-      if LTransparentProxy.Enabled then
-      begin
-        repeat
-          LNextTransparentProxy := LTransparentProxy.ChainedProxy;
-          if not Assigned(LNextTransparentProxy) then Break;
-          if not LNextTransparentProxy.Enabled then Break;
-          LTransparentProxy := LNextTransparentProxy;
-        until False;
-        Result := LTransparentProxy.Host;
-      end;
-    end;
-  end;
-
 begin
   Assert(Binding<>nil);
   if not Assigned(fSSLSocket) then begin
@@ -4131,6 +4096,8 @@ function TIdSSLCipher.GetVersion:String;
 begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
+
+{$I IdSymbolDeprecatedOff.inc}
 
 initialization
   Assert(SSLIsLoaded=nil);
