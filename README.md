@@ -1,6 +1,8 @@
 # Indy TLS for OpenSSL
 
-This project implements TLS and Hash functionalities for Indy using OpenSSL as the backend library.
+THIS REPO IS NO LONGER MAINTAINED. This repo has been replaced by https://github.com/MWASoftware/IndySecOpenSSL.
+
+This project implemented TLS and Hash functionalities for Indy using OpenSSL as the backend library.
 
 This fork is the basis of a change request to the original repo and should be ignored by most users.
 
