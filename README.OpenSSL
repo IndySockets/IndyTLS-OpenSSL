@@ -1,0 +1,285 @@
+This package provides a new (optional) OpenSSL package separate from Indy's "protocols" package 
+and adds support for OpenSSL 3.0 and later. Both Delphi and Lazarus/fpc are fully 
+supported by this source code tree. 
+
+Three link models are supported.
+   * Dynamic Library Load (the default and the approach used in previous versions)
+   * compile time linkage to a shared (.so or .dll) library (OpenSSL 3.x only)
+   * compile time linkage to a static library (FPC only with gcc compiled OpenSSL).
+
+For dynamic library load, a "Just in Time" approach is used where each API call is initialised to a local proc "loader" function.
+The intent is that on the first call a given API function, the actual entry point in the OpenSSL function
+is loaded and the API call is set to the loaded entry point. The API function is now called on the user's
+behalf. If the call fails to load then it is replaced by a compatibility function (if one exists). If none exists 
+then an exception is raised. If an API function is allowed to be nil (as set in the template), then the function
+is loaded at library load time.
+
+These updated package is dependent on Indy 10.7.
+
+The updated package has been tested under the following scenarios:
+
+1. Static Linking to Static Library (Lazarus/Linux only with gcc generated libssl.a and libcrypto.a).
+
+2. Static Linking to Shared Library (DLL/so). Delphi and Lazarus (Windows and Linux).
+
+3. Dynamic Load and Link. Delphi and Lazarus (Windows and Linux). OpenSSL 1.0.2, 1.1.1. and 3.x
+
+For (2) and (3) above, the different link strategies are selected at compile time by a "defined symbol" set in the OpenSSL
+package options (not the using program), as follows:
+
+- OPENSSL_USE_STATIC_LIBRARY (Static Linking to Static Library)
+- OPENSSL_USE_SHARED_LIBRARY (Static Linking to Shared Library)
+- Neither of the above (Dynamic Load and Link).
+
+Note that (2) and (3) behave identically for Static and Shared library linking).
+
+The defined synbol OPENSSL_NO_LEGACY_SUPPORT may also be set at compile time and applies to Dynamic
+loading. If set, no compatibility functions are compile in to the executeable. Only 3.0 or later
+API calls may be used.
+
+
+Delphi Builds
+=============
+
+New Packages:
+
+IndyTLSOpenSSL290 and
+dclIndyTLOSpenSSL290 (design time only)
+
+may be found in the Delphi directory.
+
+To use OpenSSL in a given project, the IndyOpenSSL290 package must now be included in the list of required run time packages.
+
+
+Lazarus/FPC Builds
+==================
+
+All lazarus packages may be found in the "lazarus-fpc/" top level folder. These are:
+
+IndyTLSOpenSSL.lpk
+
+and the design time only packages
+
+indylaz_openssl
+
+In order to install this proposed update for Lazarus (Windows and Linux), Open first 
+that package indylaz_openssl.lpk and click on install. The Indy TLS Library should now be available for use.
+
+
+Test Programs
+=============
+
+Two test programs are available with variants for Delphi and Lazarus. These may be found in:
+
+1. Test/openssl-client and
+2. Test/openssl-server.
+
+openssl-client uses an HTTP Client to issue an http Get on an https target and returns 
+the result. The server certificate is also verified.
+
+openssl-server provides both and a server and uses a local PKI to retrieve a web page 
+from the server, with both client and server certificate verification and to return the result.
+
+Note: in all cases the compiled programs are placed in the openssl-client or openssl-server
+directories.
+
+Note that for Delphi, a convenience project group is provided:
+
+Test\AllTests.groupprog
+
+These build both test programs and their supporting packages as a single project group. You do
+not have to install the design time packages in order to use the test programs.
+
+When testing under Lazarus, similarly you do not need to have installed the design time packages.
+However, you need to at least "open" the dependent packages so that the IDE knows where to find
+them.
+
+Test program command line arguments:
+
+Usage: fpc_openssl_client [-h] [-n] [-l <cacerts dir>] [-L] [OpenSSL lib dir]
+
+Usage: fpc_openssl_client [-h] [-n] [-l <cacerts dir>] [-L] [OpenSSL lib dir]
+
+-L is useful under Linux when the OpenSSL Library used has not been installed and 
+   hence does not know where to find its X.509 certificate store. When -L is
+   given, the program searches a list of possible locations.
+
+Runtime Control of the Library Loader
+=====================================
+
+The OpenSSLAPI unit provides two Pascal COM interfaces which provide information and option selection for the OpenSSL Library.
+
+The IOpenSSL Interface
+----------------------
+
+This interface is available for all link strategies and the interface is accessed using the function:
+  function GetIOpenSSL: IOpenSSL;
+
+The interface is declared as:
+  IOpenSSL = interface
+  ['{aed66223-1700-4199-b1c5-8222648e8cd5}']
+    function GetOpenSSLPath: string;
+    function GetOpenSSLVersionStr: string;
+    function GetOpenSSLVersion: TOpenSSL_C_ULONG;
+    function Init: boolean;
+  end;
+
+function GetOpenSSLPath: string;
+
+Static Linking: Returns the  OpenSSL installation path as compiled into the OpenSSL library.
+Dynamic Loading: Returns 
+    • The same as above when the library is loaded
+    • the specified OpenSSL installation path, otherwise.
+
+function GetOpenSSLVersionStr: string
+
+Returns the OpenSSL library version string. e.g “OpenSSL 3.2.0 23 Nov 2023”
+
+function GetOpenSSLVersion: TOpenSSL_C_ULONG;
+
+Returns the OpenSSL library version as an integer as defined by the OpenSSL documentation.
+
+function Init: boolean;
+
+Called to initialise the OpenSSL library prior to use. This must be called when using static linking. 
+It is optional for dynamic linking (implicitly called on library load).
+
+The IOpenSSLDLL Interface
+-------------------------
+
+This interface is only available when the API is configured at compile time for dynamic library loading. 
+The interface is accessed using the function:
+
+function GetIOpenSSLDDL: IOpenSSLDLL; 
+
+This function returns “nil” if the interface is not available. This may be used as a runtime test to 
+determine if dynamic library loading if been configured.
+
+Note The OpenSSLAPI unit only declares the constant 
+
+OpenSSL_Using_Dynamic_Library_Load = true;
+
+when configured at compile time for dynamic library loading. The constant is not declared otherwise. This feature may be used as a compile time test for the dynamic library loading strategy e.g.
+
+{$if declared(OpenSSL_Using_Dynamic_Library_Load)}
+…
+{$ifend}
+
+The interface includes the IOpenSSL interface and is declared as:
+  IOpenSSLDLL = interface(IOpenSSL)
+    procedure SetOpenSSLPath(const Value: string);
+    function GetSSLLibVersions: string;
+    procedure SetSSLLibVersions(AValue: string);
+    function GetSSLBaseLibName: string;
+    procedure SetSSLBaseLibName(AValue: string);
+    function GetCryptoBaseLibName: string;
+    procedure SetCryptoBaseLibName(AValue: string);
+    function GetAllowLegacyLibsFallback: boolean;
+    procedure SetAllowLegacyLibsFallback(AValue: boolean);
+    function GetLibCryptoHandle: TLibHandle;
+    function GetLibSSLHandle: TLibHandle;
+    function GetLibCryptoFilePath: string;
+    function GetLibSSLFilePath: string;
+    function GetFailedToLoadList: TStrings;
+    function Load: Boolean;
+    procedure Unload;
+    function IsLoaded: boolean;
+    property SSLLibVersions: string read GetSSLLibVersions write SetSSLLibVersions;
+    property SSLBaseLibame: string read GetSSLBaseLibName write SetSSLBaseLibName;
+    property CryptoBaseLibName: string read GetCryptoBaseLibName 
+                                       write SetCryptoBaseLibName;
+    property AllowLegacyLibsFallback: boolean read GetAllowLegacyLibsFallback 
+                                      write SetAllowLegacyLibsFallback;end;
+
+procedure SetOpenSSLPath(const Value: string);
+
+This sets the OpenSSLPath used to locate the OpenSSL library modules (e.g. libcrypto.so). It 
+needs to be set when OpenSSL has not been installed in a default location and/or multiple 
+versions of OpenSSL have been installed on the same system.
+
+function GetSSLLibVersions: string;
+procedure SetSSLLibVersions(AValue: string);
+
+This is a colon separated (Unixes) or semi-colon separated (Windows) ordered list of OpenSSL 
+version numbers that can be used as suffices for the OpenSSL library modules (e.g. for 
+libcrypto-3-x64.dll, the suffix is '-3-x64'). When searching for the OpenSSL library, the loader 
+searches the default (or specified) OpenSSLPath for OpenSSL libraries using these suffices in turn.
+
+Unix: defaults to
+ '.3:.1.1:.1.0.2:.1.0.0:.0.9.9:.0.9.8:.0.9.7:.0.9.6'
+
+Note includes legacy versions.
+
+Windows defaults to
+'-3-x64;-1-x64;' (64 bit)
+'-3;-1;' (32 bit)
+
+Changing the libversions will automatically unload the ssl and crypto libraries if currently loaded.
+
+function GetSSLBaseLibName: string;
+procedure SetSSLBaseLibName(AValue: string);
+
+These are used to respectively get and set the basename for the SSL dynamic library. Defaults to 'libssl'.
+Changing the base name will automatically unload the ssl and crypto libraries if currently loaded.
+
+function GetCryptoBaseLibName: string;
+procedure SetCryptoBaseLibName(AValue: string);
+
+These are used to respectively get and set the basename for the crypto  dynamic library. 
+Defaults to 'libcrypto'. Changing the base name will automatically unload the ssl and crypto 
+libraries if currently loaded.
+
+function GetAllowLegacyLibsFallback: boolean;
+procedure SetAllowLegacyLibsFallback(AValue: boolean);
+
+These are used to respectively get and set the AllowLegacyLibsFallback flag. This is only used 
+when running under Windows. If set and no OpenSSL libraries have been found when searching for 
+them using the Base Library names and libversions, then the loader will attempt to load the 
+OpenSSL libraries using the legacy library names 'libeay32' and 'ssleay32'.
+
+Defaults to 'false'.
+
+Changing this flag will automatically unload the ssl and crypto libraries if currently loaded.
+
+function GetLibCryptoHandle: TLibHandle;
+
+After a successful library load, this returns the value of the internal handle to libcrypto (internal use only recommended).
+
+function GetLibSSLHandle: TLibHandle;
+
+After a successful library load, this returns the value of the internal handle to libssl (internal use only recommended).
+
+function GetLibCryptoFilePath: string;
+
+After a successful library load, this returns the path to the loaded libcrypto library. 
+(note: may be empty if default library loaded).
+
+function GetLibSSLFilePath: string;
+
+After a successful library load, this returns the path to the loaded libssl library. (
+note: may be empty if default library loaded).
+
+function GetFailedToLoadList: TStrings;
+
+After a successful library load, this returns a list of API call names that failed to load at 
+library load time. Note: only applies to a small number of functions that are not suitable
+for "just in time" loading.
+
+function Load: Boolean;
+
+Explicitly loads the library if not already loaded and returns “true” on successful load.
+
+procedure Unload;
+
+Explicitly unloads the library if current loaded.
+
+function IsLoaded: boolean;
+
+Returns true if the OpenSSL library has been successfully loaded.
+
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+[package]
+name=indyopenssl
+version=$(INDY_VERSION)
+main=indy
+
+[requires]
+packages=indyprotocols
+
+[compiler]
+options= -MDelphi $(OPT) -Scghi -CX -Ur -Xs -vew
+unittargetdir= ../../units/$(CPU_TARGET)-$(OS_TARGET)
+includedir=.:opensslHdrs
+unitdir=.:opensslHdrs
+
+[target]
+units=indyopensslfpc
+
+
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indyopensslfpc
+
+[clean]
+files= \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsOpenSSL.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdSSLOpenSSLResourceStrings.rsj
+

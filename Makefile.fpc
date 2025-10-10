@@ -1,0 +1,13 @@
+[prerules]
+ifdef DEBUG
+export OPT=-O1 -g -gl
+else
+export OPT=-O3
+endif
+export INDY_VERSION=10.6.3.7
+
+[target]
+dirs=src
+
+[clean]
+files=units/$(CPU_TARGET)-$(OS_TARGET)/*.o units/$(CPU_TARGET)-$(OS_TARGET)/*.ppu

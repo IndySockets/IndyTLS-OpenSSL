@@ -1,0 +1,54 @@
+August 2025 - OpenSSL Package Clean Up
+
+The objective of this package cleanup is to improve readability and maintainability with only minimal impact on the end user. Primarily, this involves splitting up the IdSSLOpenSSL unit with limited code clean up. IdSSLOpenSSL is retained and continues to provide the classes TIdSSLIOHandlerSocketOpenSSL and TIdServerIOHandlerSSLOpenSSL. This should ensure that basic users of Indy OpenSSL should need to do no more than recompile their source code in order to use this update.
+
+If SSLOptions are set by user code, then additionally, the IdSSLOpenSSLOptions unit must now be included in a using units "uses" list.
+
+If X.509 certificates are set or processed by user code, then additionally, the IdSSLOpenSSLX509 unit must now included in a using units "uses" list.
+
+Unit Split
+==========
+
+IdSSLOpenSSL has been split into the following units:
+
+1. IdSSLOpenSSL including TIdSSLIOHandlerSocketOpenSSL and TIdServerIOHandlerSSLOpenSSL classes and supporting types.
+
+2. IdSSLOpenSSLSocket including TIdSSLSocket, TIdSSLContext and TIdSSLCipher classes and supporting types.
+
+3. IdSSLOpenSSLOptions including TIdSSLOptions and supporting types.
+
+4. IdSSLOpenSSLX509 including TIdX509, TIdX509SigInfo, TIdX509Fingerprints, TIdX509Info and TIdX509Name classes and supporting types.
+
+5. IdSSLOpenSSLUtils: miscellaneous support functions.
+
+6. IdSSLwincrypt: contains a (limited) interface to wincrypt32.dll for use on MS Windows when loading the Windows cert store.
+
+Detailed Changes that may be externally visible
+===============================================
+
+1. procedures LoadOpenSSLLibrary and UnLoadOpenSSLLibrary have been moved to IdSSLOpenSSLSocket. Generally, you will not be needing to use these functions as the OpenSSL library is automatically loaded on first use and unloaded at program end. 
+
+2. TCallbackExEvent: changed type definition from 
+
+TCallbackExEvent = procedure(ASender : TObject; const AsslSocket: PSSL;
+    const AWhere, Aret: TIdC_INT; const AType, AMsg : String ) of object;
+
+to
+
+TCallbackExEvent = procedure(ASender : TObject; const aSSLSocket: TIdSSLSocket;
+    const AWhere, Aret: TIdC_INT; const AType, AMsg : String ) of object;   
+
+TIdSSLSocket now has a new public method:
+
+function GetSSL: PSSL;
+
+which gives access to the underlying SSL structure if needed by TCallbackExEvent. The PSSL type is defined in IdOpenSSLHeaders_ossl_typ.pas.
+
+3. IIdSSLOpenSSLCallbackHelper has been moved to IdSSLOpenSSLSocket and revised. This is an internal interface meant for polymorphic access to TIdSSLIOHandlerSocketOpenSSL and TIdServerIOHandlerSSLOpenSSL by IdSSLOpenSSLSocket and callbacks. It is not intended for external use, but is externally visible. The interface has been revised to increase isolation between provider and user, to some extent necessitated by the movement of IdSSLOpenSSLSocket and callbacks to a separate unit.
+
+Test Programs
+=============
+
+The OpenSSL test programs have been updated to demonstrate use of the OnStatusInfo callback for both client and server. This is primarily a debuging aid reporting on the TLS protocol operation.
+
+

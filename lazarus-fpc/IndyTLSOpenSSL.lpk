@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="IndyTLSOpenSSL"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="../src;../src/opensslHdrs"/>
+        <OtherUnitFiles Value="../src;../src/opensslHdrs"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Other>
+        <CustomOptions Value="-Ur"/>
+        <OtherDefines Count="3">
+          <Define0 Value="OPENSSL_USE_STATIC_LIBRARY"/>
+          <Define1 Value="OPENSSL_USE_SHARED_LIBRARY"/>
+          <Define2 Value="OPENSSL_NO_LEGACY_SUPPORT"/>
+        </OtherDefines>
+      </Other>
+    </CompilerOptions>
+    <Files>
+      <Item>
+        <Filename Value="../src/IdNTLMOpenSSL.pas"/>
+        <UnitName Value="IdNTLMOpenSSL"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdResourceStringsOpenSSL.pas"/>
+        <UnitName Value="IdResourceStringsOpenSSL"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLOpenSSL.pas"/>
+        <UnitName Value="IdSSLOpenSSL"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLOpenSSLFIPS.pas"/>
+        <UnitName Value="IdSSLOpenSSLFIPS"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLOpenSSLOptions.pas"/>
+        <UnitName Value="IdSSLOpenSSLOptions"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLOpenSSLSocket.pas"/>
+        <UnitName Value="IdSSLOpenSSLSocket"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLOpenSSLUtils.pas"/>
+        <UnitName Value="IdSSLOpenSSLUtils"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLOpenSSLX509.pas"/>
+        <UnitName Value="IdSSLOpenSSLX509"/>
+      </Item>
+      <Item>
+        <Filename Value="../src/IdSSLwincrypt.pas"/>
+        <UnitName Value="IdSSLwincrypt"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="indylaz"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

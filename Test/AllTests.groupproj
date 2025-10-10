@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{7FF639E9-73F0-4139-BA19-816A6C3F32D8}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\delphi\IndyTLSOpenSSL290.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="openssl-client\delphi_openssl_client.dproj">
+            <Dependencies>..\delphi\IndyTLSOpenSSL290.dproj</Dependencies>
+        </Projects>
+        <Projects Include="openssl-server\delphi_openssl_server.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="IndyTLSOpenSSL290">
+        <MSBuild Projects="..\delphi\IndyTLSOpenSSL290.dproj"/>
+    </Target>
+    <Target Name="IndyTLSOpenSSL290:Clean">
+        <MSBuild Projects="..\delphi\IndyTLSOpenSSL290.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndyTLSOpenSSL290:Make">
+        <MSBuild Projects="..\delphi\IndyTLSOpenSSL290.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="delphi_openssl_client" DependsOnTargets="IndyTLSOpenSSL290">
+        <MSBuild Projects="openssl-client\delphi_openssl_client.dproj"/>
+    </Target>
+    <Target Name="delphi_openssl_client:Clean" DependsOnTargets="IndyTLSOpenSSL290:Clean">
+        <MSBuild Projects="openssl-client\delphi_openssl_client.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="delphi_openssl_client:Make" DependsOnTargets="IndyTLSOpenSSL290:Make">
+        <MSBuild Projects="openssl-client\delphi_openssl_client.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="delphi_openssl_server">
+        <MSBuild Projects="openssl-server\delphi_openssl_server.dproj"/>
+    </Target>
+    <Target Name="delphi_openssl_server:Clean">
+        <MSBuild Projects="openssl-server\delphi_openssl_server.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="delphi_openssl_server:Make">
+        <MSBuild Projects="openssl-server\delphi_openssl_server.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="IndyTLSOpenSSL290;delphi_openssl_client;delphi_openssl_server"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="IndyTLSOpenSSL290:Clean;delphi_openssl_client:Clean;delphi_openssl_server:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="IndyTLSOpenSSL290:Make;delphi_openssl_client:Make;delphi_openssl_server:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
