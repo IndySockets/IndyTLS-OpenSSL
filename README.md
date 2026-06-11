@@ -16,6 +16,8 @@ Not sure at this time whether this project will stay as an independant repo, or 
 
 However, due to time constraints and lack of resources, updating this project to the latest OpenSSL has not happened yet. So, for the forseeable future, this project is just to provide *backwards compatibility* with existing code that needs to continue using Indy's default SSLIOHandler for OpenSSL 1.0.2.  To use Indy with OpenSSL 3.0 and later, you can use [TaurusTLS](https://github.com/TaurusTLS-Developers/TaurusTLS) or [IndySecOpenSSL](https://github.com/MWASoftware/IndySecOpenSSL) instead, which are both compatible with the current Indy release.
 
+Maybe someday, this project will be able to support modern OpenSSL versions.
+
 ## License
 
 This project is dual-licensed under the terms of the Indy Modified BSD License and Indy MPL License.
