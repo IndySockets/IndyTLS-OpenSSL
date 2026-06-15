@@ -92,7 +92,7 @@ uses
   IdYarn;
 
 type
-  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2);
+  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2, sslvTLSv1_3);
   TIdSSLVersions = set of TIdSSLVersion;
   TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
@@ -101,8 +101,8 @@ type
   TIdSSLAction = (sslRead, sslWrite);
 
 const
-  DEF_SSLVERSION = sslvTLSv1;
-  DEF_SSLVERSIONS = [sslvTLSv1];
+  DEF_SSLVERSION = sslvTLSv1_3;
+  DEF_SSLVERSIONS = [sslvTLSv1_3];
   P12_FILETYPE = 3;
   MAX_SSL_PASSWORD_LENGTH = 128;
 
@@ -759,10 +759,12 @@ JPM.
     LockInfoCB.Enter;
     try
       IdSSLSocket := TIdSSLSocket(SSL_get_app_data(sslSocket));
-      if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
-        StatusStr := IndyFormat(RSOSSLStatusString, [String(SSL_state_string_long(sslSocket))]);
-        LHelper.StatusInfo(sslSocket, where, ret, StatusStr);
-        LHelper := nil;
+      if Assigned(IdSSLSocket) then begin
+        if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+          StatusStr := IndyFormat(RSOSSLStatusString, [String(SSL_state_string_long(sslSocket))]);
+          LHelper.StatusInfo(sslSocket, where, ret, StatusStr);
+          LHelper := nil;
+        end;
       end;
     finally
       LockInfoCB.Leave;
@@ -804,7 +806,7 @@ begin
   try
     VerifiedOK := True;
     try
-      hSSL := X509_STORE_CTX_get_app_data(ctx);
+      hSSL := X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx);
       if hSSL = nil then begin
         Result := Ok;
         Exit;
@@ -813,21 +815,23 @@ begin
       Certificate := TIdX509.Create(hcert, False); // the certificate is owned by the store
       try
         IdSSLSocket := TIdSSLSocket(SSL_get_app_data(hSSL));
-        Error := X509_STORE_CTX_get_error(ctx);
-        Depth := X509_STORE_CTX_get_error_depth(ctx);
-        if not ((Ok > 0) and (IdSSLSocket.fSSLContext.VerifyDepth >= Depth)) then begin
-          Ok := 0;
-          {if Error = X509_V_OK then begin
-            Error := X509_V_ERR_CERT_CHAIN_TOO_LONG;
-          end;}
-        end;
-        LOk := False;
-        if Ok = 1 then begin
-          LOk := True;
-        end;
-        if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
-          VerifiedOK := LHelper.VerifyPeer(Certificate, LOk, Depth, Error);
-          LHelper := nil;
+        if Assigned(IdSSLSocket) then begin
+          Error := X509_STORE_CTX_get_error(ctx);
+          Depth := X509_STORE_CTX_get_error_depth(ctx);
+          if not ((Ok > 0) and (IdSSLSocket.fSSLContext.VerifyDepth >= Depth)) then begin
+            Ok := 0;
+            {if Error = X509_V_OK then begin
+              Error := X509_V_ERR_CERT_CHAIN_TOO_LONG;
+            end;}
+          end;
+          LOk := False;
+          if Ok = 1 then begin
+            LOk := True;
+          end;
+          if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+            VerifiedOK := LHelper.VerifyPeer(Certificate, LOk, Depth, Error);
+            LHelper := nil;
+          end;
         end;
       finally
         FreeAndNil(Certificate);
@@ -2218,33 +2222,11 @@ begin
     // has to be done before anything that uses memory
     IdSslCryptoMallocInit;
 {$ENDIF}
-    // required eg to encrypt a private key when writing
-    OpenSSL_add_all_ciphers;
-    OpenSSL_add_all_digests;
-    InitializeRandom;
-    // IdSslRandScreen;
-    SSL_load_error_strings;
-    // Successful loading if true
-    Result := SSLeay_add_ssl_algorithms > 0;
-    if not Result then begin
-      Exit;
-    end;
     // Create locking structures, we need them for callback routines
     Assert(LockInfoCB = nil);
     LockInfoCB := TIdCriticalSection.Create;
     LockPassCB := TIdCriticalSection.Create;
     LockVerifyCB := TIdCriticalSection.Create;
-    // Handle internal OpenSSL locking
-    CallbackLockList := TIdCriticalSectionThreadList.Create;
-    PrepareOpenSSLLocking;
-    CRYPTO_set_locking_callback(@SslLockingCallback);
-{$IFNDEF WIN32_OR_WIN64}
-    if Assigned(CRYPTO_THREADID_set_callback) then begin
-      CRYPTO_THREADID_set_callback(@_threadid_func);
-    end else begin
-      CRYPTO_set_id_callback(@_GetThreadID);
-    end;
-{$ENDIF}
     SSLIsLoaded.Value := True;
     Result := True;
   finally
@@ -2318,7 +2300,7 @@ procedure TIdSSLOptions.SetMethod(const AValue: TIdSSLVersion);
 begin
   fMethod := AValue;
   if AValue = sslvSSLv23 then begin
-    fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+    fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2,sslvTLSv1_3];
   end else begin
     fSSLVersions := [AValue];
   end;
@@ -2342,12 +2324,15 @@ begin
   else if fSSLVersions = [sslvTLSv1_2 ] then begin
     fMethod := sslvTLSv1_2;
   end
+  else if fSSLVersions = [sslvTLSv1_3] then begin
+    fMethod := sslvTLSv1_3;
+  end
   else begin
     fMethod := sslvSSLv23;
     if sslvSSLv23 in fSSLVersions then begin
       Exclude(fSSLVersions, sslvSSLv23);
       if fSSLVersions = [] then begin
-        fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+        fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2,sslvTLSv1_3];
       end;
     end;
   end;
@@ -3157,7 +3142,24 @@ an invalid MAC when doing SSL.}
       SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1_2);
     end;
   end;
+  if IsOpenSSL_TLSv1_3_Available then begin
+    if not(sslvTLSv1_3 in SSLVersions) then begin
+      SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_3);
+    end 
+	else if (fMethod = sslvSSLv23) then begin
+      SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1_3);
+    end;
+  end;
 
+  if sslvTLSv1_3 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION)
+  else if sslvTLSv1_2 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_2_VERSION)
+  else if sslvTLSv1_1 in SSLVersions then
+    SSL_CTX_set_min_proto_version(fContext, TLS1_1_VERSION)
+  else
+    SSL_CTX_set_min_proto_version(fContext, TLS1_VERSION);
+  SSL_CTX_set_max_proto_version(fContext, TLS1_3_VERSION);
   SSL_CTX_set_mode(fContext, SSL_MODE_AUTO_RETRY);
   // assign a password lookup routine
 //  if PasswordRoutineOn then begin
@@ -3320,22 +3322,10 @@ begin
         end;
       end;
     sslvSSLv23:
-      case fMode of
-        sslmServer : begin
-          if Assigned(SSLv23_server_method) then begin
-            Result := SSLv23_server_method();
-          end;
-        end;
-        sslmClient : begin
-          if Assigned(SSLv23_client_method) then begin
-            Result := SSLv23_client_method();
-          end;
-        end;
+      if Assigned(TLS_method) then
+        Result := TLS_method()
       else
-        if Assigned(SSLv23_method) then begin
-          Result := SSLv23_method();
-        end;
-      end;
+        Result := SelectTLS1Method(fMode);
     sslvSSLv3:
       case fMode of
         sslmServer : begin
@@ -3413,6 +3403,11 @@ begin
           Result := SelectTLS1Method(fMode);
         end;
       end;
+    sslvTLSv1_3:
+      if Assigned(TLS_method) then
+        Result := TLS_method()
+      else
+        Result := SelectTLS1Method(fMode);
   end;
   if Result = nil then begin
     raise EIdOSSLGetMethodError.Create(RSSSLGetMethodError);
